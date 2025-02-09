@@ -14,7 +14,8 @@ RUN pecl install mongodb && \
     docker-php-ext-enable mongodb && \
     mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" && \
     echo "phar.readonly=Off" > "$PHP_INI_DIR/conf.d/phar.ini" && \
-    rm -rf ./src/public/static/*
+    rm -rf ./src/public/static/* && \
+    echo "Asia/Shanghai" > /etc/timezone
 COPY --from=frontend /usr/src/Frontend/dist/* ./src/public/static/
 RUN mv ./src/public/static/index.html ./src/public/index.html 
 RUN php ./compile.php
