@@ -1,0 +1,5 @@
+docker exec aoiawd-aoiawd-1 "apt-get update"
+docker exec aoiawd-aoiawd-1 "apt-get install libinotifytools0-dev"
+docker exec -w /usr/src/TapeWorm aoiawd-aoiawd-1 "php compile.php"
+docker exec -w /usr/src/RoundWorm aoiawd-aoiawd-1 "make"
+docker exec -w /usr/src/Guardian aoiawd-aoiawd-1 "php compile.php"

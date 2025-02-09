@@ -10,5 +10,5 @@ services:
     restart: always
     command: -m mongodb://mongodb:27017
     ports:
-      - 1337:1337
+      - 8037:1337
       - 8023:8023
