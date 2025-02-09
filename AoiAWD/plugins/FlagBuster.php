@@ -19,9 +19,12 @@ class FlagBuster
         $buffer = &$data['buffer'];
         $flagCount = 0;
         $fakeFlag = $this->generateFakeFlag();
-        $buffer = preg_replace('/\{\"flag\"\:\"(.*)\"/mi', $fakeFlag, $buffer, -1, $flagCount);
+        $buffer = preg_replace('/\{\"flag\"\:\"(.*)\"/mi', '{"flag":"' . $fakeFlag . '"', $buffer, -1, $flagCount);
+        $flagCount2 = 0;
+        $buffer = preg_replace('/flag\{(.*)\}/mi', 'flag{' . $fakeFlag . '}', $buffer, -1, $flagCount2);
+        $flagCount += $flagCount2;
         if ($flagCount > 0) {
-            $this->pluginManager->getInvoker()->setAlert('FlagBuster', "发现本次Web应答包含flag字段，已被替换为: {$fakeFlag}");
+            $this->pluginManager->getInvoker()->setAlert('FlagBuster', "发现本次Web应答包含flag字段，已被替换为: flag\{{$fakeFlag}\}");
         }
         return $data;
     }
@@ -31,7 +34,8 @@ class FlagBuster
         // return "flag{" . uniqid() . "}";
         // return "flag{" . md5(uniqid()) . "}";
         // return "flag{" . sha1(uniqid()) . "}";
-        return '{"flag":"' . $this->uuid() . '"';
+        // return '{"flag":"' . $this->uuid() . '"';
+        return $this->uuid();
     }
 
     private function uuid()
