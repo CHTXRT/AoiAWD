@@ -10,7 +10,7 @@
       </div>
       <el-collapse :value="['header', 'get', 'post', 'cookie', 'file', 'buffer']">
         <el-collapse-item title="header" name="header">
-          <div>
+          <div :class="['item__content_with_urlencode']">
             <div v-for="(value, key) in logData.header">
               <span style="font-weight:600">{{key}}</span>:
               <span>{{value}}</span>
@@ -18,7 +18,7 @@
           </div>
         </el-collapse-item>
         <el-collapse-item title="get" name="get">
-          <div>
+          <div :class="['item__content_with_urlencode']">
             <div v-for="(value, key) in logData.get">
               <span style="font-weight:600">{{key}}</span>:
               <span>{{value}}</span>
@@ -26,7 +26,7 @@
           </div>
         </el-collapse-item>
         <el-collapse-item title="post" name="post">
-          <div>
+          <div :class="['item__content_with_urlencode']">
             <div v-for="(value, key) in logData.post">
               <span style="font-weight:600">{{key}}</span>:
               <span>{{value}}</span>
@@ -34,7 +34,7 @@
           </div>
         </el-collapse-item>
         <el-collapse-item title="cookie" name="cookie">
-          <div>
+          <div :class="['item__content_with_urlencode']">
             <div v-for="(value, key) in logData.cookie">
               <span style="font-weight:600">{{key}}</span>:
               <span>{{value}}</span>
@@ -42,10 +42,10 @@
           </div>
         </el-collapse-item>
         <el-collapse-item title="file" name="file">
-          <div>{{logData.file}}</div>
+          <div :class="['item__content_with_urlencode']">{{logData.file}}</div>
         </el-collapse-item>
         <el-collapse-item title="buffer" name="buffer">
-          <div>{{logData.buffer}}</div>
+          <div :class="['item__content_with_urlencode']">{{logData.buffer}}</div>
         </el-collapse-item>
       </el-collapse>
     </el-card>
@@ -117,5 +117,8 @@ export default {
 .item__title {
   font-weight: 800;
   color: greenyellow;
+}
+.item__content_with_urlencode {
+  word-break: break-all;
 }
 </style>
