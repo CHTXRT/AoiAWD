@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWD Controller</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f8;
+            --text-color: #2c3e50;
+            --card-bg: #ffffff;
+            --border-color: #dfe3e8;
+            --primary-color: #3498db;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+            --console-bg: #2d3436;
+            --console-text: #f1f2f6;
+            --shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #ecf0f1;
+            --card-bg: #2d2d2d;
+            --border-color: #404040;
+            --primary-color: #3498db;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+            --console-bg: #000000;
+            --console-text: #00ff00;
+            --shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .header {
+            background-color: var(--card-bg);
+            padding: 15px 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+
+        .container { padding: 20px; max-width: 1600px; margin: 0 auto; }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        details { width: 100%; }
+        summary {
+            padding: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            background-color: rgba(0,0,0,0.02);
+            border-bottom: 1px solid var(--border-color);
+            outline: none;
+            user-select: none;
+        }
+        summary:hover { background-color: rgba(0,0,0,0.04); }
+
+        .card-content { padding: 20px; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { font-weight: 600; color: var(--text-color); opacity: 0.8; }
+
+        .status-cell { color: var(--text-color); }
+        .status-cell[data-status="connected"] { color: var(--success-color); }
+        .status-cell[data-status="error"] { color: var(--danger-color); }
+
+        /* Inputs & Buttons */
+        input[type="text"], input[type="password"], input[type="file"] {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            outline: none;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+            color: white;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-primary { background-color: var(--primary-color); }
+        .btn-danger { background-color: var(--danger-color); }
+        .btn-warning { background-color: var(--warning-color); color: #333; }
+        .btn-secondary { background-color: #95a5a6; }
+        .btn-sm { padding: 4px 8px; font-size: 12px; }
+
+        /* Tabs */
+        .tabs-header {
+            display: flex;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+        .tab-btn {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-right: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tab-btn.active {
+            background-color: var(--bg-color);
+            border-bottom: 2px solid var(--primary-color);
+            font-weight: 600;
+        }
+        .tab-btn:hover:not(.active) { background-color: rgba(0,0,0,0.02); }
+        .close-tab { margin-left: 8px; opacity: 0.5; cursor: pointer; }
+        .close-tab:hover { opacity: 1; color: var(--danger-color); }
+
+        .tab-content { display: none; padding: 20px; background-color: var(--bg-color); height: 600px; flex-direction: column; }
+        .tab-content.active { display: flex; }
+
+        .console-output {
+            flex-grow: 1;
+            background-color: var(--console-bg);
+            color: var(--console-text);
+            font-family: 'Consolas', monospace;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+            font-size: 13px;
+        }
+
+        .console-input-area { display: flex; gap: 10px; margin-bottom: 10px; }
+        .console-input { flex-grow: 1; font-family: monospace; }
+
+        .flex-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .spacer { flex-grow: 1; }
+
+        /* Toast */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 12px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 30px;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>AWD Controller</h1>
+    <div class="flex-row">
+        <button class="btn btn-secondary" onclick="toggleTheme()">🌓 Theme</button>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- Config & Targets Section (Collapsible) -->
+    <div class="card">
+        <details open>
+            <summary>⚙️ Configuration & Targets</summary>
+            <div class="card-content">
+
+                <!-- Preload Config -->
+                <div style="margin-bottom: 30px;">
+                    <h4 style="margin-top: 0;">Preload Tasks (Auto-run on Connect)</h4>
+                    <div class="flex-row" style="margin-bottom: 10px;">
+                        <input type="file" id="preload-file" aria-label="Preload File" style="width: 200px;">
+                        <input type="text" id="preload-path" aria-label="Remote Path" placeholder="Remote Path" style="width: 200px;">
+                        <button class="btn btn-primary btn-sm" onclick="addPreloadFile()">Add File</button>
+                        <div style="width: 20px;"></div>
+                        <input type="text" id="preload-cmd" aria-label="Command" placeholder="Command" style="flex-grow: 1;">
+                        <button class="btn btn-primary btn-sm" onclick="addPreloadCmd()">Add Cmd</button>
+                    </div>
+
+                    <div style="max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); padding: 10px; border-radius: 4px;">
+                        {% for f in preload.files %}
+                        <div class="flex-row" style="margin-bottom: 5px; font-size: 12px;">
+                            <span>📄 {{ f.filename }} &rarr; {{ f.remote_path }}</span>
+                            <span class="spacer"></span>
+                            <button class="btn btn-danger btn-sm" onclick="removePreload('file', '{{ loop.index0 }}')">×</button>
+                        </div>
+                        {% endfor %}
+                        {% for cmd in preload.commands %}
+                        <div class="flex-row" style="margin-bottom: 5px; font-size: 12px;">
+                            <span>💻 {{ cmd }}</span>
+                            <span class="spacer"></span>
+                            <button class="btn btn-danger btn-sm" onclick="removePreload('cmd', '{{ loop.index0 }}')">×</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+                <!-- Add Target -->
+                <form action="/add_target" method="post" class="flex-row" style="margin-bottom: 20px;">
+                    <input type="text" name="ip" aria-label="IP Address" placeholder="IP Address" required>
+                    <input type="text" name="port" aria-label="Port" placeholder="Port" value="22" style="width: 60px;">
+                    <input type="text" name="user" aria-label="User" placeholder="User" value="root" style="width: 80px;">
+                    <input type="password" name="password" aria-label="Password" placeholder="Password">
+                    <button type="submit" class="btn btn-primary">Add Target</button>
+                </form>
+
+                <!-- Target List -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th>IP</th>
+                            <th>User</th>
+                            <th>Key</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in targets %}
+                        <tr>
+                            <td>{{ t.ip }}</td>
+                            <td>{{ t.user }}</td>
+                            <td title="{{ t.key_path if t.key_path else '' }}">{{ os.path.basename(t.key_path) if t.key_path else 'None' }}</td>
+                            <td class="status-cell" data-status="{{ t.status }}">
+                                {{ t.status }}
+                            </td>
+                            <td>
+                                {% if t.status == 'connected' %}
+                                    <button class="btn btn-secondary btn-sm" onclick="disconnect('{{ t.ip }}')">Disconnect</button>
+                                {% else %}
+                                    <button class="btn btn-primary btn-sm" onclick="connect('{{ t.ip }}')">Connect</button>
+                                {% endif %}
+                                <button class="btn btn-success btn-sm" onclick="openConsoleTab('{{ t.ip }}')">Console</button>
+                                <button class="btn btn-warning btn-sm" onclick="openXshell('{{ t.ip }}', '{{ t.port }}', '{{ t.user }}', '{{ t.password }}')">Xshell</button>
+                                <button class="btn btn-danger btn-sm" onclick="removeTarget('{{ t.ip }}')">Del</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </details>
+    </div>
+
+    <!-- Multi-Tab Console Section -->
+    <div class="card" id="console-section" style="display: none;">
+        <div class="tabs-header" id="tabs-header">
+            <!-- Tabs will be injected here -->
+        </div>
+        <div id="tabs-content-container">
+            <!-- Tab contents will be injected here -->
+        </div>
+    </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+    // Theme Logic
+    function toggleTheme() {
+        const html = document.documentElement;
+        const current = html.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+    }
+
+    // Init Theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    // Toast Logic
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.className = 'show';
+        setTimeout(() => t.className = t.className.replace('show', ''), 3000);
+    }
+
+    // --- API Calls ---
+    async function apiCall(url, data) {
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            return await res.json();
+        } catch (e) {
+            showToast("Error: " + e);
+            return null;
+        }
+    }
+
+    async function connect(ip) {
+        showToast("Connecting to " + ip + "...");
+        const data = await apiCall('/api/connect', {ip});
+        if(data) {
+            showToast(data.message);
+            if(data.success) setTimeout(() => location.reload(), 500);
+        }
+    }
+
+    async function disconnect(ip) {
+        const data = await apiCall('/api/disconnect', {ip});
+        if(data) {
+            showToast(data.message);
+            setTimeout(() => location.reload(), 500);
+        }
+    }
+
+    async function removeTarget(ip) {
+        if(!confirm('Remove target ' + ip + '?')) return;
+        const data = await apiCall('/api/remove_target', {ip});
+        if(data && data.status === 'ok') {
+            showToast("Removed");
+            setTimeout(() => location.reload(), 500);
+        }
+    }
+
+    // --- Preload Logic ---
+    async function addPreloadFile() {
+        const fileInput = document.getElementById('preload-file');
+        const pathInput = document.getElementById('preload-path');
+        if(!fileInput.files[0] || !pathInput.value) return showToast("File and Path required");
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('remote_path', pathInput.value);
+
+        try {
+            const res = await fetch('/api/preload/add_file', {method: 'POST', body: formData});
+            if(res.ok) location.reload();
+        } catch(e) { showToast("Error uploading"); }
+    }
+
+    async function addPreloadCmd() {
+        const cmd = document.getElementById('preload-cmd').value;
+        if(!cmd) return;
+        const data = await apiCall('/api/preload/add_cmd', {cmd});
+        if(data && data.status === 'ok') location.reload();
+    }
+
+    async function removePreload(type, index) {
+        index = parseInt(index);
+        if(!confirm('Remove?')) return;
+        const data = await apiCall('/api/preload/remove', {type, index});
+        if(data && data.status === 'ok') location.reload();
+    }
+
+    function openXshell(ip, port, user, password) {
+        apiCall('/api/open_xshell', {ip, port, user, password}).then(d => {
+            if(d) showToast(d.message);
+        });
+    }
+
+    // --- Multi-Tab Console Logic ---
+    const openTabs = new Set();
+    let activeTabIp = null;
+
+    function openConsoleTab(ip) {
+        document.getElementById('console-section').style.display = 'block';
+
+        if (openTabs.has(ip)) {
+            activateTab(ip);
+            return;
+        }
+
+        openTabs.add(ip);
+
+        // Create Tab Button
+        const header = document.getElementById('tabs-header');
+        const btn = document.createElement('div');
+        btn.className = 'tab-btn';
+        btn.id = 'tab-btn-' + ip;
+        btn.innerHTML = `<span>${ip}</span> <span class="close-tab" onclick="closeTab(event, '${ip}')">×</span>`;
+        btn.onclick = () => activateTab(ip);
+        header.appendChild(btn);
+
+        // Create Tab Content
+        const container = document.getElementById('tabs-content-container');
+        const content = document.createElement('div');
+        content.className = 'tab-content';
+        content.id = 'tab-content-' + ip;
+        content.innerHTML = `
+            <div class="console-output" id="output-${ip}">Connecting to console... Ready.</div>
+            <div class="console-input-area">
+                <input type="text" class="console-input" id="input-${ip}" aria-label="Console Input" placeholder="Enter command..." onkeydown="if(event.key==='Enter') runConsoleCmd('${ip}')">
+                <button class="btn btn-primary" onclick="runConsoleCmd('${ip}')">Run</button>
+            </div>
+            <div class="flex-row">
+                <input type="file" id="file-${ip}" aria-label="Upload File" style="width: 200px;">
+                <input type="text" id="path-${ip}" aria-label="Remote Path" placeholder="Remote Path" style="width: 200px;">
+                <button class="btn btn-secondary btn-sm" onclick="uploadConsoleFile('${ip}')">Upload</button>
+            </div>
+        `;
+        container.appendChild(content);
+
+        activateTab(ip);
+    }
+
+    function closeTab(e, ip) {
+        e.stopPropagation();
+        openTabs.delete(ip);
+        document.getElementById('tab-btn-' + ip).remove();
+        document.getElementById('tab-content-' + ip).remove();
+
+        if (activeTabIp === ip) {
+            activeTabIp = null;
+            // Switch to another tab if exists
+            if (openTabs.size > 0) {
+                activateTab(openTabs.values().next().value);
+            } else {
+                document.getElementById('console-section').style.display = 'none';
+            }
+        }
+    }
+
+    function activateTab(ip) {
+        activeTabIp = ip;
+
+        // Update buttons
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-btn-' + ip).classList.add('active');
+
+        // Update content
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById('tab-content-' + ip).classList.add('active');
+    }
+
+    async function runConsoleCmd(ip) {
+        const input = document.getElementById('input-' + ip);
+        const output = document.getElementById('output-' + ip);
+        const cmd = input.value;
+        if(!cmd) return;
+
+        output.innerText += `\n> ${cmd}`;
+        input.value = '';
+        output.scrollTop = output.scrollHeight;
+
+        const data = await apiCall('/api/execute', {ip, cmd});
+        if(data) {
+            output.innerText += `\n${data.output}`;
+            output.scrollTop = output.scrollHeight;
+        }
+    }
+
+    async function uploadConsoleFile(ip) {
+        const fileInput = document.getElementById('file-' + ip);
+        const pathInput = document.getElementById('path-' + ip);
+
+        if(!fileInput.files[0] || !pathInput.value) return showToast("File and Path required");
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('ip', ip);
+        formData.append('remote_path', pathInput.value);
+
+        showToast("Uploading...");
+        try {
+            const res = await fetch('/api/upload', {method: 'POST', body: formData});
+            const data = await res.json();
+            showToast(data.message);
+            if(data.success) {
+                const output = document.getElementById('output-' + ip);
+                output.innerText += `\n[System] Uploaded ${fileInput.files[0].name} to ${pathInput.value}`;
+                output.scrollTop = output.scrollHeight;
+            }
+        } catch(e) { showToast("Upload failed"); }
+    }
+
+</script>
+</body>
+</html>
