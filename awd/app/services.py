@@ -1,55 +1,45 @@
 import os
-import paramiko
-import threading
 import json
-import stat
 import time
+import threading
+import paramiko
 import ipaddress
-from flask import Flask, request, jsonify, render_template, redirect, url_for
-from werkzeug.utils import secure_filename
-
-app = Flask(__name__, template_folder='template')
-
-# 配置路径
-# 修改为当前文件所在目录
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'uploads')
-app.config['KEYS_FOLDER'] = os.path.join(BASE_DIR, 'keys')
-app.config['PRELOAD_FOLDER'] = os.path.join(BASE_DIR, 'preload')
-app.config['CONFIG_FILE'] = os.path.join(BASE_DIR, 'preload_config.json')
-app.config['TARGETS_FILE'] = os.path.join(BASE_DIR, 'targets.json')
-
-# 确保目录存在
-for folder in [app.config['UPLOAD_FOLDER'], app.config['KEYS_FOLDER'], app.config['PRELOAD_FOLDER']]:
-    if not os.path.exists(folder):
-        os.makedirs(folder)
+import stat
+from flask import current_app
 
 class SSHController:
     def __init__(self):
-        self.sessions = {}  # ip -> client
-        self.targets = []   # List of dicts
+        self.sessions = {}
+        self.targets = []
         self.lock = threading.Lock()
-        self.preload_config = self.load_preload_config()
-        self.load_targets()
+        self.preload_config = None # 先设为 None，延迟加载
+        self._initialized = False
+
+    def _ensure_initialized(self):
+        """确保在有 Flask 上下文时加载配置"""
+        if not self._initialized:
+            self.preload_config = self.load_preload_config()
+            self.load_targets()
+            self._initialized = True
 
     def load_preload_config(self):
-        if os.path.exists(app.config['CONFIG_FILE']):
+        if os.path.exists(current_app.config['CONFIG_FILE']):
             try:
-                with open(app.config['CONFIG_FILE'], 'r') as f:
+                with open(current_app.config['CONFIG_FILE'], 'r') as f:
                     return json.load(f)
             except:
                 pass
         return {'files': [], 'commands': []}
 
     def save_preload_config(self):
-        with open(app.config['CONFIG_FILE'], 'w') as f:
+        with open(current_app.config['CONFIG_FILE'], 'w') as f:
             json.dump(self.preload_config, f, indent=4)
 
     def load_targets(self):
         """从文件加载靶机列表"""
-        if os.path.exists(app.config['TARGETS_FILE']):
+        if os.path.exists(current_app.config['TARGETS_FILE']):
             try:
-                with open(app.config['TARGETS_FILE'], 'r') as f:
+                with open(current_app.config['TARGETS_FILE'], 'r') as f:
                     loaded = json.load(f)
                     self.targets = []
                     if isinstance(loaded, list):
@@ -61,7 +51,7 @@ class SSHController:
                             t['ip'] = str(t['ip']).strip()
                             t['status'] = 'disconnected'
                             self.targets.append(t)
-                print(f"Loaded {len(self.targets)} targets from {app.config['TARGETS_FILE']}")
+                print(f"Loaded {len(self.targets)} targets from {current_app.config['TARGETS_FILE']}")
             except Exception as e:
                 print(f"Error loading targets: {e}")
                 self.targets = []
@@ -69,7 +59,7 @@ class SSHController:
     def save_targets(self):
         """保存靶机列表到文件"""
         try:
-            with open(app.config['TARGETS_FILE'], 'w') as f:
+            with open(current_app.config['TARGETS_FILE'], 'w') as f:
                 # 保存时只保留配置信息，不保存状态
                 targets_to_save = []
                 for t in self.targets:
@@ -81,7 +71,7 @@ class SSHController:
                         'key_path': t.get('key_path')
                     })
                 json.dump(targets_to_save, f, indent=4)
-            print(f"Targets saved successfully to {app.config['TARGETS_FILE']}")
+            print(f"Targets saved successfully to {current_app.config['TARGETS_FILE']}")
         except Exception as e:
             print(f"Error saving targets: {e}")
 
@@ -174,11 +164,32 @@ class SSHController:
                 print(f"Target {ip} not found in list. Available: {[t['ip'] for t in self.targets]}")
                 return False
 
+    def update_password(self, ip, password):
+        """更新靶机密码"""
+        if not ip:
+            return False, "IP required"
+        ip = ip.strip()
+        
+        with self.lock:
+            target = next((t for t in self.targets if t['ip'] == ip), None)
+            if not target:
+                return False, "Target not found"
+            
+            target['password'] = password
+            # 如果已连接，更新连接参数（这里选择断开重连或者仅更新配置，简单起见仅更新配置，下次连接生效）
+            # 或者尝试实时更新 session 的密码（复杂且不一定支持），所以简单处理：
+            if target['status'] == 'connected':
+                # 可选：强制断开让用户重连，或者保持连接但更新存储的密码
+                pass
+                
+            self.save_targets()
+            return True, "Password updated"
+
     def get_available_keys(self):
         keys = []
-        if os.path.exists(app.config['KEYS_FOLDER']):
-            for f in os.listdir(app.config['KEYS_FOLDER']):
-                path = os.path.join(app.config['KEYS_FOLDER'], f)
+        if os.path.exists(current_app.config['KEYS_FOLDER']):
+            for f in os.listdir(current_app.config['KEYS_FOLDER']):
+                path = os.path.join(current_app.config['KEYS_FOLDER'], f)
                 if os.path.isfile(path):
                     keys.append(path)
         return keys
@@ -259,7 +270,7 @@ class SSHController:
         
         # 1. 上传文件
         for file_item in self.preload_config.get('files', []):
-            local_path = os.path.join(app.config['PRELOAD_FOLDER'], file_item['filename'])
+            local_path = os.path.join(current_app.config['PRELOAD_FOLDER'], file_item['filename'])
             if os.path.exists(local_path):
                 self.upload(ip, local_path, file_item['remote_path'])
                 print(f"[{ip}] Uploaded {file_item['filename']}")
@@ -316,139 +327,4 @@ class SSHController:
         except Exception as e:
             return False, str(e)
 
-controller = SSHController()
-
-@app.route('/')
-def index():
-    connected = sum(1 for t in controller.targets if t['status'] == 'connected')
-    return render_template('index.html', 
-                           targets=controller.targets,
-                           connected_count=connected,
-                           total_count=len(controller.targets),
-                           preload=controller.preload_config,
-                           os=os)
-
-@app.route('/add_target', methods=['POST'])
-def add_target():
-    controller.add_target(
-        request.form['ip'],
-        request.form.get('port', 22),
-        request.form.get('user', 'root'),
-        request.form.get('password'),
-        None
-    )
-    return redirect(url_for('index'))
-
-@app.route('/api/remove_target', methods=['POST'])
-def remove_target():
-    data = request.json
-    success = controller.remove_target(data['ip'])
-    if success:
-        return jsonify({'status': 'ok'})
-    else:
-        return jsonify({'status': 'error', 'message': 'Target not found'}), 404
-
-@app.route('/api/connect', methods=['POST'])
-def api_connect():
-    data = request.json
-    success, msg = controller.connect(data['ip'])
-    return jsonify({'success': success, 'message': msg})
-
-@app.route('/api/disconnect', methods=['POST'])
-def api_disconnect():
-    data = request.json
-    success, msg = controller.disconnect(data['ip'])
-    return jsonify({'success': success, 'message': msg})
-
-@app.route('/api/execute', methods=['POST'])
-def api_execute():
-    data = request.json
-    output = controller.execute(data['ip'], data['cmd'])
-    return jsonify({'output': output})
-
-@app.route('/api/upload', methods=['POST'])
-def api_upload():
-    if 'file' not in request.files:
-        return jsonify({'success': False, 'message': 'No file part'})
-    
-    file = request.files['file']
-    ip = request.form['ip']
-    remote_path = request.form['remote_path']
-    
-    if file.filename == '':
-        return jsonify({'success': False, 'message': 'No selected file'})
-        
-    filename = secure_filename(file.filename)
-    local_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(local_path)
-    
-    success, msg = controller.upload(ip, local_path, remote_path)
-    return jsonify({'success': success, 'message': msg})
-
-# 预设任务 API
-@app.route('/api/preload/add_file', methods=['POST'])
-def add_preload_file():
-    file = request.files['file']
-    remote_path = request.form['remote_path']
-    
-    filename = secure_filename(file.filename)
-    local_path = os.path.join(app.config['PRELOAD_FOLDER'], filename)
-    file.save(local_path)
-    
-    controller.preload_config['files'].append({
-        'filename': filename,
-        'remote_path': remote_path
-    })
-    controller.save_preload_config()
-    return jsonify({'status': 'ok'})
-
-@app.route('/api/preload/add_cmd', methods=['POST'])
-def add_preload_cmd():
-    cmd = request.json['cmd']
-    controller.preload_config['commands'].append(cmd)
-    controller.save_preload_config()
-    return jsonify({'status': 'ok'})
-
-@app.route('/api/preload/remove', methods=['POST'])
-def remove_preload():
-    data = request.json
-    idx = data['index']
-    if data['type'] == 'file':
-        controller.preload_config['files'].pop(idx)
-    elif data['type'] == 'cmd':
-        controller.preload_config['commands'].pop(idx)
-    
-    controller.save_preload_config()
-    return jsonify({'status': 'ok'})
-
-@app.route('/api/open_xshell', methods=['POST'])
-def open_xshell():
-    import subprocess
-    data = request.json
-    ip = data.get('ip')
-    port = data.get('port', 22)
-    user = data.get('user', 'root')
-    password = data.get('password', '')
-    
-    xshell_path = r"E:\xshell8\Xshell.exe" #不要修改
-    if not os.path.exists(xshell_path):
-        xshell_path = r"C:\Program Files\NetSarang\Xshell 7\Xshell.exe"
-    
-    if not os.path.exists(xshell_path):
-        return jsonify({'success': False, 'message': 'Xshell executable not found. Please configure path.'})
-
-    try:
-        if password:
-            cmd = f'"{xshell_path}" -url ssh://{user}:{password}@{ip}:{port}'
-        else:
-            cmd = f'"{xshell_path}" -url ssh://{user}@{ip}:{port}'
-
-        subprocess.Popen(cmd, shell=True)
-        return jsonify({'success': True, 'message': 'Xshell started'})
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
-
-if __name__ == '__main__':
-    print("AWD 控制台启动中...")
-    print(f"请访问: http://0.0.0.0:5000")
-    app.run(host='0.0.0.0', port=5000, debug=False)
+ssh_manager = SSHController()

@@ -1,0 +1,72 @@
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 304-173-223
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://198.18.0.1:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 304-173-223
+INFO:werkzeug: * Detected change in 'd:\\misc\\awd\\pyawd\\awd\\app\\__init__.py', reloading
+INFO:werkzeug: * Detected change in 'D:\\misc\\awd\\pyawd\\awd\\app\\__init__.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 304-173-223
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 304-173-223
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:00:22] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:00:24] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:00:25] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://198.18.0.1:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 304-173-223
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:00:29] "POST /api/remove_target HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:00:30] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:00:40] "[32mPOST /add_target HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:00:40] "GET / HTTP/1.1" 200 -
+INFO:werkzeug: * Detected change in 'd:\\misc\\awd\\pyawd\\awd\\app\\__init__.py', reloading
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Detected change in 'D:\\misc\\awd\\pyawd\\awd\\app\\__init__.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 304-173-223
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 304-173-223
+INFO:werkzeug: * Detected change in 'd:\\misc\\awd\\pyawd\\awd\\app\\services.py', reloading
+INFO:werkzeug: * Restarting with stat
+INFO:werkzeug: * Detected change in 'D:\\misc\\awd\\pyawd\\awd\\app\\services.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 304-173-223
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 304-173-223
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:07:25] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:07:31] "POST /api/update_password HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:07:32] "GET / HTTP/1.1" 200 -
+INFO:paramiko.transport:Connected (version 2.0, client OpenSSH_8.9p1)
+INFO:paramiko.transport:Authentication (publickey) failed.
+INFO:paramiko.transport:Authentication (password) failed.
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:07:37] "POST /api/connect HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:07:42] "POST /api/update_password HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:07:43] "GET / HTTP/1.1" 200 -
+INFO:paramiko.transport:Connected (version 2.0, client OpenSSH_8.9p1)
+INFO:paramiko.transport:Authentication (publickey) failed.
+INFO:paramiko.transport:Authentication (password) successful!
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:07:44] "POST /api/connect HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:07:44] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:07:46] "POST /api/disconnect HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [07/Feb/2026 14:07:47] "GET / HTTP/1.1" 200 -
+INFO:werkzeug: * Detected change in 'D:\\misc\\awd\\pyawd\\awd\\app\\__init__.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 304-173-223
+INFO:werkzeug: * Detected change in 'd:\\misc\\awd\\pyawd\\awd\\app\\__init__.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 304-173-223
