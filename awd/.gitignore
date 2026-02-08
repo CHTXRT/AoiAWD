@@ -6,3 +6,8 @@ data/logs/*
 !data/logs/.gitkeep
 data/uploads/*
 !data/uploads/.gitkeep
+data/xshell/*
+!data/xshell/.gitkeep
+
+keys/*
+!keys/.gitkeep
