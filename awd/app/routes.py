@@ -128,12 +128,7 @@ def open_xshell():
     user = data.get('user', 'root')
     password = data.get('password', '')
     
-    xshell_path = r"E:\xshell8\Xshell.exe" #不要修改
-    if not os.path.exists(xshell_path):
-        xshell_path = r"C:\Program Files\NetSarang\Xshell 7\Xshell.exe"
-    
-    if not os.path.exists(xshell_path):
-        return jsonify({'success': False, 'message': 'Xshell executable not found. Please configure path.'})
+    xshell_path = r"Xshell" #不要修改
 
     try:
         if password:

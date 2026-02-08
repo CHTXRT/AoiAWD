@@ -2,6 +2,6 @@ from app import create_app
 
 if __name__ == '__main__':
     print("AWD 控制台启动中...")
-    print(f"请访问: http://0.0.0.0:5000")
+    print(f"请访问: http://localhost:5000")
     app = create_app()
     app.run(host='0.0.0.0', port=5000, debug=True)
