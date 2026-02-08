@@ -1,7 +1,11 @@
 **/__pycache__
 **/.idea
 **/.vscode
+
 test*.py
 flags.txt
+awd/data/uploads/*
+!awd/data/uploads/.gitkeep
+
 logs/*
 !logs/.gitkeep
