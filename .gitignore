@@ -1,0 +1,7 @@
+**/__pycache__
+**/.idea
+**/.vscode
+test*.py
+flags.txt
+logs/*
+!logs/.gitkeep
