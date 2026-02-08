@@ -123,20 +123,21 @@ class SSHController:
             return
         
         ips = self.parse_ip_range(ip_input)
+        port = int(port)
         
         with self.lock:
             for ip in ips:
-                # 检查是否已存在
+                # 检查是否已存在 (IP + Port)
                 exists = False
                 for t in self.targets:
-                    if t['ip'] == ip:
+                    if t['ip'] == ip and t['port'] == port:
                         exists = True
                         break
                 
                 if not exists:
                     self.targets.append({
                         'ip': ip,
-                        'port': int(port),
+                        'port': port,
                         'user': user,
                         'password': password,
                         'key_path': key_path,
@@ -144,42 +145,41 @@ class SSHController:
                     })
             self.save_targets()
 
-    def remove_target(self, ip):
+    def remove_target(self, ip, port):
         """移除靶机"""
         if not ip:
             return False
         ip = ip.strip()
-        print(f"Attempting to remove target: '{ip}'")
+        port = int(port)
+        print(f"Attempting to remove target: '{ip}:{port}'")
         with self.lock:
-            self.disconnect(ip)
+            self.disconnect(ip, port)
             
             original_len = len(self.targets)
-            self.targets = [t for t in self.targets if t['ip'] != ip]
+            self.targets = [t for t in self.targets if not (t['ip'] == ip and t['port'] == port)]
             
             if len(self.targets) < original_len:
-                print(f"Target {ip} removed from memory list. Saving to file...")
+                print(f"Target {ip}:{port} removed from memory list. Saving to file...")
                 self.save_targets()
                 return True
             else:
-                print(f"Target {ip} not found in list. Available: {[t['ip'] for t in self.targets]}")
+                print(f"Target {ip}:{port} not found in list.")
                 return False
 
-    def update_password(self, ip, password):
+    def update_password(self, ip, port, password):
         """更新靶机密码"""
         if not ip:
             return False, "IP required"
         ip = ip.strip()
+        port = int(port)
         
         with self.lock:
-            target = next((t for t in self.targets if t['ip'] == ip), None)
+            target = next((t for t in self.targets if t['ip'] == ip and t['port'] == port), None)
             if not target:
                 return False, "Target not found"
             
             target['password'] = password
-            # 如果已连接，更新连接参数（这里选择断开重连或者仅更新配置，简单起见仅更新配置，下次连接生效）
-            # 或者尝试实时更新 session 的密码（复杂且不一定支持），所以简单处理：
             if target['status'] == 'connected':
-                # 可选：强制断开让用户重连，或者保持连接但更新存储的密码
                 pass
                 
             self.save_targets()
@@ -194,9 +194,10 @@ class SSHController:
                     keys.append(path)
         return keys
 
-    def connect(self, ip):
+    def connect(self, ip, port):
         ip = ip.strip()
-        target = next((t for t in self.targets if t['ip'] == ip), None)
+        port = int(port)
+        target = next((t for t in self.targets if t['ip'] == ip and t['port'] == port), None)
         if not target:
             return False, "Target not found"
 
@@ -212,7 +213,7 @@ class SSHController:
                     client.connect(ip, port=target['port'], username=target['user'], key_filename=target['key_path'], timeout=5)
                     connected = True
                 except Exception as e:
-                    print(f"[{ip}] Saved key failed: {e}")
+                    print(f"[{ip}:{port}] Saved key failed: {e}")
             
             # 2. 尝试密码
             if not connected and target.get('password'):
@@ -220,7 +221,7 @@ class SSHController:
                     client.connect(ip, port=target['port'], username=target['user'], password=target['password'], timeout=5)
                     connected = True
                 except Exception as e:
-                    print(f"[{ip}] Password failed: {e}")
+                    print(f"[{ip}:{port}] Password failed: {e}")
 
             # 3. 尝试匹配目录下的所有密钥
             if not connected:
@@ -236,11 +237,16 @@ class SSHController:
                         continue
             
             if connected:
-                self.sessions[ip] = client
+                session_key = f"{ip}:{port}"
+                self.sessions[session_key] = client
                 target['status'] = 'connected'
+
+                # 4. Detect Target Type
+                threading.Thread(target=self.detect_target_type, args=(ip, port)).start()
+                
                 self.save_targets() # 更新 key_path
                 # 执行预设任务
-                threading.Thread(target=self.run_preload_tasks, args=(ip,)).start()
+                threading.Thread(target=self.run_preload_tasks, args=(ip, port)).start()
                 return True, "Connected successfully. Preload tasks started."
             
             return False, "Authentication failed"
@@ -249,58 +255,103 @@ class SSHController:
             target['status'] = 'error'
             return False, str(e)
 
-    def disconnect(self, ip):
+    def detect_target_type(self, ip, port):
+        """Detect target type: python, php, pwn"""
+        print(f"[{ip}:{port}] Starting target type detection...")
+        target = next((t for t in self.targets if t['ip'] == ip and t['port'] == port), None)
+        if not target: return
+
+        detection = {'types': [], 'evidence': {}}
+        
+        try:
+            # Check Python (/home has .py)
+            out_py = self.execute(ip, port, "find /home -name '*.py' | head -n 5")
+            if out_py and '.py' in out_py:
+                detection['types'].append('python')
+                detection['evidence']['python'] = out_py.strip()
+
+            # Check PHP (/var/www/html has .php)
+            out_php = self.execute(ip, port, "find /var/www/html -name '*.php' | head -n 5")
+            if out_php and '.php' in out_php:
+                detection['types'].append('php')
+                detection['evidence']['php'] = out_php.strip()
+
+            # Check Pwn (/home has executable with no extension)
+            # ! -name "*.*" ensures no extension
+            out_pwn = self.execute(ip, port, "find /home -type f -executable ! -name '*.*' | head -n 5")
+            if out_pwn and out_pwn.strip():
+                detection['types'].append('pwn')
+                detection['evidence']['pwn'] = out_pwn.strip()
+
+        except Exception as e:
+            print(f"[{ip}:{port}] Detection error: {e}")
+
+        with self.lock:
+            target['detection'] = detection
+            self.save_targets()
+        print(f"[{ip}:{port}] Detection complete: {detection['types']}")
+
+    def disconnect(self, ip, port):
         """断开连接"""
         ip = ip.strip()
-        target = next((t for t in self.targets if t['ip'] == ip), None)
-        if ip in self.sessions:
+        port = int(port)
+        target = next((t for t in self.targets if t['ip'] == ip and t['port'] == port), None)
+        
+        session_key = f"{ip}:{port}"
+        if session_key in self.sessions:
             try:
-                self.sessions[ip].close()
+                self.sessions[session_key].close()
             except:
                 pass
-            del self.sessions[ip]
+            del self.sessions[session_key]
         
         if target:
             target['status'] = 'disconnected'
         return True, "Disconnected"
 
-    def run_preload_tasks(self, ip):
+    def run_preload_tasks(self, ip, port):
         """执行预设的文件上传和命令"""
-        print(f"[{ip}] Starting preload tasks...")
+        print(f"[{ip}:{port}] Starting preload tasks...")
         
         # 1. 上传文件
         for file_item in self.preload_config.get('files', []):
             local_path = os.path.join(current_app.config['PRELOAD_FOLDER'], file_item['filename'])
             if os.path.exists(local_path):
-                self.upload(ip, local_path, file_item['remote_path'])
-                print(f"[{ip}] Uploaded {file_item['filename']}")
+                self.upload(ip, port, local_path, file_item['remote_path'])
+                print(f"[{ip}:{port}] Uploaded {file_item['filename']}")
 
         # 2. 执行命令
         for cmd in self.preload_config.get('commands', []):
             time.sleep(0.5)
-            output = self.execute(ip, cmd)
-            print(f"[{ip}] Executed: {cmd}\\nOutput: {output.strip()}")
+            output = self.execute(ip, port, cmd)
+            print(f"[{ip}:{port}] Executed: {cmd}\\nOutput: {output.strip()}")
 
-    def execute(self, ip, cmd):
+    def execute(self, ip, port, cmd):
         ip = ip.strip()
-        if ip not in self.sessions:
+        port = int(port)
+        session_key = f"{ip}:{port}"
+        
+        if session_key not in self.sessions:
             return "Not connected"
         try:
-            transport = self.sessions[ip].get_transport()
+            transport = self.sessions[session_key].get_transport()
             if not transport or not transport.is_active():
-                self.connect(ip)
+                self.connect(ip, port)
             
-            stdin, stdout, stderr = self.sessions[ip].exec_command(cmd, timeout=10)
+            stdin, stdout, stderr = self.sessions[session_key].exec_command(cmd, timeout=10)
             return stdout.read().decode() + stderr.read().decode()
         except Exception as e:
             return f"Error: {str(e)}"
 
-    def upload(self, ip, local_path, remote_path):
+    def upload(self, ip, port, local_path, remote_path):
         ip = ip.strip()
-        if ip not in self.sessions:
+        port = int(port)
+        session_key = f"{ip}:{port}"
+        
+        if session_key not in self.sessions:
             return False, "Not connected"
         try:
-            sftp = self.sessions[ip].open_sftp()
+            sftp = self.sessions[session_key].open_sftp()
             
             target_path = remote_path
             is_directory = False

@@ -382,7 +382,9 @@
                         <thead>
                             <tr>
                                 <th>IP</th>
+                                <th>Port</th>
                                 <th>User</th>
+                                <th>Type</th>
                                 <th>Key</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -392,7 +394,30 @@
                             {% for t in targets %}
                             <tr>
                                 <td>{{ t.ip }}</td>
+                                <td>{{ t.port }}</td>
                                 <td>{{ t.user }}</td>
+                                <td>
+                                    {% if t.detection and t.detection.types %}
+                                    {% for type in t.detection.types %}
+                                    <span
+                                        style="background:#3498db; color:white; padding:2px 6px; border-radius:4px; font-size:11px;">{{
+                                        type }}</span>
+                                    {% endfor %}
+                                    {% if t.detection.evidence %}
+                                    <details style="margin-top:5px;">
+                                        <summary
+                                            style="padding:2px; font-size:11px; font-weight:normal; background:none; border:none;">
+                                            Details</summary>
+                                        <div
+                                            style="font-size:11px; color:#666; white-space:pre-wrap; padding:5px; border:1px solid #eee;">
+                                            {% for k, v in t.detection.evidence.items() %}
+                                            <div><strong>{{ k }}:</strong><br>{{ v }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    </details>
+                                    {% endif %}
+                                    {% endif %}
+                                </td>
                                 <td title="{{ t.key_path if t.key_path else '' }}">{{ os.path.basename(t.key_path) if
                                     t.key_path else 'None' }}</td>
                                 <td class="status-cell" data-status="{{ t.status }}">
@@ -401,19 +426,19 @@
                                 <td>
                                     {% if t.status == 'connected' %}
                                     <button class="btn btn-secondary btn-sm"
-                                        onclick="disconnect('{{ t.ip }}')">Disconnect</button>
+                                        onclick="disconnect('{{ t.ip }}', '{{ t.port }}')">Disconnect</button>
                                     {% else %}
                                     <button class="btn btn-primary btn-sm"
-                                        onclick="connect('{{ t.ip }}')">Connect</button>
+                                        onclick="connect('{{ t.ip }}', '{{ t.port }}')">Connect</button>
                                     {% endif %}
                                     <button class="btn btn-secondary btn-sm"
-                                        onclick="updatePassword('{{ t.ip }}')">Pwd</button>
+                                        onclick="updatePassword('{{ t.ip }}', '{{ t.port }}')">Pwd</button>
                                     <button class="btn btn-success btn-sm"
-                                        onclick="openConsoleTab('{{ t.ip }}')">Console</button>
+                                        onclick="openConsoleTab('{{ t.ip }}', '{{ t.port }}')">Console</button>
                                     <button class="btn btn-warning btn-sm"
                                         onclick="openXshell('{{ t.ip }}', '{{ t.port }}', '{{ t.user }}', '{{ t.password }}')">Xshell</button>
                                     <button class="btn btn-danger btn-sm"
-                                        onclick="removeTarget('{{ t.ip }}')">Del</button>
+                                        onclick="removeTarget('{{ t.ip }}', '{{ t.port }}')">Del</button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -474,37 +499,37 @@
             }
         }
 
-        async function connect(ip) {
-            showToast("Connecting to " + ip + "...");
-            const data = await apiCall('/api/connect', { ip });
+        async function connect(ip, port) {
+            showToast("Connecting to " + ip + ":" + port + "...");
+            const data = await apiCall('/api/connect', { ip, port });
             if (data) {
                 showToast(data.message);
                 if (data.success) setTimeout(() => location.reload(), 500);
             }
         }
 
-        async function disconnect(ip) {
-            const data = await apiCall('/api/disconnect', { ip });
+        async function disconnect(ip, port) {
+            const data = await apiCall('/api/disconnect', { ip, port });
             if (data) {
                 showToast(data.message);
                 setTimeout(() => location.reload(), 500);
             }
         }
 
-        async function removeTarget(ip) {
-            if (!confirm('Remove target ' + ip + '?')) return;
-            const data = await apiCall('/api/remove_target', { ip });
+        async function removeTarget(ip, port) {
+            if (!confirm('Remove target ' + ip + ':' + port + '?')) return;
+            const data = await apiCall('/api/remove_target', { ip, port });
             if (data && data.status === 'ok') {
                 showToast("Removed");
                 setTimeout(() => location.reload(), 500);
             }
         }
 
-        async function updatePassword(ip) {
-            const password = prompt("Enter new password for " + ip + ":");
+        async function updatePassword(ip, port) {
+            const password = prompt("Enter new password for " + ip + ":" + port + ":");
             if (password === null) return; // Cancelled
             showToast("Updating password...");
-            const data = await apiCall('/api/update_password', { ip, password });
+            const data = await apiCall('/api/update_password', { ip, port, password });
             if (data) {
                 showToast(data.message);
                 if (data.success) setTimeout(() => location.reload(), 500);
@@ -549,57 +574,61 @@
 
         // --- Multi-Tab Console Logic ---
         const openTabs = new Set();
-        let activeTabIp = null;
+        let activeTabKey = null; // Changed from activeTabIp
 
-        function openConsoleTab(ip) {
+        function openConsoleTab(ip, port) {
             document.getElementById('console-section').style.display = 'block';
+            const key = ip + ':' + port;
 
-            if (openTabs.has(ip)) {
-                activateTab(ip);
+            if (openTabs.has(key)) {
+                activateTab(key);
                 return;
             }
 
-            openTabs.add(ip);
+            openTabs.add(key);
 
             // Create Tab Button
             const header = document.getElementById('tabs-header');
             const btn = document.createElement('div');
             btn.className = 'tab-btn';
-            btn.id = 'tab-btn-' + ip;
-            btn.innerHTML = `<span>${ip}</span> <span class="close-tab" onclick="closeTab(event, '${ip}')">×</span>`;
-            btn.onclick = () => activateTab(ip);
+            btn.id = 'tab-btn-' + key.replace(/:/g, '-');
+            btn.innerHTML = `<span>${key}</span> <span class="close-tab" onclick="closeTab(event, '${ip}', '${port}')">×</span>`;
+            btn.onclick = () => activateTab(key);
             header.appendChild(btn);
 
             // Create Tab Content
             const container = document.getElementById('tabs-content-container');
             const content = document.createElement('div');
             content.className = 'tab-content';
-            content.id = 'tab-content-' + ip;
+            content.id = 'tab-content-' + key.replace(/:/g, '-');
             content.innerHTML = `
-            <div class="console-output" id="output-${ip}">Connecting to console... Ready.</div>
+            <div class="console-output" id="output-${key.replace(/:/g, '-')}">Connecting to console... Ready.</div>
             <div class="console-input-area">
-                <input type="text" class="console-input" id="input-${ip}" aria-label="Console Input" placeholder="Enter command..." onkeydown="if(event.key==='Enter') runConsoleCmd('${ip}')">
-                <button class="btn btn-primary" onclick="runConsoleCmd('${ip}')">Run</button>
+                <input type="text" class="console-input" id="input-${key.replace(/:/g, '-')}" aria-label="Console Input" placeholder="Enter command..." onkeydown="if(event.key==='Enter') runConsoleCmd('${ip}', '${port}')">
+                <button class="btn btn-primary" onclick="runConsoleCmd('${ip}', '${port}')">Run</button>
             </div>
             <div class="flex-row">
-                <input type="file" id="file-${ip}" aria-label="Upload File" style="width: 200px;">
-                <input type="text" id="path-${ip}" aria-label="Remote Path" placeholder="Remote Path" style="width: 200px;">
-                <button class="btn btn-secondary btn-sm" onclick="uploadConsoleFile('${ip}')">Upload</button>
+                <input type="file" id="file-${key.replace(/:/g, '-')}" aria-label="Upload File" style="width: 200px;">
+                <input type="text" id="path-${key.replace(/:/g, '-')}" aria-label="Remote Path" placeholder="Remote Path" style="width: 200px;">
+                <button class="btn btn-secondary btn-sm" onclick="uploadConsoleFile('${ip}', '${port}')">Upload</button>
             </div>
         `;
             container.appendChild(content);
 
-            activateTab(ip);
+            activateTab(key);
         }
 
-        function closeTab(e, ip) {
+        function closeTab(e, ip, port) {
             e.stopPropagation();
-            openTabs.delete(ip);
-            document.getElementById('tab-btn-' + ip).remove();
-            document.getElementById('tab-content-' + ip).remove();
+            const key = ip + ':' + port;
+            const safeKey = key.replace(/:/g, '-');
 
-            if (activeTabIp === ip) {
-                activeTabIp = null;
+            openTabs.delete(key);
+            document.getElementById('tab-btn-' + safeKey).remove();
+            document.getElementById('tab-content-' + safeKey).remove();
+
+            if (activeTabKey === key) {
+                activeTabKey = null;
                 // Switch to another tab if exists
                 if (openTabs.size > 0) {
                     activateTab(openTabs.values().next().value);
@@ -609,21 +638,24 @@
             }
         }
 
-        function activateTab(ip) {
-            activeTabIp = ip;
+        function activateTab(key) {
+            activeTabKey = key;
+            const safeKey = key.replace(/:/g, '-');
 
             // Update buttons
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('tab-btn-' + ip).classList.add('active');
+            document.getElementById('tab-btn-' + safeKey).classList.add('active');
 
             // Update content
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById('tab-content-' + ip).classList.add('active');
+            document.getElementById('tab-content-' + safeKey).classList.add('active');
         }
 
-        async function runConsoleCmd(ip) {
-            const input = document.getElementById('input-' + ip);
-            const output = document.getElementById('output-' + ip);
+        async function runConsoleCmd(ip, port) {
+            const key = ip + ':' + port;
+            const safeKey = key.replace(/:/g, '-');
+            const input = document.getElementById('input-' + safeKey);
+            const output = document.getElementById('output-' + safeKey);
             const cmd = input.value;
             if (!cmd) return;
 
@@ -631,22 +663,26 @@
             input.value = '';
             output.scrollTop = output.scrollHeight;
 
-            const data = await apiCall('/api/execute', { ip, cmd });
+            const data = await apiCall('/api/execute', { ip, port, cmd });
             if (data) {
                 output.innerText += `\n${data.output}`;
                 output.scrollTop = output.scrollHeight;
             }
         }
 
-        async function uploadConsoleFile(ip) {
-            const fileInput = document.getElementById('file-' + ip);
-            const pathInput = document.getElementById('path-' + ip);
+        async function uploadConsoleFile(ip, port) {
+            const key = ip + ':' + port;
+            const safeKey = key.replace(/:/g, '-');
+
+            const fileInput = document.getElementById('file-' + safeKey);
+            const pathInput = document.getElementById('path-' + safeKey);
 
             if (!fileInput.files[0] || !pathInput.value) return showToast("File and Path required");
 
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
             formData.append('ip', ip);
+            formData.append('port', port);
             formData.append('remote_path', pathInput.value);
 
             showToast("Uploading...");
@@ -655,7 +691,7 @@
                 const data = await res.json();
                 showToast(data.message);
                 if (data.success) {
-                    const output = document.getElementById('output-' + ip);
+                    const output = document.getElementById('output-' + safeKey);
                     output.innerText += `\n[System] Uploaded ${fileInput.files[0].name} to ${pathInput.value}`;
                     output.scrollTop = output.scrollHeight;
                 }

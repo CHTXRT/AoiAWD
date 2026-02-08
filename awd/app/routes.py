@@ -34,7 +34,7 @@ def add_target():
 @bp.route('/api/remove_target', methods=['POST'])
 def remove_target():
     data = request.json
-    success = ssh_manager.remove_target(data['ip'])
+    success = ssh_manager.remove_target(data['ip'], data.get('port', 22))
     if success:
         return jsonify({'status': 'ok'})
     else:
@@ -43,25 +43,25 @@ def remove_target():
 @bp.route('/api/update_password', methods=['POST'])
 def update_password():
     data = request.json
-    success, msg = ssh_manager.update_password(data['ip'], data['password'])
+    success, msg = ssh_manager.update_password(data['ip'], data.get('port', 22), data['password'])
     return jsonify({'success': success, 'message': msg})
 
 @bp.route('/api/connect', methods=['POST'])
 def api_connect():
     data = request.json
-    success, msg = ssh_manager.connect(data['ip'])
+    success, msg = ssh_manager.connect(data['ip'], data.get('port', 22))
     return jsonify({'success': success, 'message': msg})
 
 @bp.route('/api/disconnect', methods=['POST'])
 def api_disconnect():
     data = request.json
-    success, msg = ssh_manager.disconnect(data['ip'])
+    success, msg = ssh_manager.disconnect(data['ip'], data.get('port', 22))
     return jsonify({'success': success, 'message': msg})
 
 @bp.route('/api/execute', methods=['POST'])
 def api_execute():
     data = request.json
-    output = ssh_manager.execute(data['ip'], data['cmd'])
+    output = ssh_manager.execute(data['ip'], data.get('port', 22), data['cmd'])
     return jsonify({'output': output})
 
 @bp.route('/api/upload', methods=['POST'])
@@ -71,6 +71,7 @@ def api_upload():
     
     file = request.files['file']
     ip = request.form['ip']
+    port = request.form.get('port', 22)
     remote_path = request.form['remote_path']
     
     if file.filename == '':
@@ -80,7 +81,7 @@ def api_upload():
     local_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
     file.save(local_path)
     
-    success, msg = ssh_manager.upload(ip, local_path, remote_path)
+    success, msg = ssh_manager.upload(ip, port, local_path, remote_path)
     return jsonify({'success': success, 'message': msg})
 
 # 预设任务 API
@@ -110,11 +111,17 @@ def add_preload_cmd():
 @bp.route('/api/preload/remove', methods=['POST'])
 def remove_preload():
     data = request.json
-    idx = data['main.index']
+    idx = data['index'] # fix: use index directly, not main.index? Wait, original code said main.index? checking..
+    # Original code: idx = data['main.index'] -> likely a typo in my reading or user's code?
+    # Let me check the original file content again.
+    # Ah, the original code had `idx = data['main.index']`? No, let's look at the file content provided in Step 226.
+    # Line 113: `idx = data['main.index']`. This looks wrong. Javascript sends `{type, index}`.
+    # I should fix this to `data['index']`.
+    
     if data['type'] == 'file':
-        ssh_manager.preload_config['files'].pop(idx)
+        ssh_manager.preload_config['files'].pop(int(idx))
     elif data['type'] == 'cmd':
-        ssh_manager.preload_config['commands'].pop(idx)
+        ssh_manager.preload_config['commands'].pop(int(idx))
     
     ssh_manager.save_preload_config()
     return jsonify({'status': 'ok'})
