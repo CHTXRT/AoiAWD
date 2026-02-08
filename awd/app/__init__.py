@@ -13,6 +13,7 @@ def create_app():
     app = Flask(__name__, template_folder=template_dir)
     app.config.from_object('app.config.Config')
     config.Config.init_app(app)
+    ssh_manager.init_app(app)
     
     log_file = os.path.join(app.config['DATA_DIR'], 'logs', 'flask.log')
     # Ensure log directory exists just in case (though init_app does it)

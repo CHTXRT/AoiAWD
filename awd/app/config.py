@@ -9,13 +9,14 @@ class Config:
     UPLOAD_FOLDER = os.path.join(DATA_DIR, 'uploads')
     KEYS_FOLDER = os.path.join(BASE_DIR, 'keys')
     PRELOAD_FOLDER = os.path.join(DATA_DIR, 'preload')
+    BACKUPS_FOLDER = os.path.join(DATA_DIR, 'backups')
     CONFIG_FILE = os.path.join(DATA_DIR, 'preload_config.json')
     TARGETS_FILE = os.path.join(DATA_DIR, 'targets.json')
     
     @staticmethod
     def init_app(app):
         # 确保目录存在
-        for folder in [app.config['UPLOAD_FOLDER'], app.config['KEYS_FOLDER'], app.config['PRELOAD_FOLDER']]:
+        for folder in [app.config['UPLOAD_FOLDER'], app.config['KEYS_FOLDER'], app.config['PRELOAD_FOLDER'], app.config['BACKUPS_FOLDER']]:
             if not os.path.exists(folder):
                 os.makedirs(folder)
 

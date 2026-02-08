@@ -109,6 +109,10 @@
             border-bottom: 1px solid var(--border-color);
         }
 
+        .target-row:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
         th {
             font-weight: 600;
             color: var(--text-color);
@@ -367,13 +371,16 @@
                     <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
 
                     <!-- Add Target -->
-                    <form action="/add_target" method="post" class="flex-row" style="margin-bottom: 20px;">
+                    <form action="/add_target" method="post" enctype="multipart/form-data" class="flex-row"
+                        style="margin-bottom: 20px;">
                         <input type="text" name="ip" aria-label="IP Address" placeholder="IP Address" required>
                         <input type="text" name="port" aria-label="Port" placeholder="Port" value="22"
                             style="width: 60px;">
                         <input type="text" name="user" aria-label="User" placeholder="User" value="root"
                             style="width: 80px;">
                         <input type="password" name="password" aria-label="Password" placeholder="Password">
+                        <input type="file" name="key_file" aria-label="Key File" style="width: 200px;"
+                            title="Upload Private Key (Optional)">
                         <button type="submit" class="btn btn-primary">Add Target</button>
                     </form>
 
@@ -381,10 +388,10 @@
                     <table>
                         <thead>
                             <tr>
+                                <th style="width: 40px;"></th> <!-- Expand Icon -->
                                 <th>IP</th>
                                 <th>Port</th>
                                 <th>User</th>
-                                <th>Type</th>
                                 <th>Key</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -392,38 +399,21 @@
                         </thead>
                         <tbody>
                             {% for t in targets %}
-                            <tr>
+                            <!-- Main Row -->
+                            <tr class="target-row" onclick="toggleRow('{{ t.ip }}', '{{ t.port }}')">
+                                <td style="text-align: center; cursor: pointer;">
+                                    <span id="icon-{{ t.ip | replace('.', '-') }}-{{ t.port }}"
+                                        style="transition: transform 0.3s; display: inline-block;">▶</span>
+                                </td>
                                 <td>{{ t.ip }}</td>
                                 <td>{{ t.port }}</td>
                                 <td>{{ t.user }}</td>
-                                <td>
-                                    {% if t.detection and t.detection.types %}
-                                    {% for type in t.detection.types %}
-                                    <span
-                                        style="background:#3498db; color:white; padding:2px 6px; border-radius:4px; font-size:11px;">{{
-                                        type }}</span>
-                                    {% endfor %}
-                                    {% if t.detection.evidence %}
-                                    <details style="margin-top:5px;">
-                                        <summary
-                                            style="padding:2px; font-size:11px; font-weight:normal; background:none; border:none;">
-                                            Details</summary>
-                                        <div
-                                            style="font-size:11px; color:#666; white-space:pre-wrap; padding:5px; border:1px solid #eee;">
-                                            {% for k, v in t.detection.evidence.items() %}
-                                            <div><strong>{{ k }}:</strong><br>{{ v }}</div>
-                                            {% endfor %}
-                                        </div>
-                                    </details>
-                                    {% endif %}
-                                    {% endif %}
-                                </td>
                                 <td title="{{ t.key_path if t.key_path else '' }}">{{ os.path.basename(t.key_path) if
                                     t.key_path else 'None' }}</td>
                                 <td class="status-cell" data-status="{{ t.status }}">
                                     {{ t.status }}
                                 </td>
-                                <td>
+                                <td onclick="event.stopPropagation()">
                                     {% if t.status == 'connected' %}
                                     <button class="btn btn-secondary btn-sm"
                                         onclick="disconnect('{{ t.ip }}', '{{ t.port }}')">Disconnect</button>
@@ -433,12 +423,152 @@
                                     {% endif %}
                                     <button class="btn btn-secondary btn-sm"
                                         onclick="updatePassword('{{ t.ip }}', '{{ t.port }}')">Pwd</button>
+                                    <button class="btn btn-secondary btn-sm" title="Rerun Preload Tasks"
+                                        onclick="rerunPreload('{{ t.ip }}', '{{ t.port }}')">♻️</button>
+                                    <button class="btn btn-sm btn-outline-info" title="Rerun Backup"
+                                        onclick="rerunBackup('{{ t.ip }}', '{{ t.port }}')">
+                                        💾
+                                    </button>
                                     <button class="btn btn-success btn-sm"
                                         onclick="openConsoleTab('{{ t.ip }}', '{{ t.port }}')">Console</button>
                                     <button class="btn btn-warning btn-sm"
                                         onclick="openXshell('{{ t.ip }}', '{{ t.port }}', '{{ t.user }}', '{{ t.password }}')">Xshell</button>
                                     <button class="btn btn-danger btn-sm"
                                         onclick="removeTarget('{{ t.ip }}', '{{ t.port }}')">Del</button>
+                                </td>
+                            </tr>
+                            <!-- Detail Row -->
+                            <tr id="detail-{{ t.ip | replace('.', '-') }}-{{ t.port }}"
+                                style="display: none; background-color: rgba(0,0,0,0.02);">
+                                <td colspan="7">
+                                    <div style="padding: 15px 20px;">
+                                        <!-- Info Grid -->
+                                        <div
+                                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+
+                                            <!-- Environment Info -->
+                                            <div>
+                                                <h5 style="margin: 0 0 10px 0; color: var(--primary-color);">Environment
+                                                    Type</h5>
+                                                {% if t.detection and t.detection.types %}
+                                                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                                    {% for type in t.detection.types %}
+                                                    <span
+                                                        style="background:#3498db; color:white; padding:4px 8px; border-radius:4px; font-size:12px;">{{
+                                                        type }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                                {% else %}
+                                                <span style="color: #999; font-size: 13px;">Unknown /
+                                                    Detecting...</span>
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- Evidence -->
+                                            <div>
+                                                <h5 style="margin: 0 0 10px 0; color: var(--primary-color);">Detection
+                                                    Evidence</h5>
+                                                {% if t.detection and t.detection.evidence %}
+                                                <div class="evidence-container"
+                                                    style="background: #1e1e1e; border-radius: 6px; overflow: hidden; font-family: 'Consolas', 'Monaco', monospace; font-size: 11px; border: 1px solid #333;">
+                                                    {% for k, v in t.detection.evidence.items() %}
+                                                    <div
+                                                        style="display: flex; border-bottom: 1px solid #333; padding: 0;">
+                                                        <!-- Key Column -->
+                                                        <div
+                                                            style="width: 120px; min-width: 120px; background: #252526; padding: 8px 10px; border-right: 1px solid #333; display: flex; align-items: center;">
+                                                            {% if k == 'web_root_files' %}
+                                                            <span style="color: #6a9955;">📂 Web Root</span>
+                                                            {% elif k == 'php_scripts' %}
+                                                            <span style="color: #569cd6;">🐘 PHP Scripts</span>
+                                                            {% elif k == 'python' %}
+                                                            <span style="color: #dcdcaa;">🐍 Python</span>
+                                                            {% else %}
+                                                            <span style="color: #ce9178;">🔍 {{ k }}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <!-- Value Column -->
+                                                        <div
+                                                            style="flex: 1; padding: 8px 10px; color: #d4d4d4; white-space: pre-wrap; word-break: break-all; max-height: 100px; overflow-y: auto; line-height: 1.5;">
+                                                            {{ v }}</div>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                                {% else %}
+                                                <span style="color: #999; font-size: 13px;">No evidence found.</span>
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- Future Info / Preload Status -->
+                                            <div>
+                                                <h5 style="margin: 0 0 10px 0; color: var(--primary-color);">Status &
+                                                    Info</h5>
+                                                <div style="font-size: 13px;">
+                                                    <div style="margin-bottom: 5px;">
+                                                        <strong>Preload Status:</strong>
+                                                        {% if t.preload_done %}
+                                                        <span style="color: var(--success-color);">Completed ✅</span>
+                                                        {% else %}
+                                                        <span style="color: var(--warning-color);">Pending ⏳</span>
+                                                        {% endif %}
+                                                    </div>
+
+                                                    <div style="margin-bottom: 5px;">
+                                                        <strong>Backup Status:</strong>
+                                                        {% if t.backup_done %}
+                                                        <span style="color: var(--success-color);">Done ✅</span>
+                                                        {% else %}
+                                                        <span style="color: var(--warning-color);">Pending/None ⏳</span>
+                                                        {% endif %}
+                                                    </div>
+
+                                                    {% if t.backup_path %}
+                                                    <div style="margin-bottom: 5px;">
+                                                        <strong>Backup Path:</strong> {{ t.backup_path }}
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+
+                                            <!-- Vulnerability Report -->
+                                            {% if t.detection and t.detection.php_vulns %}
+                                            <div style="grid-column: 1 / -1; margin-top: 15px;">
+                                                <h5
+                                                    style="margin: 0 0 10px 0; color: #e74c3c; display: flex; align-items: center; gap: 8px;">
+                                                    ⚠️ Vulnerability Report
+                                                    <span
+                                                        style="font-size: 12px; background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px;">High
+                                                        Risk</span>
+                                                </h5>
+                                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                                    {% for line in t.detection.php_vulns.split('\n') %}
+                                                    {% if line.strip() %}
+                                                    {% set parts = line.split(':', 2) %}
+                                                    <div
+                                                        style="background: #1e1e1e; border-left: 4px solid #e74c3c; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                                        <!-- File Header -->
+                                                        <div onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'"
+                                                            style="background: rgba(231, 76, 60, 0.1); padding: 6px 12px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                                                            <span
+                                                                style="font-family: monospace; font-size: 12px; color: #e74c3c; font-weight: bold;">
+                                                                📄 {{ parts[0] if parts|length > 0 else 'Unknown Type'
+                                                                }} : {{ parts[1] if parts|length > 1 else '?' }}
+                                                            </span>
+                                                            <span style="color: #666; font-size: 10px;">▼</span>
+                                                        </div>
+                                                        <!-- Code Content -->
+                                                        <div
+                                                            style="padding: 10px 12px; font-family: 'Consolas', monospace; font-size: 12px; color: #d4d4d4; white-space: pre-wrap; word-break: break-all; display: block;">
+                                                            {{ parts[2] if parts|length > 2 else line }}
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -534,6 +664,13 @@
                 showToast(data.message);
                 if (data.success) setTimeout(() => location.reload(), 500);
             }
+        }
+
+        async function rerunPreload(ip, port) {
+            if (!confirm('Rerun preload tasks for ' + ip + ':' + port + '?')) return;
+            showToast("Queueing preload tasks...");
+            const data = await apiCall('/api/rerun_preload', { ip, port });
+            if (data) showToast(data.message);
         }
 
         // --- Preload Logic ---
@@ -698,6 +835,22 @@
             } catch (e) { showToast("Upload failed"); }
         }
 
+        function toggleRow(ip, port) {
+            const safeIp = ip.replace(/\./g, '-');
+            const rowId = 'detail-' + safeIp + '-' + port;
+            const iconId = 'icon-' + safeIp + '-' + port;
+
+            const row = document.getElementById(rowId);
+            const icon = document.getElementById(iconId);
+
+            if (row.style.display === 'none') {
+                row.style.display = 'table-row';
+                icon.style.transform = 'rotate(90deg)';
+            } else {
+                row.style.display = 'none';
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
     </script>
 </body>
 

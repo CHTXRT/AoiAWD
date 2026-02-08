@@ -22,12 +22,20 @@ def index():
 
 @bp.route('/add_target', methods=['POST'])
 def add_target():
+    key_path = None
+    if 'key_file' in request.files:
+        file = request.files['key_file']
+        if file and file.filename != '':
+            filename = secure_filename(f"{request.form['ip']}_{file.filename}")
+            key_path = os.path.join(current_app.config['KEYS_FOLDER'], filename)
+            file.save(key_path)
+
     ssh_manager.add_target(
         request.form['ip'],
         request.form.get('port', 22),
         request.form.get('user', 'root'),
         request.form.get('password'),
-        None
+        key_path
     )
     return redirect(url_for('main.index'))
 
@@ -45,6 +53,18 @@ def update_password():
     data = request.json
     success, msg = ssh_manager.update_password(data['ip'], data.get('port', 22), data['password'])
     return jsonify({'success': success, 'message': msg})
+
+@bp.route('/api/rerun_preload', methods=['POST'])
+def rerun_preload():
+    data = request.json
+    threading.Thread(target=ssh_manager.run_preload_tasks, args=(data['ip'], data['port'], True)).start()
+    return jsonify({'status': 'ok', 'message': 'Preload tasks queued'})
+
+@bp.route('/api/rerun_backup', methods=['POST'])
+def rerun_backup():
+    data = request.json
+    threading.Thread(target=ssh_manager.backup_target, args=(data['ip'], data['port'], None, True)).start()
+    return jsonify({'status': 'ok', 'message': 'Backup tasks queued'})
 
 @bp.route('/api/connect', methods=['POST'])
 def api_connect():

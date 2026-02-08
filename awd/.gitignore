@@ -1,6 +1,7 @@
 logs/*
 !logs/.gitkeep
-
+data/backups/*
+!data/backups/.gitkeep
 data/targets.json
 data/logs/*
 !data/logs/.gitkeep
