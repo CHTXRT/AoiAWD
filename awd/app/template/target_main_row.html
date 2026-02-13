@@ -1,0 +1,43 @@
+<tr id="target-{{ t.ip | replace('.', '-') }}-{{ t.port }}" class="target-row"
+    onclick="toggleRow('{{ t.ip }}', '{{ t.port }}')">
+    <td style="text-align: center; cursor: pointer;">
+        <span id="icon-{{ t.ip | replace('.', '-') }}-{{ t.port }}"
+            style="transition: transform 0.3s; display: inline-block;">▶</span>
+    </td>
+    <td>{{ t.ip }}</td>
+    <td>{{ t.port }}</td>
+    <td>{{ t.user }}</td>
+    <td title="{{ t.key_path if t.key_path else '' }}">{{ os.path.basename(t.key_path) if
+        t.key_path else 'None' }}</td>
+    <td class="status-cell" data-status="{{ t.status }}">
+        {{ t.status }}
+    </td>
+    <td onclick="event.stopPropagation()">
+        {% if t.status == 'connected' %}
+        <button class="btn btn-secondary btn-sm" onclick="disconnect('{{ t.ip }}', '{{ t.port }}')">Disconnect</button>
+        {% else %}
+        <button class="btn btn-primary btn-sm" onclick="connect('{{ t.ip }}', '{{ t.port }}')">Connect</button>
+        {% endif %}
+        <button class="btn btn-secondary btn-sm" onclick="updatePassword('{{ t.ip }}', '{{ t.port }}')">Pwd</button>
+        <button class="btn btn-secondary btn-sm" title="建立文件快照基线"
+            onclick="snapshotFiles('{{ t.ip }}', '{{ t.port }}')">📸</button>
+        <button class="btn btn-danger btn-sm" title="扫描后门/不死马"
+            onclick="scanBackdoor('{{ t.ip }}', '{{ t.port }}')">🔍</button>
+        <button class="btn btn-secondary btn-sm" title="Rerun Preload Tasks"
+            onclick="rerunPreload('{{ t.ip }}', '{{ t.port }}')">♻️</button>
+        <button class="btn btn-sm btn-secondary" title="Rerun Backup"
+            onclick="rerunBackup('{{ t.ip }}', '{{ t.port }}')">
+            💾
+        </button>
+        <button class="btn btn-sm btn-secondary" title="还原备份"
+            onclick="restoreBackup('{{ t.ip }}', '{{ t.port }}')">⏪</button>
+        <button class="btn btn-success btn-sm" onclick="openConsoleTab('{{ t.ip }}', '{{ t.port }}')">Console</button>
+        {% if t.wwwdata_shell %}
+        <button class="btn btn-sm" style="background: #e67e22; color: white;" title="www-data 权限终端"
+            onclick="openWwwdataTab('{{ t.ip }}', '{{ t.port }}')">www-data</button>
+        {% endif %}
+        <button class="btn btn-warning btn-sm"
+            onclick="openXshell('{{ t.ip }}', '{{ t.port }}', '{{ t.user }}', '{{ t.password }}')">Xshell</button>
+        <button class="btn btn-danger btn-sm" onclick="removeTarget('{{ t.ip }}', '{{ t.port }}')">Del</button>
+    </td>
+</tr>

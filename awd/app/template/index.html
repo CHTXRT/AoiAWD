@@ -314,6 +314,7 @@
             }
         }
     </style>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 </head>
 
 <body>
@@ -321,6 +322,10 @@
     <div class="header">
         <h1>AWD Controller</h1>
         <div class="flex-row">
+            <button class="btn btn-primary" onclick="connectAll()">🔗 全部连接</button>
+            <button class="btn btn-secondary" onclick="disconnectAll()">⛓️ 全部断开</button>
+            <button class="btn btn-warning" onclick="batchExecutePrompt()">⚡ 批量执行</button>
+            <button class="btn btn-secondary" onclick="checkConnections()">💓 检查连接</button>
             <button class="btn btn-secondary" onclick="toggleTheme()">🌓 Theme</button>
         </div>
     </div>
@@ -368,6 +373,42 @@
                         </div>
                     </div>
 
+                    <!-- 定时任务管理 -->
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="margin-top: 20px;">⏰ 定时任务 (在所有已连接靶机上定时执行)</h4>
+                        <div class="flex-row" style="margin-bottom: 10px;">
+                            <input type="text" id="task-name" aria-label="任务名称" placeholder="任务名称"
+                                style="width: 150px;">
+                            <input type="text" id="task-cmd" aria-label="命令" placeholder="命令 (如: rm -f /tmp/*.php)"
+                                style="flex-grow: 1;">
+                            <input type="text" id="task-interval" aria-label="间隔秒数" placeholder="间隔(秒)" value="300"
+                                style="width: 80px;">
+                            <button class="btn btn-primary btn-sm" onclick="addScheduledTask()">添加任务</button>
+                        </div>
+                        <div id="scheduled-tasks-list"
+                            style="max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); padding: 10px; border-radius: 4px; font-size: 12px; color: #999;">
+                            加载中...
+                        </div>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+                    <!-- 自定义 PHP 检测规则 -->
+                    <div style="margin-bottom: 30px;">
+                        <h4>🛡️ 自定义 PHP 检测规则 (补充内置扫描的 grep 正则)</h4>
+                        <div class="flex-row" style="margin-bottom: 10px;">
+                            <input type="text" id="rule-name" placeholder="规则名称" style="width: 120px;">
+                            <input type="text" id="rule-pattern" placeholder="正则表达式 (如: mysql_query\\()"
+                                style="flex-grow: 1;">
+                            <input type="text" id="rule-desc" placeholder="描述(可选)" style="width: 150px;">
+                            <button class="btn btn-primary btn-sm" onclick="addCustomRule()">添加规则</button>
+                        </div>
+                        <div id="custom-rules-list"
+                            style="max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); padding: 10px; border-radius: 4px; font-size: 12px; color: #999;">
+                            加载中...
+                        </div>
+                    </div>
+
                     <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
 
                     <!-- Add Target -->
@@ -399,178 +440,8 @@
                         </thead>
                         <tbody>
                             {% for t in targets %}
-                            <!-- Main Row -->
-                            <tr class="target-row" onclick="toggleRow('{{ t.ip }}', '{{ t.port }}')">
-                                <td style="text-align: center; cursor: pointer;">
-                                    <span id="icon-{{ t.ip | replace('.', '-') }}-{{ t.port }}"
-                                        style="transition: transform 0.3s; display: inline-block;">▶</span>
-                                </td>
-                                <td>{{ t.ip }}</td>
-                                <td>{{ t.port }}</td>
-                                <td>{{ t.user }}</td>
-                                <td title="{{ t.key_path if t.key_path else '' }}">{{ os.path.basename(t.key_path) if
-                                    t.key_path else 'None' }}</td>
-                                <td class="status-cell" data-status="{{ t.status }}">
-                                    {{ t.status }}
-                                </td>
-                                <td onclick="event.stopPropagation()">
-                                    {% if t.status == 'connected' %}
-                                    <button class="btn btn-secondary btn-sm"
-                                        onclick="disconnect('{{ t.ip }}', '{{ t.port }}')">Disconnect</button>
-                                    {% else %}
-                                    <button class="btn btn-primary btn-sm"
-                                        onclick="connect('{{ t.ip }}', '{{ t.port }}')">Connect</button>
-                                    {% endif %}
-                                    <button class="btn btn-secondary btn-sm"
-                                        onclick="updatePassword('{{ t.ip }}', '{{ t.port }}')">Pwd</button>
-                                    <button class="btn btn-secondary btn-sm" title="Rerun Preload Tasks"
-                                        onclick="rerunPreload('{{ t.ip }}', '{{ t.port }}')">♻️</button>
-                                    <button class="btn btn-sm btn-outline-info" title="Rerun Backup"
-                                        onclick="rerunBackup('{{ t.ip }}', '{{ t.port }}')">
-                                        💾
-                                    </button>
-                                    <button class="btn btn-success btn-sm"
-                                        onclick="openConsoleTab('{{ t.ip }}', '{{ t.port }}')">Console</button>
-                                    <button class="btn btn-warning btn-sm"
-                                        onclick="openXshell('{{ t.ip }}', '{{ t.port }}', '{{ t.user }}', '{{ t.password }}')">Xshell</button>
-                                    <button class="btn btn-danger btn-sm"
-                                        onclick="removeTarget('{{ t.ip }}', '{{ t.port }}')">Del</button>
-                                </td>
-                            </tr>
-                            <!-- Detail Row -->
-                            <tr id="detail-{{ t.ip | replace('.', '-') }}-{{ t.port }}"
-                                style="display: none; background-color: rgba(0,0,0,0.02);">
-                                <td colspan="7">
-                                    <div style="padding: 15px 20px;">
-                                        <!-- Info Grid -->
-                                        <div
-                                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-
-                                            <!-- Environment Info -->
-                                            <div>
-                                                <h5 style="margin: 0 0 10px 0; color: var(--primary-color);">Environment
-                                                    Type</h5>
-                                                {% if t.detection and t.detection.types %}
-                                                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                                                    {% for type in t.detection.types %}
-                                                    <span
-                                                        style="background:#3498db; color:white; padding:4px 8px; border-radius:4px; font-size:12px;">{{
-                                                        type }}</span>
-                                                    {% endfor %}
-                                                </div>
-                                                {% else %}
-                                                <span style="color: #999; font-size: 13px;">Unknown /
-                                                    Detecting...</span>
-                                                {% endif %}
-                                            </div>
-
-                                            <!-- Evidence -->
-                                            <div>
-                                                <h5 style="margin: 0 0 10px 0; color: var(--primary-color);">Detection
-                                                    Evidence</h5>
-                                                {% if t.detection and t.detection.evidence %}
-                                                <div class="evidence-container"
-                                                    style="background: #1e1e1e; border-radius: 6px; overflow: hidden; font-family: 'Consolas', 'Monaco', monospace; font-size: 11px; border: 1px solid #333;">
-                                                    {% for k, v in t.detection.evidence.items() %}
-                                                    <div
-                                                        style="display: flex; border-bottom: 1px solid #333; padding: 0;">
-                                                        <!-- Key Column -->
-                                                        <div
-                                                            style="width: 120px; min-width: 120px; background: #252526; padding: 8px 10px; border-right: 1px solid #333; display: flex; align-items: center;">
-                                                            {% if k == 'web_root_files' %}
-                                                            <span style="color: #6a9955;">📂 Web Root</span>
-                                                            {% elif k == 'php_scripts' %}
-                                                            <span style="color: #569cd6;">🐘 PHP Scripts</span>
-                                                            {% elif k == 'python' %}
-                                                            <span style="color: #dcdcaa;">🐍 Python</span>
-                                                            {% else %}
-                                                            <span style="color: #ce9178;">🔍 {{ k }}</span>
-                                                            {% endif %}
-                                                        </div>
-                                                        <!-- Value Column -->
-                                                        <div
-                                                            style="flex: 1; padding: 8px 10px; color: #d4d4d4; white-space: pre-wrap; word-break: break-all; max-height: 100px; overflow-y: auto; line-height: 1.5;">
-                                                            {{ v }}</div>
-                                                    </div>
-                                                    {% endfor %}
-                                                </div>
-                                                {% else %}
-                                                <span style="color: #999; font-size: 13px;">No evidence found.</span>
-                                                {% endif %}
-                                            </div>
-
-                                            <!-- Future Info / Preload Status -->
-                                            <div>
-                                                <h5 style="margin: 0 0 10px 0; color: var(--primary-color);">Status &
-                                                    Info</h5>
-                                                <div style="font-size: 13px;">
-                                                    <div style="margin-bottom: 5px;">
-                                                        <strong>Preload Status:</strong>
-                                                        {% if t.preload_done %}
-                                                        <span style="color: var(--success-color);">Completed ✅</span>
-                                                        {% else %}
-                                                        <span style="color: var(--warning-color);">Pending ⏳</span>
-                                                        {% endif %}
-                                                    </div>
-
-                                                    <div style="margin-bottom: 5px;">
-                                                        <strong>Backup Status:</strong>
-                                                        {% if t.backup_done %}
-                                                        <span style="color: var(--success-color);">Done ✅</span>
-                                                        {% else %}
-                                                        <span style="color: var(--warning-color);">Pending/None ⏳</span>
-                                                        {% endif %}
-                                                    </div>
-
-                                                    {% if t.backup_path %}
-                                                    <div style="margin-bottom: 5px;">
-                                                        <strong>Backup Path:</strong> {{ t.backup_path }}
-                                                    </div>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-
-                                            <!-- Vulnerability Report -->
-                                            {% if t.detection and t.detection.php_vulns %}
-                                            <div style="grid-column: 1 / -1; margin-top: 15px;">
-                                                <h5
-                                                    style="margin: 0 0 10px 0; color: #e74c3c; display: flex; align-items: center; gap: 8px;">
-                                                    ⚠️ Vulnerability Report
-                                                    <span
-                                                        style="font-size: 12px; background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px;">High
-                                                        Risk</span>
-                                                </h5>
-                                                <div style="display: flex; flex-direction: column; gap: 10px;">
-                                                    {% for line in t.detection.php_vulns.split('\n') %}
-                                                    {% if line.strip() %}
-                                                    {% set parts = line.split(':', 2) %}
-                                                    <div
-                                                        style="background: #1e1e1e; border-left: 4px solid #e74c3c; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                                        <!-- File Header -->
-                                                        <div onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'"
-                                                            style="background: rgba(231, 76, 60, 0.1); padding: 6px 12px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
-                                                            <span
-                                                                style="font-family: monospace; font-size: 12px; color: #e74c3c; font-weight: bold;">
-                                                                📄 {{ parts[0] if parts|length > 0 else 'Unknown Type'
-                                                                }} : {{ parts[1] if parts|length > 1 else '?' }}
-                                                            </span>
-                                                            <span style="color: #666; font-size: 10px;">▼</span>
-                                                        </div>
-                                                        <!-- Code Content -->
-                                                        <div
-                                                            style="padding: 10px 12px; font-family: 'Consolas', monospace; font-size: 12px; color: #d4d4d4; white-space: pre-wrap; word-break: break-all; display: block;">
-                                                            {{ parts[2] if parts|length > 2 else line }}
-                                                        </div>
-                                                    </div>
-                                                    {% endif %}
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
+                            {% include 'target_main_row.html' %}
+                            {% include 'target_detail_row.html' %}
                             {% endfor %}
                         </tbody>
                     </table>
@@ -634,7 +505,11 @@
             const data = await apiCall('/api/connect', { ip, port });
             if (data) {
                 showToast(data.message);
-                if (data.success) setTimeout(() => location.reload(), 500);
+                if (data.success) {
+                    // Update happens via WebSocket, no need to reload
+                } else {
+                    setTimeout(() => location.reload(), 500); // Fallback
+                }
             }
         }
 
@@ -642,7 +517,6 @@
             const data = await apiCall('/api/disconnect', { ip, port });
             if (data) {
                 showToast(data.message);
-                setTimeout(() => location.reload(), 500);
             }
         }
 
@@ -651,7 +525,6 @@
             const data = await apiCall('/api/remove_target', { ip, port });
             if (data && data.status === 'ok') {
                 showToast("Removed");
-                setTimeout(() => location.reload(), 500);
             }
         }
 
@@ -662,7 +535,6 @@
             const data = await apiCall('/api/update_password', { ip, port, password });
             if (data) {
                 showToast(data.message);
-                if (data.success) setTimeout(() => location.reload(), 500);
             }
         }
 
@@ -672,6 +544,131 @@
             const data = await apiCall('/api/rerun_preload', { ip, port });
             if (data) showToast(data.message);
         }
+
+        async function rerunBackup(ip, port) {
+            if (!confirm('重新备份 ' + ip + ':' + port + '?')) return;
+            showToast("备份任务已启动...");
+            const data = await apiCall('/api/rerun_backup', { ip, port });
+            if (data) showToast(data.message);
+        }
+
+        // --- 后门检测 ---
+        async function snapshotFiles(ip, port) {
+            if (!confirm('为 ' + ip + ':' + port + ' 建立文件快照基线？\n这将记录当前所有文件的 MD5，用于后续对比。')) return;
+            showToast('正在建立快照...');
+            const data = await apiCall('/api/snapshot', { ip, port });
+            if (data) showToast(data.message);
+        }
+
+        async function scanBackdoor(ip, port) {
+            showToast('正在扫描后门...');
+            const data = await apiCall('/api/scan_backdoor', { ip, port });
+            if (data) {
+                showToast(data.message);
+            }
+        }
+
+        async function restoreBackup(ip, port) {
+            if (!confirm('⚠️ 确定要还原 ' + ip + ':' + port + ' 的备份吗？\n此操作将覆盖靶机上的当前文件！')) return;
+            showToast('正在还原备份...');
+            const data = await apiCall('/api/restore_backup', { ip, port });
+            if (data) showToast(data.message);
+        }
+
+        // --- 批量操作 ---
+        async function connectAll() {
+            if (!confirm('确定要连接所有靶机吗？')) return;
+            showToast('正在连接所有靶机...');
+            const data = await apiCall('/api/connect_all', {});
+            if (data) {
+                showToast(data.message);
+            }
+        }
+
+        async function disconnectAll() {
+            if (!confirm('确定要断开所有靶机吗？')) return;
+            const data = await apiCall('/api/disconnect_all', {});
+            if (data) {
+                showToast('已断开所有连接');
+            }
+        }
+
+        async function batchExecutePrompt() {
+            const cmd = prompt('在所有已连接靶机上执行命令:');
+            if (!cmd) return;
+            showToast('正在批量执行...');
+            const data = await apiCall('/api/batch_execute', { cmd });
+            if (data && data.results) {
+                let msg = '批量执行结果:\n';
+                for (const [key, output] of Object.entries(data.results)) {
+                    msg += `\n[${key}]\n${output}\n`;
+                }
+                alert(msg);
+            }
+        }
+
+        async function checkConnections() {
+            showToast('正在检查连接...');
+            const data = await apiCall('/api/check_connections', {});
+            if (data && data.results) {
+                let dead = data.results.filter(r => !r.alive);
+                if (dead.length === 0) {
+                    showToast('所有连接正常 ✅');
+                } else {
+                    showToast(`${dead.length} 个连接已断开`);
+                }
+            }
+        }
+
+        // --- 定时任务 ---
+        async function loadScheduledTasks() {
+            try {
+                const res = await fetch('/api/scheduled_tasks');
+                const data = await res.json();
+                const container = document.getElementById('scheduled-tasks-list');
+                const tasks = data.tasks || {};
+                const entries = Object.entries(tasks);
+                if (entries.length === 0) {
+                    container.innerHTML = '<span style="color: #999;">暂无定时任务</span>';
+                    return;
+                }
+                container.innerHTML = entries.map(([name, task]) => `
+                    <div class="flex-row" style="margin-bottom: 5px;">
+                        <span>⏰ <strong>${name}</strong> → ${task.cmd} (每 ${task.interval}s)</span>
+                        <span class="spacer"></span>
+                        <button class="btn btn-danger btn-sm" onclick="removeScheduledTask('${name}')">×</button>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('加载定时任务失败', e);
+            }
+        }
+
+        async function addScheduledTask() {
+            const name = document.getElementById('task-name').value;
+            const cmd = document.getElementById('task-cmd').value;
+            const interval = parseInt(document.getElementById('task-interval').value) || 300;
+            if (!name || !cmd) return showToast('请填写任务名称和命令');
+            const data = await apiCall('/api/scheduled_task/add', { name, cmd, interval });
+            if (data) {
+                showToast(data.message || '已添加');
+                document.getElementById('task-name').value = '';
+                document.getElementById('task-cmd').value = '';
+                loadScheduledTasks();
+            }
+        }
+
+        async function removeScheduledTask(name) {
+            if (!confirm('移除定时任务 "' + name + '"?')) return;
+            const data = await apiCall('/api/scheduled_task/remove', { name });
+            if (data) {
+                showToast(data.message || '已移除');
+                loadScheduledTasks();
+            }
+        }
+
+        // 页面加载时加载定时任务列表
+        document.addEventListener('DOMContentLoaded', loadScheduledTasks);
 
         // --- Preload Logic ---
         async function addPreloadFile() {
@@ -728,7 +725,7 @@
             const header = document.getElementById('tabs-header');
             const btn = document.createElement('div');
             btn.className = 'tab-btn';
-            btn.id = 'tab-btn-' + key.replace(/:/g, '-');
+            btn.id = 'tab-btn-' + key.replace(/[:.]/g, '-');
             btn.innerHTML = `<span>${key}</span> <span class="close-tab" onclick="closeTab(event, '${ip}', '${port}')">×</span>`;
             btn.onclick = () => activateTab(key);
             header.appendChild(btn);
@@ -737,16 +734,17 @@
             const container = document.getElementById('tabs-content-container');
             const content = document.createElement('div');
             content.className = 'tab-content';
-            content.id = 'tab-content-' + key.replace(/:/g, '-');
+            content.id = 'tab-content-' + key.replace(/[:.]/g, '-');
             content.innerHTML = `
-            <div class="console-output" id="output-${key.replace(/:/g, '-')}">Connecting to console... Ready.</div>
+            <div class="console-output" id="output-${key.replace(/[:.]/g, '-')}">Connecting to console... Ready.</div>
             <div class="console-input-area">
-                <input type="text" class="console-input" id="input-${key.replace(/:/g, '-')}" aria-label="Console Input" placeholder="Enter command..." onkeydown="if(event.key==='Enter') runConsoleCmd('${ip}', '${port}')">
+                <input type="text" class="console-input" id="input-${key.replace(/[:.]/g, '-')}" aria-label="Console Input" placeholder="Enter command..." onkeydown="if(event.key==='Enter') runConsoleCmd('${ip}', '${port}')">
                 <button class="btn btn-primary" onclick="runConsoleCmd('${ip}', '${port}')">Run</button>
+                <button class="btn btn-secondary btn-sm" onclick="openFileManager('${ip}', '${port}')">📁 Files</button>
             </div>
             <div class="flex-row">
-                <input type="file" id="file-${key.replace(/:/g, '-')}" aria-label="Upload File" style="width: 200px;">
-                <input type="text" id="path-${key.replace(/:/g, '-')}" aria-label="Remote Path" placeholder="Remote Path" style="width: 200px;">
+                <input type="file" id="file-${key.replace(/[:.]/g, '-')}" aria-label="Upload File" style="width: 200px;">
+                <input type="text" id="path-${key.replace(/[:.]/g, '-')}" aria-label="Remote Path" placeholder="Remote Path" style="width: 200px;">
                 <button class="btn btn-secondary btn-sm" onclick="uploadConsoleFile('${ip}', '${port}')">Upload</button>
             </div>
         `;
@@ -758,7 +756,7 @@
         function closeTab(e, ip, port) {
             e.stopPropagation();
             const key = ip + ':' + port;
-            const safeKey = key.replace(/:/g, '-');
+            const safeKey = key.replace(/[:.]/g, '-');
 
             openTabs.delete(key);
             document.getElementById('tab-btn-' + safeKey).remove();
@@ -777,39 +775,237 @@
 
         function activateTab(key) {
             activeTabKey = key;
-            const safeKey = key.replace(/:/g, '-');
+            const safeKey = key.replace(/[:.]/g, '-');
 
             // Update buttons
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('tab-btn-' + safeKey).classList.add('active');
+            const btn = document.getElementById('tab-btn-' + safeKey);
+            if (btn) btn.classList.add('active');
 
             // Update content
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById('tab-content-' + safeKey).classList.add('active');
+            const content = document.getElementById('tab-content-' + safeKey);
+            if (content) content.classList.add('active');
         }
+
+        // WebSocket 连接（如果 Socket.IO 可用）
+        let wsSocket = null;
+        try {
+            wsSocket = io();
+            wsSocket.on('connected', (data) => console.log('WebSocket:', data.message));
+            wsSocket.on('ws_output', (data) => {
+                const key = data.ip + ':' + data.port;
+                const safeKey = key.replace(/[:.]/g, '-');
+                const output = document.getElementById('output-' + safeKey);
+                if (output) {
+                    output.innerText += `\n${data.output}`;
+                    output.scrollTop = output.scrollHeight;
+                }
+                // 更新 cwd 提示符
+                if (data.cwd) {
+                    consoleCwd[key] = data.cwd;
+                    const input = document.getElementById('input-' + safeKey);
+                    if (input) input.placeholder = data.cwd + '$ ';
+                }
+            });
+            wsSocket.on('ws_output_wd', (data) => {
+                const key = 'wd-' + data.ip + ':' + data.port;
+                const safeKey = key.replace(/[:.]/g, '-');
+                const output = document.getElementById('wd-output-' + safeKey);
+                if (output) {
+                    output.innerText += `\n${data.output}`;
+                    output.scrollTop = output.scrollHeight;
+                }
+            });
+
+            // Target Status Update
+            wsSocket.on('target_update', (data) => {
+                console.log('Received target_update:', data);
+                const target = data.target;
+                const html_main = data.html_main; // Note: services.py emits html_main and html_detail separately now?
+                // Wait, in Step 724 (View services.py), I see:
+                // 'html_main': html_main, 'html_detail': html_detail
+                // So I need to update my JS to handle this!
+
+                if (!target || !target.ip || !target.port) return;
+
+                const safeIp = target.ip.replace(/\./g, '-');
+                const rowId = 'target-' + safeIp + '-' + target.port;
+                const detailRowId = 'detail-' + safeIp + '-' + target.port;
+
+                const existingRow = document.getElementById(rowId);
+                const existingDetail = document.getElementById(detailRowId);
+                const tbody = document.querySelector('table tbody');
+
+                if (data.action === 'remove') {
+                    if (existingRow) existingRow.remove();
+                    if (existingDetail) existingDetail.remove();
+                    return;
+                }
+
+                // For update or add
+                if (data.html_main) {
+                    // Update Main Row
+                    const tempMain = document.createElement('tbody');
+                    tempMain.innerHTML = data.html_main;
+                    const newMainRow = tempMain.firstElementChild;
+
+                    if (existingRow) {
+                        existingRow.replaceWith(newMainRow);
+                    } else {
+                        tbody.appendChild(newMainRow);
+                    }
+                }
+
+                if (data.html_detail) {
+                    // Update Detail Row
+                    const tempDetail = document.createElement('tbody');
+                    tempDetail.innerHTML = data.html_detail;
+                    const newDetailRow = tempDetail.firstElementChild;
+
+                    if (existingDetail) {
+                        // Preserve display state
+                        newDetailRow.style.display = existingDetail.style.display;
+                        existingDetail.replaceWith(newDetailRow);
+                    } else {
+                        // If new row added, detail row comes after main row
+                        const currentMain = document.getElementById(rowId);
+                        if (currentMain) {
+                            currentMain.after(newDetailRow);
+                        }
+                    }
+                }
+
+                // Re-sync icon state if detail is open
+                const newDetail = document.getElementById(detailRowId);
+                const newIcon = document.getElementById('icon-' + safeIp + '-' + target.port);
+                if (newDetail && newDetail.style.display !== 'none' && newIcon) {
+                    newIcon.style.transform = 'rotate(90deg)';
+                }
+            });
+        } catch (e) {
+            console.warn('WebSocket 不可用，回退到 HTTP 模式');
+        }
+
+        // Console cwd 缓存
+        const consoleCwd = {};
 
         async function runConsoleCmd(ip, port) {
             const key = ip + ':' + port;
-            const safeKey = key.replace(/:/g, '-');
+            const safeKey = key.replace(/[:.]/g, '-');
             const input = document.getElementById('input-' + safeKey);
             const output = document.getElementById('output-' + safeKey);
             const cmd = input.value;
             if (!cmd) return;
 
-            output.innerText += `\n> ${cmd}`;
+            const cwd = consoleCwd[key] || '~';
+            output.innerText += `\n${cwd}$ ${cmd}`;
             input.value = '';
             output.scrollTop = output.scrollHeight;
 
-            const data = await apiCall('/api/execute', { ip, port, cmd });
-            if (data) {
-                output.innerText += `\n${data.output}`;
-                output.scrollTop = output.scrollHeight;
+            // 优先使用 WebSocket
+            if (wsSocket && wsSocket.connected) {
+                wsSocket.emit('ws_execute', { ip, port: parseInt(port), cmd });
+            } else {
+                const data = await apiCall('/api/execute_console', { ip, port, cmd });
+                if (data) {
+                    output.innerText += `\n${data.output}`;
+                    output.scrollTop = output.scrollHeight;
+                    if (data.cwd) {
+                        consoleCwd[key] = data.cwd;
+                        input.placeholder = data.cwd + '$ ';
+                    }
+                }
+            }
+        }
+
+        // --- www-data 权限终端 ---
+        function openWwwdataTab(ip, port) {
+            const key = 'wd-' + ip + ':' + port;
+            document.getElementById('console-section').style.display = 'block';
+
+            if (openTabs.has(key)) {
+                activateTab(key);
+                return;
+            }
+            openTabs.add(key);
+
+            // Tab button
+            const bar = document.getElementById('tab-bar');
+            // Check if tab-bar exists? tab-bar is not defined in HTML?
+            // Actually main tabs use 'tabs-header'.
+            // wait, openWwwdataTab logic in original code referenced 'tab-bar' which is probably wrong or I missed it.
+            // Oh, original code used 'console-section' and 'tabs-header'.
+            // But line 1153 in view 664 is `const bar = document.getElementById('tab-bar');`
+            // Let's check `tabs-header`.
+            const header = document.getElementById('tabs-header');
+
+            const btn = document.createElement('div');
+            btn.className = 'tab-btn';
+            btn.id = 'tab-btn-' + key.replace(/[:.]/g, '-');
+            btn.innerHTML = `<span onclick="activateTab('${key}')">\uD83D\uDD36 ${ip}:${port} (www-data)</span><span class="close-tab" onclick="closeWdTab(event, '${ip}', '${port}')">&times;</span>`;
+            header.appendChild(btn);
+
+            // Tab content
+            const container = document.getElementById('tabs-content-container');
+            const content = document.createElement('div');
+            content.className = 'tab-content';
+            content.id = 'tab-content-' + key.replace(/[:.]/g, '-');
+            content.innerHTML = `
+            <pre id="wd-output-${key.replace(/[:.]/g, '-')}" style="background:#1a1a2e; color:#e67e22; padding:10px; max-height:300px; overflow-y:auto; border-radius:4px; margin-bottom:10px;">www-data@${ip}:${port}$ (SUID bash via /tmp/mujica)</pre>
+            <div class="flex-row">
+                <input type="text" id="wd-input-${key.replace(/[:.]/g, '-')}" placeholder="www-data$ 命令..." style="flex-grow:1;" onkeydown="if(event.key==='Enter') runWwwdataCmd('${ip}','${port}')">
+                <button class="btn" style="background:#e67e22; color:white;" onclick="runWwwdataCmd('${ip}','${port}')">Run</button>
+            </div>
+            `;
+            container.appendChild(content);
+            activateTab(key);
+        }
+
+        function closeWdTab(e, ip, port) {
+            e.stopPropagation();
+            const key = 'wd-' + ip + ':' + port;
+            const safeKey = key.replace(/[:.]/g, '-');
+            openTabs.delete(key);
+            document.getElementById('tab-btn-' + safeKey).remove();
+            document.getElementById('tab-content-' + safeKey).remove();
+            if (activeTabKey === key) {
+                activeTabKey = null;
+                if (openTabs.size > 0) {
+                    activateTab(openTabs.values().next().value);
+                } else {
+                    document.getElementById('console-section').style.display = 'none';
+                }
+            }
+        }
+
+        async function runWwwdataCmd(ip, port) {
+            const key = 'wd-' + ip + ':' + port;
+            const safeKey = key.replace(/[:.]/g, '-');
+            const input = document.getElementById('wd-input-' + safeKey);
+            const output = document.getElementById('wd-output-' + safeKey);
+            const cmd = input.value;
+            if (!cmd) return;
+
+            output.innerText += `\nwww-data$ ${cmd}`;
+            input.value = '';
+            output.scrollTop = output.scrollHeight;
+
+            // 优先使用 WebSocket
+            if (wsSocket && wsSocket.connected) {
+                wsSocket.emit('ws_execute_wwwdata', { ip, port: parseInt(port), cmd });
+            } else {
+                const data = await apiCall('/api/execute_wwwdata', { ip, port, cmd });
+                if (data) {
+                    output.innerText += `\n${data.output}`;
+                    output.scrollTop = output.scrollHeight;
+                }
             }
         }
 
         async function uploadConsoleFile(ip, port) {
             const key = ip + ':' + port;
-            const safeKey = key.replace(/:/g, '-');
+            const safeKey = key.replace(/[:.]/g, '-');
 
             const fileInput = document.getElementById('file-' + safeKey);
             const pathInput = document.getElementById('path-' + safeKey);
@@ -851,6 +1047,323 @@
                 icon.style.transform = 'rotate(0deg)';
             }
         }
+
+        // ==================== 自定义 PHP 规则管理 ====================
+
+        async function loadCustomRules() {
+            try {
+                const res = await fetch('/api/rules');
+                const data = await res.json();
+                const list = document.getElementById('custom-rules-list');
+                if (!data.rules || data.rules.length === 0) {
+                    list.innerHTML = '<div style="color: #999;">暂无自定义规则。内置规则已包含常见 PHP 危险函数。</div>';
+                    return;
+                }
+                list.innerHTML = data.rules.map((r, i) => `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px solid var(--border-color);">
+                        <span style="${r.enabled ? '' : 'opacity:0.5; text-decoration:line-through;'}">
+                            <strong>${r.name}</strong> — <code>${r.pattern}</code>
+                            ${r.description ? '<span style="color:#999;"> (' + r.description + ')</span>' : ''}
+                        </span>
+                        <span>
+                            <button class="btn btn-sm" onclick="toggleCustomRule(${i})" style="font-size:10px;">${r.enabled ? '⏸️' : '▶️'}</button>
+                            <button class="btn btn-sm" onclick="removeCustomRule(${i})" style="font-size:10px; color:#e74c3c;">🗑️</button>
+                        </span>
+                    </div>
+                `).join('');
+            } catch (e) { console.error('加载规则失败', e); }
+        }
+
+        async function addCustomRule() {
+            const name = document.getElementById('rule-name').value;
+            const pattern = document.getElementById('rule-pattern').value;
+            const desc = document.getElementById('rule-desc').value;
+            if (!name || !pattern) return showToast('名称和正则表达式不能为空');
+            const data = await apiCall('/api/rules/add', { name, pattern, description: desc });
+            if (data) {
+                showToast('规则已添加');
+                document.getElementById('rule-name').value = '';
+                document.getElementById('rule-pattern').value = '';
+                document.getElementById('rule-desc').value = '';
+                loadCustomRules();
+            }
+        }
+
+        async function removeCustomRule(index) {
+            if (!confirm('删除此规则?')) return;
+            const data = await apiCall('/api/rules/remove', { index });
+            if (data) { showToast('规则已删除'); loadCustomRules(); }
+        }
+
+        async function toggleCustomRule(index) {
+            const data = await apiCall('/api/rules/toggle', { index });
+            if (data) { showToast(data.rule.enabled ? '规则已启用' : '规则已禁用'); loadCustomRules(); }
+        }
+
+        // ==================== 远程文件管理器 (Refactored) ====================
+
+        let fmIp = null, fmPort = null, fmCurrentPath = '/';
+
+        function openFileManager(ip, port) {
+            fmIp = ip;
+            fmPort = port;
+            fmCurrentPath = '/var/www/html';
+            const key = 'fm-' + ip + ':' + port;
+
+            document.getElementById('console-section').style.display = 'block';
+            if (openTabs.has(key)) {
+                activateTab(key);
+                return;
+            }
+            openTabs.add(key);
+
+            const header = document.getElementById('tabs-header');
+            const btn = document.createElement('div');
+            btn.className = 'tab-btn';
+            btn.id = 'tab-btn-' + key.replace(/[:.]/g, '-');
+            btn.innerHTML = `<span onclick="activateTab('${key}')">📁 ${ip}:${port}</span><span class="close-tab" onclick="closeFmTab(event, '${ip}', '${port}')">&times;</span>`;
+            header.appendChild(btn);
+
+            const container = document.getElementById('tabs-content-container');
+            const content = document.createElement('div');
+            content.className = 'tab-content';
+            content.id = 'tab-content-' + key.replace(/[:.]/g, '-');
+
+            // New Layout: Toolbar + Breadcrumbs + Table + Editor Modal (hidden by default)
+            content.innerHTML = `
+                <div class="flex-row" style="margin-bottom: 10px; background: var(--card-bg); padding: 5px; border-radius: 4px; border: 1px solid var(--border-color);">
+                    <button class="btn btn-secondary btn-sm" onclick="fmGoUp('${ip}','${port}')">⬆️ Up</button>
+                    <button class="btn btn-secondary btn-sm" onclick="fmReload('${ip}','${port}')">🔄 Refresh</button>
+                    <input type="text" id="fm-path-${key.replace(/[:.]/g, '-')}" value="${fmCurrentPath}" style="flex-grow:1; margin: 0 10px;" onkeydown="if(event.key==='Enter') fmNavigate('${ip}','${port}')">
+                    <button class="btn btn-primary btn-sm" onclick="fmNavigate('${ip}','${port}')">Go</button>
+                    <span class="spacer"></span>
+                    <button class="btn btn-primary btn-sm" onclick="document.getElementById('fm-upload-${key.replace(/[:.]/g, '-')}').click()">📤 Upload File</button>
+                    <input type="file" id="fm-upload-${key.replace(/[:.]/g, '-')}" style="display:none;" onchange="fmUploadFile(this, '${ip}', '${port}')">
+                </div>
+                
+                <div class="flex-row" style="margin-bottom: 10px; font-family: monospace; font-size: 14px;">
+                    <strong>Path:</strong>
+                    <div id="fm-breadcrumbs-${key.replace(/[:.]/g, '-')}" style="flex-grow: 1; margin-left: 10px;"></div>
+                </div>
+
+                <div style="flex-grow: 1; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px; background: var(--card-bg);">
+                    <table id="fm-table-${key.replace(/[:.]/g, '-')}" style="font-size: 13px;">
+                        <thead>
+                            <tr style="background: rgba(0,0,0,0.02);">
+                                <th style="width: 30px;">T</th>
+                                <th>Name</th>
+                                <th style="width: 80px;">Size</th>
+                                <th style="width: 100px;">Perms</th>
+                                <th style="width: 150px;">Date</th>
+                                <th style="width: 120px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr><td colspan="6" style="text-align:center;">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+
+                <!-- Simple Editor Modal -->
+                <div id="fm-editor-modal-${key.replace(/[:.]/g, '-')}" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+                    <div style="background:var(--card-bg); width:80%; height:80%; border-radius:8px; display:flex; flex-direction:column; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+                        <div class="flex-row" style="margin-bottom:10px;">
+                            <h3 style="margin:0;" id="fm-editor-title-${key.replace(/[:.]/g, '-')}">Edit</h3>
+                            <span class="spacer"></span>
+                            <button class="btn btn-primary" onclick="fmSaveFile('${ip}','${port}')">💾 Save</button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('fm-editor-modal-${key.replace(/[:.]/g, '-')}').style.display='none'">Close</button>
+                        </div>
+                        <textarea id="fm-editor-area-${key.replace(/[:.]/g, '-')}" style="flex-grow:1; font-family:'Consolas',monospace; resize:none; padding:10px; border:1px solid var(--border-color);"></textarea>
+                    </div>
+                </div>
+            `;
+            container.appendChild(content);
+            activateTab(key);
+            fmLoadDir(ip, port, fmCurrentPath);
+        }
+
+        function closeFmTab(e, ip, port) {
+            e.stopPropagation();
+            const key = 'fm-' + ip + ':' + port;
+            const safeKey = key.replace(/[:.]/g, '-');
+            openTabs.delete(key);
+            document.getElementById('tab-btn-' + safeKey).remove();
+            document.getElementById('tab-content-' + safeKey).remove();
+            if (activeTabKey === key) {
+                activeTabKey = null;
+                if (openTabs.size > 0) activateTab(openTabs.values().next().value);
+                else document.getElementById('console-section').style.display = 'none';
+            }
+        }
+
+        async function fmLoadDir(ip, port, path) {
+            const key = 'fm-' + ip + ':' + port;
+            const safeKey = key.replace(/[:.]/g, '-');
+            const tbody = document.querySelector(`#fm-table-${safeKey} tbody`);
+            const breadcrumbs = document.getElementById('fm-breadcrumbs-' + safeKey);
+
+            fmCurrentPath = path;
+
+            // Update Breadcrumbs
+            const parts = path.split('/').filter(p => p);
+            let bcHtml = `<span onclick="fmLoadDir('${ip}','${port}','/')" style="cursor:pointer;color:var(--primary-color);">/</span>`;
+            let currentP = '';
+            parts.forEach((p, i) => {
+                currentP += '/' + p;
+                bcHtml += ` / <span onclick="fmLoadDir('${ip}','${port}','${currentP}')" style="cursor:pointer;color:var(--primary-color);">${p}</span>`;
+            });
+            breadcrumbs.innerHTML = bcHtml;
+
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
+
+            const data = await apiCall('/api/files/list', { ip, port: parseInt(port), path });
+            if (data && data.error) {
+                tbody.innerHTML = `<tr><td colspan="6" style="color:var(--danger-color);text-align:center;">${data.error}</td></tr>`;
+                return;
+            }
+            if (!data || !data.files) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">Empty directory</td></tr>';
+                return;
+            }
+
+            let html = '';
+            // Sort: Dir first, then name
+            const sorted = data.files.sort((a, b) => (b.is_dir - a.is_dir) || a.name.localeCompare(b.name));
+
+            for (const f of sorted) {
+                const icon = f.is_dir ? '📂' : (f.is_link ? '🔗' : '📄');
+                const fullPath = path.replace(/\/$/, '') + '/' + f.name;
+                const size = f.is_dir ? '-' : (f.size < 1024 ? f.size + ' B' : (f.size / 1024).toFixed(1) + ' KB');
+                const date = new Date(f.mtime * 1000).toLocaleString();
+
+                let actions = '';
+                if (!f.is_dir) {
+                    actions += `<button class="btn btn-sm btn-primary" onclick="fmOpenFile('${ip}','${port}','${fullPath}')" title="Edit">✏️</button> `;
+                    actions += `<button class="btn btn-sm btn-success" onclick="fmDownloadFile('${ip}','${port}','${fullPath}')" title="Download">⬇️</button> `;
+                } else {
+                    actions += `<button class="btn btn-sm btn-secondary" onclick="fmLoadDir('${ip}','${port}','${fullPath}')" title="Open">📂</button> `;
+                }
+                actions += `<button class="btn btn-sm btn-danger" onclick="fmDeleteFile('${ip}','${port}','${fullPath}')" title="Delete">🗑️</button>`;
+
+                const rowClick = f.is_dir ? `fmLoadDir('${ip}','${port}','${fullPath}')` : '';
+                const rowStyle = f.is_dir ? 'cursor:pointer; font-weight:500;' : '';
+
+                html += `
+                    <tr>
+                        <td onclick="${rowClick}" style="${rowStyle}">${icon}</td>
+                        <td onclick="${rowClick}" style="${rowStyle}">${f.name}</td>
+                        <td>${size}</td>
+                        <td style="font-family:monospace;font-size:12px;">${f.perms || '-'}</td>
+                        <td style="font-size:12px;color:#666;">${date}</td>
+                        <td>${actions}</td>
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = html;
+        }
+
+        function fmNavigate(ip, port) {
+            const key = 'fm-' + ip + ':' + port;
+            const safeKey = key.replace(/[:.]/g, '-');
+            const path = document.getElementById('fm-path-' + safeKey).value;
+            fmLoadDir(ip, port, path);
+        }
+
+        function fmGoUp(ip, port) {
+            const parent = fmCurrentPath.split('/').slice(0, -1).join('/') || '/';
+            fmLoadDir(ip, port, parent);
+        }
+
+        function fmReload(ip, port) {
+            fmLoadDir(ip, port, fmCurrentPath);
+        }
+
+        let currentEditPath = '';
+        // Helper to jump to file manager and edit file
+        function quickEditFile(ip, port, path) {
+            openFileManager(ip, port);
+            fmOpenFile(ip, port, path);
+        }
+
+        async function fmOpenFile(ip, port, path) {
+            const key = 'fm-' + ip + ':' + port;
+            const safeKey = key.replace(/[:.]/g, '-');
+            currentEditPath = path;
+
+            document.getElementById(`fm-editor-modal-${safeKey}`).style.display = 'flex';
+            document.getElementById(`fm-editor-title-${safeKey}`).innerText = 'Editing: ' + path;
+            const textarea = document.getElementById(`fm-editor-area-${safeKey}`);
+            textarea.value = 'Loading...';
+
+            const data = await apiCall('/api/files/read', { ip, port: parseInt(port), path });
+            if (data && data.content !== undefined) {
+                textarea.value = data.content;
+            } else {
+                textarea.value = 'Error reading file: ' + (data ? data.error : 'Unknown');
+            }
+        }
+
+        async function fmSaveFile(ip, port) {
+            const key = 'fm-' + ip + ':' + port;
+            const safeKey = key.replace(/[:.]/g, '-');
+            const content = document.getElementById(`fm-editor-area-${safeKey}`).value;
+
+            showToast("Saving...");
+            const data = await apiCall('/api/files/write', { ip, port: parseInt(port), path: currentEditPath, content });
+            if (data && data.success) {
+                showToast("Saved successfully");
+                document.getElementById(`fm-editor-modal-${safeKey}`).style.display = 'none';
+                fmReload(ip, port);
+            } else {
+                showToast("Error: " + (data ? data.message : 'Unknown'));
+            }
+        }
+
+        async function fmDeleteFile(ip, port, path) {
+            if (!confirm(`Delete ${path}?`)) return;
+            const data = await apiCall('/api/files/delete', { ip, port: parseInt(port), path });
+            if (data && data.success) {
+                showToast("Deleted");
+                fmReload(ip, port);
+            } else {
+                showToast("Error: " + (data ? data.message : 'Unknown'));
+            }
+        }
+
+        function fmDownloadFile(ip, port, path) {
+            window.location.href = `/api/files/download?ip=${ip}&port=${port}&path=${encodeURIComponent(path)}`;
+        }
+
+        async function fmUploadFile(input, ip, port) {
+            if (input.files.length === 0) return;
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('ip', ip);
+            formData.append('port', port);
+            formData.append('path', fmCurrentPath);
+
+            showToast("Uploading " + file.name + "...");
+            try {
+                const res = await fetch('/api/files/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast("Upload success");
+                    fmReload(ip, port);
+                } else {
+                    showToast("Upload failed: " + data.error);
+                }
+            } catch (e) {
+                showToast("Upload error: " + e);
+            }
+            input.value = ''; // clear
+        }
+
+        // 页面加载时初始化规则列表
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCustomRules();
+        });
     </script>
 </body>
 

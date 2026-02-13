@@ -1,0 +1,193 @@
+<tr id="detail-{{ t.ip | replace('.', '-') }}-{{ t.port }}" style="display: none; background-color: rgba(0,0,0,0.02);">
+    <td colspan="7" style="padding: 0;">
+        <div style="padding: 8px 12px; font-size: 13px;">
+            <!-- Info Grid: More compact -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+
+                <!-- Environment (Compact) -->
+                <div
+                    style="background:var(--card-bg); padding:8px; border-radius:4px; border:1px solid var(--border-color);">
+                    <div style="color:var(--primary-color); font-weight:bold; margin-bottom:4px; font-size:12px;">
+                        Environment</div>
+                    {% if t.detection and t.detection.types %}
+                    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                        {% for type in t.detection.types %}
+                        <span
+                            style="background:#3498db; color:white; padding:2px 6px; border-radius:3px; font-size:11px;">{{
+                            type }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <span style="color:#999; font-size:11px;">Unknown</span>
+                    {% endif %}
+                </div>
+
+                <!-- Status (Compact) -->
+                <div
+                    style="background:var(--card-bg); padding:8px; border-radius:4px; border:1px solid var(--border-color);">
+                    <div style="color:var(--primary-color); font-weight:bold; margin-bottom:4px; font-size:12px;">Status
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:11px;">
+                        <span>Preload: {% if t.preload_done %}<span style="color:var(--success-color);">✅</span>{% else
+                            %}<span style="color:var(--warning-color);">⏳</span>{% endif %}</span>
+                        <span>Backup: {% if t.backup_done %}<span style="color:var(--success-color);">✅</span>{% else
+                            %}<span style="color:var(--warning-color);">⏳</span>{% endif %}</span>
+                    </div>
+                    {% if t.backup_path %}<div
+                        style="font-size:10px; color:#666; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                        title="{{ t.backup_path }}">{{ t.backup_path }}</div>{% endif %}
+                </div>
+
+                <!-- Evidence (Compact List) -->
+                <div
+                    style="background:var(--card-bg); padding:8px; border-radius:4px; border:1px solid var(--border-color); grid-column: span 2;">
+                    <div style="color:var(--primary-color); font-weight:bold; margin-bottom:4px; font-size:12px;">
+                        Evidence</div>
+                    {% if t.detection and t.detection.evidence %}
+                    <div
+                        style="display:grid; grid-template-columns: auto 1fr; gap:4px 10px; font-size:11px; font-family:monospace;">
+                        {% for k, v in t.detection.evidence.items() %}
+                        <div style="color:#888; text-align:right;">{{ k }}:</div>
+                        <div style="color:#ccc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                            title="{{ v }}">{{ v }}</div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <span style="color:#999; font-size:11px;">None</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Vulnerability Report (PHP) - Compact List -->
+            {% if t.detection and t.detection.php_vulns %}
+            <div style="margin-top: 8px;">
+                <div
+                    style="background:rgba(231, 76, 60, 0.1); border-left:3px solid #e74c3c; padding:4px 8px; font-size:12px; font-weight:bold; color:#e74c3c; margin-bottom:4px;">
+                    ⚠️ PHP Vulnerabilities
+                </div>
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    {% for line in t.detection.php_vulns.split('\n') %}
+                    {% if line.strip() %}
+                    {% set parts = line.split(':', 3) %}
+                    <details
+                        style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:3px; font-size:11px;">
+                        <summary style="cursor:pointer; padding:4px 8px; display:flex; gap:8px; align-items:center;">
+                            <span style="font-family:monospace; color:#e74c3c; font-weight:bold; white-space:nowrap;">{{
+                                parts[0] }}</span>
+                            <button class="btn btn-sm btn-secondary"
+                                style="padding:0 4px; font-size:10px; line-height:1; height:18px; border:none; background:rgba(255,255,255,0.1);"
+                                onclick="event.stopPropagation(); quickEditFile('{{ t.ip }}', '{{ t.port }}', '{{ parts[0] }}')"
+                                title="Quick Edit">✏️</button>
+                            <span style="font-family:monospace; color:#ccc; white-space:nowrap;">:{{ parts[1] }}</span>
+                            {% if parts|length > 3 %}
+                            <span
+                                style="background:rgba(231, 76, 60, 0.2); color:#e74c3c; padding:0 4px; border-radius:2px; font-weight:bold;">{{
+                                parts[2] }}</span>
+                            {% endif %}
+                            <span style="color:#666; font-size:10px; margin-left:auto;">Expand</span>
+                        </summary>
+                        <div
+                            style="padding:8px; border-top:1px solid var(--border-color); font-family:'Consolas',monospace; color:#d4d4d4; background:#1e1e1e; font-size:11px; white-space:pre-wrap; word-break:break-all;">
+                            {{ parts[3] if parts|length > 3 else (parts[2] if parts|length > 2 else line) }}</div>
+                    </details>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Backdoor Scan Results - Compact List -->
+            {% if t.backdoor_scan %}
+            <div style="margin-top: 8px;">
+                <div
+                    style="background:rgba(231, 76, 60, 0.1); border-left:3px solid #e74c3c; padding:4px 8px; font-size:12px; font-weight:bold; color:#e74c3c; margin-bottom:4px; display:flex; justify-content:space-between;">
+                    <span>🔍 Backdoor Scan</span>
+                    <span style="font-weight:normal; font-size:10px; color:#999;">{{ t.backdoor_scan.scan_time }}</span>
+                </div>
+
+                <!-- Stats Line -->
+                <div style="font-size:11px; margin-bottom:4px; display:flex; gap:10px;">
+                    {% if t.backdoor_scan.backdoors %}<span style="color:#e74c3c; font-weight:bold;">🚨 Backdoors: {{
+                        t.backdoor_scan.backdoors|length }}</span>{% endif %}
+                    {% if t.backdoor_scan.new_files %}<span style="color:#2ecc71;">🆕 New: {{
+                        t.backdoor_scan.new_files|length }}</span>{% endif %}
+                    {% if t.backdoor_scan.modified_files %}<span style="color:#f39c12;">✏️ Mod: {{
+                        t.backdoor_scan.modified_files|length }}</span>{% endif %}
+                    {% if t.backdoor_scan.deleted_files %}<span style="color:#95a5a6;">🗑️ Del: {{
+                        t.backdoor_scan.deleted_files|length }}</span>{% endif %}
+                </div>
+
+                <!-- Backdoor Details -->
+                {% if t.backdoor_scan.backdoors %}
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    {% for bd in t.backdoor_scan.backdoors %}
+                    <details
+                        style="background:var(--card-bg); border:1px solid #e74c3c; border-radius:3px; font-size:11px;">
+                        <summary style="cursor:pointer; padding:4px 8px; color:#e74c3c;">
+                            🚨 {{ bd.file }} {% if bd.is_new %}(New){% endif %}
+                        </summary>
+                        <div style="padding:8px; border-top:1px solid #e74c3c; color:#f39c12; background:#1e1e1e;">
+                            Feature: {{ bd.matches | join(', ') }}</div>
+                    </details>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- File Changes Details -->
+                {% if t.backdoor_scan.new_files or t.backdoor_scan.modified_files %}
+                <details style="margin-top:4px; font-size:11px;">
+                    <summary style="cursor:pointer; color:#999;">📂 Show Changed Files</summary>
+                    <div
+                        style="background:#1e1e1e; padding:5px; border-radius:3px; max-height:100px; overflow-y:auto; font-family:monospace;">
+                        {% for f in t.backdoor_scan.new_files %}<div style="color:#2ecc71;">+ {{ f }}</div>{% endfor %}
+                        {% for f in t.backdoor_scan.modified_files %}<div style="color:#f39c12;">~ {{ f }}</div>{%
+                        endfor %}
+                        {% for f in t.backdoor_scan.deleted_files %}<div style="color:#e74c3c;">- {{ f }}</div>{% endfor
+                        %}
+                    </div>
+                </details>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Python Vulnerability Report - Compact List -->
+            {% if t.detection and t.detection.python_vulns %}
+            <div style="margin-top: 8px;">
+                <div
+                    style="background:rgba(52, 152, 219, 0.1); border-left:3px solid #3498db; padding:4px 8px; font-size:12px; font-weight:bold; color:#3498db; margin-bottom:4px;">
+                    🐍 Python Vulnerabilities
+                </div>
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    {% for line in t.detection.python_vulns.split('\n') %}
+                    {% if line.strip() %}
+                    {% set parts = line.split(':', 3) %}
+                    <details
+                        style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:3px; font-size:11px;">
+                        <summary style="cursor:pointer; padding:4px 8px; display:flex; gap:8px; align-items:center;">
+                            <span style="font-family:monospace; color:#3498db; font-weight:bold; white-space:nowrap;">{{
+                                parts[0] }}</span>
+                            <button class="btn btn-sm btn-secondary"
+                                style="padding:0 4px; font-size:10px; line-height:1; height:18px; border:none; background:rgba(255,255,255,0.1);"
+                                onclick="event.stopPropagation(); quickEditFile('{{ t.ip }}', '{{ t.port }}', '{{ parts[0] }}')"
+                                title="Quick Edit">✏️</button>
+                            <span style="font-family:monospace; color:#ccc; white-space:nowrap;">:{{ parts[1] }}</span>
+                            {% if parts|length > 3 %}
+                            <span
+                                style="background:rgba(52, 152, 219, 0.2); color:#3498db; padding:0 4px; border-radius:2px; font-weight:bold;">{{
+                                parts[2] }}</span>
+                            {% endif %}
+                            <span style="color:#666; font-size:10px; margin-left:auto;">Expand</span>
+                        </summary>
+                        <div
+                            style="padding:8px; border-top:1px solid var(--border-color); font-family:'Consolas',monospace; color:#d4d4d4; background:#1e1e1e; font-size:11px; white-space:pre-wrap; word-break:break-all;">
+                            {{ parts[3] if parts|length > 3 else (parts[2] if parts|length > 2 else line) }}</div>
+                    </details>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </td>
+</tr>

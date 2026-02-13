@@ -1,9 +1,13 @@
 import logging
 import os
 from flask import Flask
+from flask_socketio import SocketIO
 from . import config
 from .services import ssh_manager
 from . import routes
+
+# 全局 SocketIO 实例
+socketio = SocketIO()
 
 def create_app():
     # Calculate template folder path (app/ + template)
@@ -25,5 +29,12 @@ def create_app():
     with app.app_context():
         ssh_manager._ensure_initialized()
     app.register_blueprint(routes.bp)
+    
+    # 初始化 SocketIO
+    socketio.init_app(app, cors_allowed_origins="*")
+    # 注入 socketio 到 ssh_manager
+    ssh_manager.set_socketio(socketio)
+    # 注册 WebSocket 事件
+    routes.register_socketio_events(socketio)
 
     return app
