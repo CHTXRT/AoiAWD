@@ -441,6 +441,27 @@ def api_files_upload():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@bp.route('/api/attack/get_flag', methods=['POST'])
+def api_attack_get_flag():
+    """获取 Flag"""
+    data = request.json
+    ip = data.get('ip')
+    port = data.get('port', 80)
+    result = ssh_manager.get_attack_flag(ip, port)
+    return jsonify(result)
+
+@bp.route('/api/attack/execute_cmd', methods=['POST'])
+def api_attack_execute_cmd():
+    """执行自定义命令"""
+    data = request.json
+    ip = data.get('ip')
+    port = data.get('port', 80)
+    cmd = data.get('cmd')
+    if not cmd:
+        return jsonify({'success': False, 'output': 'Command required'})
+    result = ssh_manager.execute_attack_cmd(ip, port, cmd)
+    return jsonify(result)
+
 @bp.route('/api/files/download', methods=['GET'])
 def api_files_download():
     """下载远程文件"""

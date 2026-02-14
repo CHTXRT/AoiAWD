@@ -90,9 +90,12 @@ class SSHControllerFacade:
     def get_scheduled_tasks(self): return self.defense.get_scheduled_tasks()
 
     # --- Attack Manager Delegates ---
+    # --- Attack Manager Delegates ---
     def set_enemy_config(self, *args, **kwargs): return self.attack.set_enemy_config(*args, **kwargs)
     def get_attack_status(self): return self.attack.get_attack_status()
     def start_counter_attack_campaign(self, *args, **kwargs): return self.attack.start_counter_attack_campaign(*args, **kwargs)
+    def execute_attack_cmd(self, *args, **kwargs): return self.attack.execute_cmd(*args, **kwargs)
+    def get_attack_flag(self, *args, **kwargs): return self.attack.get_flag(*args, **kwargs)
     
 # Singleton Instance
 ssh_manager = SSHControllerFacade()

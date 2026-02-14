@@ -1,5 +1,27 @@
 {
-    "network_template": "172.18.0.4",
+    "network_template": "172.18.0.4,172.18.0.14,172.18.0.24",
     "excluded_ips": [],
-    "targets": {}
+    "targets": {
+        "172.18.0.4": {
+            "status": "confirmed",
+            "logs": [],
+            "last_msg": "timeout(running)",
+            "password": "admin_ccmd",
+            "shell_uri": "/include/.index.php"
+        },
+        "172.18.0.14": {
+            "status": "confirmed",
+            "logs": [],
+            "last_msg": "timeout(running)",
+            "password": "admin_ccmd",
+            "shell_uri": "/include/.index.php"
+        },
+        "172.18.0.24": {
+            "status": "confirmed",
+            "logs": [],
+            "last_msg": "timeout(running)",
+            "password": "admin_ccmd",
+            "shell_uri": "/include/.index.php"
+        }
+    }
 }
