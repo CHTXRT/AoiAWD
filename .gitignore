@@ -14,3 +14,4 @@ keys/*
 !keys/.gitkeep
 app/__pycache__/*
 app/services/__pycache__/*
+__pycache__/*
