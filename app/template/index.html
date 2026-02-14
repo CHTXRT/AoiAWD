@@ -313,181 +313,420 @@
                 opacity: 0;
             }
         }
+
+        /* Sidebar & Layout */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .app-sidebar {
+            width: 60px;
+            background-color: var(--card-bg);
+            /* Use card-bg to match theme or distinct color */
+            border-right: 1px solid var(--border-color);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            flex-shrink: 0;
+            box-shadow: var(--shadow);
+        }
+
+        .app-sidebar:hover {
+            width: 240px;
+        }
+
+        .sidebar-header {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Centered icon when collapsed */
+            padding: 0 10px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .sidebar-brand {
+            font-weight: bold;
+            font-size: 18px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            margin-left: 10px;
+            color: var(--primary-color);
+        }
+
+        .app-sidebar:hover .sidebar-brand {
+            opacity: 1;
+        }
+
+        .sidebar-brand-icon {
+            font-size: 24px;
+        }
+
+        .sidebar-nav {
+            flex-grow: 1;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 18px;
+            /* Center icon in 60px width */
+            color: var(--text-color);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            white-space: nowrap;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--primary-color);
+        }
+
+        .nav-item.active {
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            width: 24px;
+            /* Fixed width for alignment */
+            text-align: center;
+            margin-right: 15px;
+        }
+
+        .nav-text {
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .app-sidebar:hover .nav-text {
+            opacity: 1;
+        }
+
+        .app-main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            /* Prevent overflow issues */
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        /* Adjust existing classes to fit new layout */
+        .container {
+            flex-grow: 1;
+            /* overflow-y: auto; Moved to .app-main */
+        }
+
+        /* Views */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 </head>
 
 <body>
 
-    <div class="header">
-        <h1>AWD Controller</h1>
-        <div class="flex-row">
-            <button class="btn btn-primary" onclick="connectAll()">🔗 全部连接</button>
-            <button class="btn btn-secondary" onclick="disconnectAll()">⛓️ 全部断开</button>
-            <button class="btn btn-warning" onclick="batchExecutePrompt()">⚡ 批量执行</button>
-            <button class="btn btn-secondary" onclick="checkConnections()">💓 检查连接</button>
-            <button class="btn btn-secondary" onclick="toggleTheme()">🌓 Theme</button>
-        </div>
-    </div>
-
-    <div class="container">
-
-        <!-- Config & Targets Section (Collapsible) -->
-        <div class="card">
-            <details open>
-                <summary>⚙️ Configuration & Targets</summary>
-                <div class="card-content">
-
-                    <!-- Preload Config -->
-                    <div style="margin-bottom: 30px;">
-                        <h4 style="margin-top: 0;">Preload Tasks (Auto-run on Connect)</h4>
-                        <div class="flex-row" style="margin-bottom: 10px;">
-                            <input type="file" id="preload-file" aria-label="Preload File" style="width: 200px;">
-                            <input type="text" id="preload-path" aria-label="Remote Path" placeholder="Remote Path"
-                                style="width: 200px;">
-                            <button class="btn btn-primary btn-sm" onclick="addPreloadFile()">Add File</button>
-                            <div style="width: 20px;"></div>
-                            <input type="text" id="preload-cmd" aria-label="Command" placeholder="Command"
-                                style="flex-grow: 1;">
-                            <button class="btn btn-primary btn-sm" onclick="addPreloadCmd()">Add Cmd</button>
-                        </div>
-
-                        <div
-                            style="max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); padding: 10px; border-radius: 4px;">
-                            {% for f in preload.files %}
-                            <div class="flex-row" style="margin-bottom: 5px; font-size: 12px;">
-                                <span>📄 {{ f.filename }} &rarr; {{ f.remote_path }}</span>
-                                <span class="spacer"></span>
-                                <button class="btn btn-danger btn-sm"
-                                    onclick="removePreload('file', '{{ loop.index0 }}')">×</button>
-                            </div>
-                            {% endfor %}
-                            {% for cmd in preload.commands %}
-                            <div class="flex-row" style="margin-bottom: 5px; font-size: 12px;">
-                                <span>💻 {{ cmd }}</span>
-                                <span class="spacer"></span>
-                                <button class="btn btn-danger btn-sm"
-                                    onclick="removePreload('cmd', '{{ loop.index0 }}')">×</button>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- 定时任务管理 -->
-                    <div style="margin-bottom: 30px;">
-                        <h4 style="margin-top: 20px;">⏰ 定时任务 (在所有已连接靶机上定时执行)</h4>
-                        <div class="flex-row" style="margin-bottom: 10px;">
-                            <input type="text" id="task-name" aria-label="任务名称" placeholder="任务名称"
-                                style="width: 150px;">
-                            <input type="text" id="task-cmd" aria-label="命令" placeholder="命令 (如: rm -f /tmp/*.php)"
-                                style="flex-grow: 1;">
-                            <input type="text" id="task-interval" aria-label="间隔秒数" placeholder="间隔(秒)" value="300"
-                                style="width: 80px;">
-                            <button class="btn btn-primary btn-sm" onclick="addScheduledTask()">添加任务</button>
-                        </div>
-                        <div id="scheduled-tasks-list"
-                            style="max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); padding: 10px; border-radius: 4px; font-size: 12px; color: #999;">
-                            加载中...
-                        </div>
-                    </div>
-
-                    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
-
-                    <!-- 自定义 PHP 检测规则 -->
-                    <div style="margin-bottom: 30px;">
-                        <h4>🛡️ 自定义 PHP 检测规则 (补充内置扫描的 grep 正则)</h4>
-                        <div class="flex-row" style="margin-bottom: 10px;">
-                            <input type="text" id="rule-name" placeholder="规则名称" style="width: 120px;">
-                            <input type="text" id="rule-pattern" placeholder="正则表达式 (如: mysql_query\\()"
-                                style="flex-grow: 1;">
-                            <input type="text" id="rule-desc" placeholder="描述(可选)" style="width: 150px;">
-                            <button class="btn btn-primary btn-sm" onclick="addCustomRule()">添加规则</button>
-                        </div>
-                        <div id="custom-rules-list"
-                            style="max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); padding: 10px; border-radius: 4px; font-size: 12px; color: #999;">
-                            加载中...
-                        </div>
-                    </div>
-
-                    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
-
-                    <!-- AOI 工具配置 -->
-                    <div style="margin-bottom: 30px;">
-                        <h4>🛡️ AOI 流量监控 (检测到 PHP 靶机后自动部署)</h4>
-                        <div class="flex-row" style="margin-bottom: 10px; align-items:center;">
-                            <span style="font-size:12px; color:#999; white-space:nowrap;">本机 IP：</span>
-                            <input type="text" id="local-ip-input" placeholder="如: 10.4.51.119" value="{{ local_ip }}"
-                                style="width: 200px;">
-                            <button class="btn btn-primary btn-sm" onclick="saveLocalIp()">保存</button>
-                            <span id="local-ip-status" style="font-size:11px; margin-left:8px;"></span>
-                        </div>
-                        <div
-                            style="font-size:11px; color:#666; padding:6px 8px; background:var(--card-bg); border:1px solid var(--border-color); border-radius:4px;">
-                            <div>📦 <code>tapeworm.phar</code> →
-                                <code>php tapeworm.phar -d /var/www/html -s &lt;本机IP&gt;:8023</code>
-                            </div>
-                            <div>📦 <code>roundworm</code> →
-                                <code>./roundworm -d -s &lt;本机IP&gt; -w /var/www/html</code>
-                            </div>
-                            <div style="color:#f39c12; margin-top:4px;">⚠️ 未配置本机 IP 时不会自动部署</div>
-                        </div>
-                    </div>
-
-                    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
-
-                    <!-- Add Target -->
-                    <form action="/add_target" method="post" enctype="multipart/form-data" class="flex-row"
-                        style="margin-bottom: 20px;">
-                        <input type="text" name="ip" aria-label="IP Address" placeholder="IP Address" required>
-                        <input type="text" name="port" aria-label="Port" placeholder="Port" value="22"
-                            style="width: 60px;">
-                        <input type="text" name="user" aria-label="User" placeholder="User" value="root"
-                            style="width: 80px;">
-                        <input type="password" name="password" aria-label="Password" placeholder="Password">
-                        <input type="file" name="key_file" aria-label="Key File" style="width: 200px;"
-                            title="Upload Private Key (Optional)">
-                        <button type="submit" class="btn btn-primary">Add Target</button>
-                    </form>
-
-                    <!-- Target List -->
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 40px;"></th> <!-- Expand Icon -->
-                                <th>IP</th>
-                                <th>Port</th>
-                                <th>User</th>
-                                <th>Key</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for t in targets %}
-                            {% include 'target_main_row.html' %}
-                            {% include 'target_detail_row.html' %}
-                            {% endfor %}
-                        </tbody>
-                    </table>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <div class="app-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand-icon">🛡️</div>
+                <div class="sidebar-brand">AWD Defender</div>
+            </div>
+            <div class="sidebar-nav">
+                <div class="nav-item active" onclick="switchView('dashboard', this)">
+                    <div class="nav-icon">📊</div>
+                    <div class="nav-text">控制台 (Dashboard)</div>
                 </div>
-            </details>
+                <div class="nav-item" onclick="switchView('attacks', this)">
+                    <div class="nav-icon">⚔️</div>
+                    <div class="nav-text">攻击 (Attack)</div>
+                </div>
+                <div class="nav-item" onclick="switchView('defense', this)">
+                    <div class="nav-icon">🛡️</div>
+                    <div class="nav-text">防御 (Defense)</div>
+                </div>
+                <div class="nav-item" onclick="switchView('settings', this)">
+                    <div class="nav-icon">⚙️</div>
+                    <div class="nav-text">设置 (Settings)</div>
+                </div>
+            </div>
+            <!-- Bottom Actions -->
+            <div
+                style="padding: 10px; border-top: 1px solid var(--border-color); display:flex; flex-direction:column; gap:5px;">
+                <div class="nav-item" onclick="toggleTheme()" title="切换主题">
+                    <div class="nav-icon">🌓</div>
+                    <div class="nav-text">切换主题</div>
+                </div>
+            </div>
         </div>
 
-        <!-- Multi-Tab Console Section -->
-        <div class="card" id="console-section" style="display: none;">
-            <div class="tabs-header" id="tabs-header">
-                <!-- Tabs will be injected here -->
-            </div>
-            <div id="tabs-content-container">
-                <!-- Tab contents will be injected here -->
-            </div>
-        </div>
+        <!-- Main Content -->
+        <div class="app-main">
 
+            <!-- View: Dashboard (Default) -->
+            <div id="view-dashboard" class="view-section active">
+                <div class="header">
+                    <h1>AWD Controller</h1>
+                    <div class="flex-row">
+                        <button class="btn btn-primary" onclick="connectAll()">🔗 全部连接</button>
+                        <button class="btn btn-secondary" onclick="disconnectAll()">⛓️ 全部断开</button>
+                        <button class="btn btn-warning" onclick="batchExecutePrompt()">⚡ 批量执行</button>
+                        <button class="btn btn-secondary" onclick="checkConnections()">💓 检查连接</button>
+                    </div>
+                </div>
+
+                <div class="container">
+                    <!-- Config & Targets Section (Original Content) -->
+                    <div class="card">
+                        <details open>
+                            <summary>⚙️ Configuration & Targets</summary>
+                            <div class="card-content">
+                                <!-- Preload, Scheduled Tasks, Rules, AOI, Target Form, Target List -->
+                                <!-- Content will be preserved by replace_file_content if matched correctly, 
+                                     but since I am replacing a huge block, I need to be careful.
+                                     Wait, the user wants me to WRAP the content. 
+                                     replace_file_content is block replacement.
+                                     I will copy the *entire* body structure and replace body.
+                                -->
+                                <!-- Since I cannot use "replace_file_content" to generically "wrap", 
+                                     I must rely on finding a large chunk or using multiple edits. 
+                                     This tool supports multiple chunks? No, standard is single block.
+                                     I will replace from <body> to </body>
+                                -->
+
+                                <!-- RE-INJECTION OF ORIGINAL CONTENT START -->
+                                <!-- Preload Config -->
+                                <details style="margin-bottom: 20px;">
+                                    <summary>⚙️ Preload Tasks (Auto-run on Connect)</summary>
+                                    <div class="card-content" style="padding-top: 10px;">
+                                        <div class="flex-row" style="margin-bottom: 10px;">
+                                            <input type="file" id="preload-file" style="width: 200px;">
+                                            <input type="text" id="preload-path" placeholder="Remote Path"
+                                                style="width: 200px;">
+                                            <button class="btn btn-primary btn-sm" onclick="addPreloadFile()">Add
+                                                File</button>
+                                            <div style="width: 20px;"></div>
+                                            <input type="text" id="preload-cmd" placeholder="Command"
+                                                style="flex-grow: 1;">
+                                            <button class="btn btn-primary btn-sm" onclick="addPreloadCmd()">Add
+                                                Cmd</button>
+                                        </div>
+
+                                        <div
+                                            style="max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); padding: 10px; border-radius: 4px;">
+                                            {% for f in preload.files %}
+                                            <div class="flex-row" style="margin-bottom: 5px; font-size: 12px;">
+                                                <span>📄 {{ f.filename }} &rarr; {{ f.remote_path }}</span>
+                                                <span class="spacer"></span>
+                                                <button class="btn btn-danger btn-sm"
+                                                    onclick="removePreload('file', '{{ loop.index0 }}')">×</button>
+                                            </div>
+                                            {% endfor %}
+                                            {% for cmd in preload.commands %}
+                                            <div class="flex-row" style="margin-bottom: 5px; font-size: 12px;">
+                                                <span>💻 {{ cmd }}</span>
+                                                <span class="spacer"></span>
+                                                <button class="btn btn-danger btn-sm"
+                                                    onclick="removePreload('cmd', '{{ loop.index0 }}')">×</button>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </details>
+
+                                <!-- 定时任务管理 -->
+                                <details style="margin-bottom: 20px;">
+                                    <summary>⏰ 定时任务 (在所有已连接靶机上定时执行)</summary>
+                                    <div class="card-content" style="padding-top: 10px;">
+                                        <div class="flex-row" style="margin-bottom: 10px;">
+                                            <input type="text" id="task-name" placeholder="任务名称" style="width: 150px;">
+                                            <input type="text" id="task-cmd" placeholder="命令 (如: rm -f /tmp/*.php)"
+                                                style="flex-grow: 1;">
+                                            <input type="text" id="task-interval" placeholder="间隔(秒)" value="300"
+                                                style="width: 80px;">
+                                            <button class="btn btn-primary btn-sm"
+                                                onclick="addScheduledTask()">添加任务</button>
+                                        </div>
+                                        <div id="scheduled-tasks-list"
+                                            style="max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); padding: 10px; border-radius: 4px; font-size: 12px; color: #999;">
+                                            加载中...
+                                        </div>
+                                    </div>
+                                </details>
+
+                                <!-- 自定义 PHP 检测规则 -->
+                                <details style="margin-bottom: 20px;">
+                                    <summary>🛡️ 自定义 PHP 检测规则 (补充内置扫描的 grep 正则)</summary>
+                                    <div class="card-content" style="padding-top: 10px;">
+                                        <div class="flex-row" style="margin-bottom: 10px;">
+                                            <input type="text" id="rule-name" placeholder="规则名称" style="width: 120px;">
+                                            <input type="text" id="rule-pattern" placeholder="正则表达式 (如: mysql_query\\()"
+                                                style="flex-grow: 1;">
+                                            <input type="text" id="rule-desc" placeholder="描述(可选)"
+                                                style="width: 150px;">
+                                            <button class="btn btn-primary btn-sm"
+                                                onclick="addCustomRule()">添加规则</button>
+                                        </div>
+                                        <div id="custom-rules-list"
+                                            style="max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); padding: 10px; border-radius: 4px; font-size: 12px; color: #999;">
+                                            加载中...
+                                        </div>
+                                    </div>
+                                </details>
+
+                                <!-- AOI 工具配置 -->
+                                <details style="margin-bottom: 20px;">
+                                    <summary>🛡️ AOI 流量监控 (检测到 PHP 靶机后自动部署)</summary>
+                                    <div class="card-content" style="padding-top: 10px;">
+                                        <div class="flex-row" style="margin-bottom: 10px; align-items:center;">
+                                            <span style="font-size:12px; color:#999; white-space:nowrap;">本机 IP：</span>
+                                            <input type="text" id="local-ip-input" placeholder="如: 10.4.51.119"
+                                                value="{{ local_ip }}" style="width: 200px;">
+                                            <button class="btn btn-primary btn-sm" onclick="saveLocalIp()">保存</button>
+                                            <span id="local-ip-status" style="font-size:11px; margin-left:8px;"></span>
+                                        </div>
+                                        <div
+                                            style="font-size:11px; color:#666; padding:6px 8px; background:var(--card-bg); border:1px solid var(--border-color); border-radius:4px;">
+                                            <div>📦 <code>tapeworm.phar</code> →
+                                                <code>php tapeworm.phar -d /var/www/html -s &lt;本机IP&gt;:8023</code>
+                                            </div>
+                                            <div>📦 <code>roundworm</code> →
+                                                <code>./roundworm -d -s &lt;本机IP&gt; -w /var/www/html</code></div>
+                                            <div style="color:#f39c12; margin-top:4px;">⚠️ 未配置本机 IP 时不会自动部署</div>
+                                        </div>
+                                    </div>
+                                </details>
+
+                                <!-- Add Target & List -->
+                                <form action="/add_target" method="post" enctype="multipart/form-data" class="flex-row"
+                                    style="margin-bottom: 20px;">
+                                    <input type="text" name="ip" placeholder="IP Address" required>
+                                    <input type="text" name="port" placeholder="Port" value="22" style="width: 60px;">
+                                    <input type="text" name="user" placeholder="User" value="root" style="width: 80px;">
+                                    <input type="password" name="password" placeholder="Password">
+                                    <input type="file" name="key_file" style="width: 200px;"
+                                        title="Upload Private Key (Optional)">
+                                    <button type="submit" class="btn btn-primary">Add Target</button>
+                                </form>
+
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 40px;"></th>
+                                            <th>IP</th>
+                                            <th>Port</th>
+                                            <th>User</th>
+                                            <th>Key</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for t in targets %}
+                                        {% include 'target_main_row.html' %}
+                                        {% include 'target_detail_row.html' %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <!-- RE-INJECTION END -->
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- Multi-Tab Console Section (Now part of Dashboard View) -->
+                    <div class="card" id="console-section" style="display: none;">
+                        <div class="tabs-header" id="tabs-header">
+                            <!-- Tabs will be injected here -->
+                        </div>
+                        <div id="tabs-content-container">
+                            <!-- Tab contents will be injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Placeholder Views for Future Expansion -->
+            <div id="view-attacks" class="view-section">
+                <div class="header">
+                    <h1>攻击模块 (Attack)</h1>
+                </div>
+                <div class="container">
+                    <div class="card">
+                        <div class="card-content">🚧 施工中...</div>
+                    </div>
+                </div>
+            </div>
+            <div id="view-defense" class="view-section">
+                <div class="header">
+                    <h1>防御模块 (Defense)</h1>
+                </div>
+                <div class="container">
+                    <div class="card">
+                        <div class="card-content">🚧 施工中...</div>
+                    </div>
+                </div>
+            </div>
+            <div id="view-settings" class="view-section">
+                <div class="header">
+                    <h1>系统设置 (Settings)</h1>
+                </div>
+                <div class="container">
+                    <div class="card">
+                        <div class="card-content">🚧 施工中...</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <div id="toast"></div>
 
     <script>
+        // Switch View Logic
+        function switchView(viewName, navItem) {
+            // Update Nav
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            navItem.classList.add('active');
+
+            // Update View
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById('view-' + viewName);
+            if (target) target.classList.add('active');
+        }
+
         // Theme Logic
         function toggleTheme() {
             const html = document.documentElement;
