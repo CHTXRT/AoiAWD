@@ -623,7 +623,8 @@
                                                 <code>php tapeworm.phar -d /var/www/html -s &lt;本机IP&gt;:8023</code>
                                             </div>
                                             <div>📦 <code>roundworm</code> →
-                                                <code>./roundworm -d -s &lt;本机IP&gt; -w /var/www/html</code></div>
+                                                <code>./roundworm -d -s &lt;本机IP&gt; -w /var/www/html</code>
+                                            </div>
                                             <div style="color:#f39c12; margin-top:4px;">⚠️ 未配置本机 IP 时不会自动部署</div>
                                         </div>
                                     </div>
@@ -632,6 +633,8 @@
                                 <!-- Add Target & List -->
                                 <form action="/add_target" method="post" enctype="multipart/form-data" class="flex-row"
                                     style="margin-bottom: 20px;">
+                                    <input type="text" name="name" placeholder="Name (Opt)"
+                                        style="width: 100px; margin-right: 5px;">
                                     <input type="text" name="ip" placeholder="IP Address" required>
                                     <input type="text" name="port" placeholder="Port" value="22" style="width: 60px;">
                                     <input type="text" name="user" placeholder="User" value="root" style="width: 80px;">
@@ -678,13 +681,45 @@
             </div>
 
             <!-- Placeholder Views for Future Expansion -->
+            <!-- View: Attack Module -->
             <div id="view-attacks" class="view-section">
                 <div class="header">
-                    <h1>攻击模块 (Attack)</h1>
+                    <h1>⚔️ Attack Module (Counter-Strike)</h1>
+                    <div class="flex-row">
+                        <span style="font-size:12px; opacity:0.7;">自动反制已发现的后门</span>
+                    </div>
                 </div>
                 <div class="container">
+                    <!-- Config Card -->
                     <div class="card">
-                        <div class="card-content">🚧 施工中...</div>
+                        <h3>🎯 敌方配置 (Enemy Configuration)</h3>
+                        <div class="card-content">
+                            <div class="flex-row">
+                                <label style="flex-basis: 150px;">敌方网段模板:</label>
+                                <input type="text" id="attack-template" placeholder="e.g. 172.16.{x}.101"
+                                    style="flex-grow: 1;">
+                                <span style="font-size:12px; color:#666;"> 使用 {x} 代表变化段</span>
+                            </div>
+                            <div class="flex-row" style="margin-top:10px;">
+                                <label style="flex-basis: 150px;">排除 IP (逗号分隔):</label>
+                                <input type="text" id="attack-excluded" placeholder="e.g. 172.16.1.101"
+                                    style="flex-grow: 1;">
+                            </div>
+                            <div class="flex-row" style="margin-top:15px;">
+                                <button class="btn btn-primary" onclick="saveAttackConfig()">💾 保存配置</button>
+                                <span id="attack-config-msg" style="margin-left:10px; font-size:12px;"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Wall -->
+                    <h3>📡 实时战况 (Live Status)</h3>
+                    <div id="attack-wall"
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                        <!-- Cards will be injected here -->
+                        <div style="text-align:center; padding:20px; color:#666; grid-column: 1/-1;">
+                            等待触发反制任务...
+                        </div>
                     </div>
                 </div>
             </div>
@@ -725,6 +760,95 @@
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             const target = document.getElementById('view-' + viewName);
             if (target) target.classList.add('active');
+
+            // Logic hooks
+            if (viewName === 'attacks') {
+                loadAttackConfig();
+                startAttackPoll();
+            } else {
+                stopAttackPoll();
+            }
+        }
+
+        // --- Attack Module Logic ---
+        let attackPollInterval = null;
+
+        function loadAttackConfig() {
+            fetch('/api/attack/config')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('attack-template').value = data.template || '';
+                    document.getElementById('attack-excluded').value = data.excluded_ips || '';
+                    renderAttackWall(data.targets);
+                });
+        }
+
+        function saveAttackConfig() {
+            const template = document.getElementById('attack-template').value;
+            const excluded = document.getElementById('attack-excluded').value;
+            fetch('/api/attack/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ template, excluded_ips: excluded })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    showToast('配置已保存');
+                    loadAttackConfig();
+                });
+        }
+
+        function startAttackPoll() {
+            if (attackPollInterval) clearInterval(attackPollInterval);
+            loadAttackConfig(); // initial
+            attackPollInterval = setInterval(() => {
+                fetch('/api/attack/status').then(r => r.json()).then(data => renderAttackWall(data.targets));
+            }, 3000);
+        }
+
+        function stopAttackPoll() {
+            if (attackPollInterval) clearInterval(attackPollInterval);
+        }
+
+        function renderAttackWall(targetsData) {
+            const wall = document.getElementById('attack-wall');
+            if (!targetsData || Object.keys(targetsData).length === 0) {
+                wall.innerHTML = '<div style="text-align:center; padding:20px; color:#666; grid-column: 1/-1;">无活跃目标</div>';
+                return;
+            }
+
+            wall.innerHTML = '';
+            for (const [ip, info] of Object.entries(targetsData)) {
+                let statusColor = '#95a5a6'; // gray
+                let statusIcon = '⚪';
+                let cardClass = '';
+
+                if (info.status === 'success' || info.status === 'confirmed') {
+                    statusColor = '#2ecc71'; // green
+                    statusIcon = '🟢';
+                    cardClass = 'success-card';
+                } else if (info.status === 'failed') {
+                    statusColor = '#e74c3c'; // red
+                    statusIcon = '🔴';
+                } else if (info.status === 'uncertain') {
+                    statusColor = '#f1c40f'; // yellow
+                    statusIcon = '🟡';
+                }
+
+                const card = document.createElement('div');
+                card.className = 'card target-card';
+                card.style.borderLeft = `5px solid ${statusColor}`;
+                card.style.padding = '10px';
+                card.innerHTML = `
+                    <div style="font-weight:bold; font-size:16px; margin-bottom:5px;">${ip}</div>
+                    <div style="font-size:12px; color:#666; margin-bottom:5px;">Port: Default</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>${statusIcon} ${info.status}</span>
+                        <span style="font-size:10px; color:#999;" title="${info.last_msg || ''}">Log &rarr;</span>
+                    </div>
+                `;
+                wall.appendChild(card);
+            }
         }
 
         // Theme Logic
@@ -984,6 +1108,22 @@
         function openXshell(ip, port, user, password) {
             apiCall('/api/open_xshell', { ip, port, user, password }).then(d => {
                 if (d) showToast(d.message);
+            });
+        }
+
+        function openXshellWwwData(ip, port, defaultUser, defaultPass, wdUser, wdPass) {
+            // Always use Compatible Mode with Auto-Input
+            const cmd = '/tmp/mujica -p';
+            // Also copy to clipboard just in case
+            navigator.clipboard.writeText(cmd).catch(e => console.error(e));
+
+            apiCall('/api/open_xshell', {
+                ip, port,
+                user: defaultUser,
+                password: defaultPass,
+                exec_cmd: cmd
+            }).then(d => {
+                if (d) showToast('正在启动 Xshell 并尝试自动提权...');
             });
         }
 

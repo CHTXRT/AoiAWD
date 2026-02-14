@@ -2,6 +2,7 @@ import os
 import re
 import json
 import time
+import threading
 
 class SecurityScanner:
     def __init__(self, ssh_manager):
@@ -104,7 +105,8 @@ class SecurityScanner:
             output = self.ssh.execute(ip, port, cmd)
             processed_lines = []
             if output and output.strip():
-                for line in output.strip().split('\\n'):
+                attacks_to_trigger = []
+                for line in output.strip().splitlines():
                     parts = line.split(':', 2)
                     if len(parts) >= 3:
                         content = parts[2]
@@ -114,23 +116,48 @@ class SecurityScanner:
                                 risk_tag = p.replace('\\s*', ' ').replace('\\(', '').replace('\\)', '').replace('.*', ' ').replace('\\/', '/')
                                 break
                         processed_lines.append(f"{parts[0]}:{parts[1]}:{risk_tag}:{content}")
+                        
+                        # --- Auto Counter-Attack Logic (Vulnerability Scan) ---
+                        # Check if this line looks like a one-liner webshell
+                        # Regex for $_POST['pass'], $_REQUEST["pass"], or $_POST[pass]
+                        # We only auto-attack if we can clearly identify a password in a typical eval($_POST[...]) context
+                        pass_match = re.search(r'\$_(POST|REQUEST|GET)\[[\'"]?(\w+)[\'"]?\]', content)
+                        if pass_match and ('eval' in content or 'assert' in content or 'system' in content):
+                            shell_pass = pass_match.group(2)
+                            filepath = parts[0]
+                            # Collect for later execution to don't block scan
+                            attacks_to_trigger.append((ip, int(port), filepath, shell_pass))
+                            
                     else:
                         processed_lines.append(line)
                 
-                final_output = '\\n'.join(processed_lines)
+                final_output = '\n'.join(processed_lines)
                 with self.ssh.lock:
                     if 'detection' not in target: target['detection'] = {}
                     target['detection']['php_vulns'] = final_output
                     self.ssh.save_targets()
-                print(f"[{ip}:{port}] PHP Scan found risks!")
+                print(f"[{ip}:{port}] PHP Scan found risks! (Processed {len(processed_lines)} lines)", flush=True)
+
+                # Launch attacks after saving scan results
+                if hasattr(self, 'attack_manager') and self.attack_manager:
+                    for atk in attacks_to_trigger:
+                        print(f"[{atk[0]}:{atk[1]}] VULN SCAN: Found potential webshell in {atk[2]}. Password: '{atk[3]}'. Triggering counter-attack!", flush=True)
+                        threading.Thread(target=self.attack_manager.start_counter_attack_campaign, 
+                                        args=atk).start()
+                else:
+                    if attacks_to_trigger:
+                        print(f"[{ip}:{port}] AttackManager not configured, skipping {len(attacks_to_trigger)} counter-attacks.", flush=True)
+
             else:
-                 pass # clean
+                 print(f"[{ip}:{port}] PHP Scan found no risks.", flush=True)
             
-            target['status'] = 'connected'
-            self.ssh.notify_target_update(target)
-            self.ssh.save_targets()
         except Exception as e:
-            print(f"Scan error: {e}")
+            print(f"Scan error: {e}", flush=True)
+        finally:
+            with self.ssh.lock:
+                target['status'] = 'connected'
+                self.ssh.notify_target_update(target)
+                self.ssh.save_targets()
 
     def scan_python_vulns(self, ip, port):
         ip = ip.strip()
@@ -235,13 +262,16 @@ class SecurityScanner:
         print(f"[{ip}:{port}] Snapshot completed. Tracked {count} files.")
         return True, f'快照完成，共 {count} 个文件'
 
+    def set_attack_manager(self, attack_manager):
+        self.attack_manager = attack_manager
+
     def scan_backdoor(self, ip, port):
         target = next((t for t in self.ssh.targets if t['ip'] == ip and t['port'] == int(port)), None)
         if not target: 
-             print(f"[{ip}:{port}] Backdoor scan failed: Target not found")
+             print(f"[{ip}:{port}] Backdoor scan failed: Target not found", flush=True)
              return {'error': '靶机未找到'}
 
-        print(f"[{ip}:{port}] Starting backdoor scan...")
+        print(f"[{ip}:{port}] Starting backdoor scan...", flush=True)
         results = {
             'new_files': [], 'modified_files': [], 'deleted_files': [], 'backdoors': [],
             'scan_time': time.strftime('%Y-%m-%d %H:%M:%S'),
@@ -272,10 +302,10 @@ class SecurityScanner:
 
         suspect_files = results['new_files'] + results['modified_files']
         if not baseline:
-             print(f"[{ip}:{port}] No baseline found. Scanning all PHP/Python files.")
+             print(f"[{ip}:{port}] No baseline found. Scanning all PHP/Python files.", flush=True)
              suspect_files = [f for f in current_files.keys() if f.endswith(('.php', '.py', '.phtml', '.php5'))]
 
-        print(f"[{ip}:{port}] Scanning content of {len(suspect_files)} suspect files...")
+        print(f"[{ip}:{port}] Scanning content of {len(suspect_files)} suspect files...", flush=True)
         for filepath in suspect_files[:50]:
             if not filepath.endswith(('.php', '.py', '.phtml', '.pht', '.php5', '.inc')): continue
             cmd = f"cat '{filepath}' 2>/dev/null"
@@ -283,7 +313,7 @@ class SecurityScanner:
             if content and 'Error' not in content:
                 matches = self._match_backdoor_patterns(content)
                 if matches:
-                    print(f"[{ip}:{port}] FOUND BACKDOOR in {filepath}: {matches}")
+                    print(f"[{ip}:{port}] FOUND BACKDOOR in {filepath}: {matches}", flush=True)
                     results['backdoors'].append({
                         'file': filepath,
                         'matches': matches,
@@ -294,7 +324,7 @@ class SecurityScanner:
             target['backdoor_scan'] = results
             self.ssh.save_targets()
         
-        print(f"[{ip}:{port}] Backdoor scan finished. Found {len(results['backdoors'])} backdoors.")
+        print(f"[{ip}:{port}] Backdoor scan finished. Found {len(results['backdoors'])} backdoors.", flush=True)
         return results
 
     def _match_backdoor_patterns(self, content):

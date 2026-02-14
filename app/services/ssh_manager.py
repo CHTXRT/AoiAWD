@@ -128,15 +128,18 @@ class SSHManager:
                         targets_to_save.append({
                             'ip': t['ip'],
                             'port': t['port'],
+                            'name': t.get('name'),
                             'user': t['user'],
                             'password': t.get('password'),
                             'key_path': t.get('key_path'),
+                            'status': t.get('status'), # Optional to save status? Maybe not needed but useful
                             'preload_done': t.get('preload_done'),
                             'backup_path': t.get('backup_path'),
                             'detection': t.get('detection'),
                              # Persist new fields if any
                             'wwwdata_shell': t.get('wwwdata_shell'),
                             'wwwdata_strategy': t.get('wwwdata_strategy'),
+                            'wwwdata_password': t.get('wwwdata_password'),
                             'aoi_deployed': t.get('aoi_deployed'),
                             'file_snapshot': t.get('file_snapshot'),
                             'snapshot_time': t.get('snapshot_time'),
@@ -179,7 +182,7 @@ class SSHManager:
             ips.append(ip_input)
         return ips
 
-    def add_target(self, ip_input, port=22, user='root', password=None, key_path=None):
+    def add_target(self, ip_input, port=22, user='root', password=None, key_path=None, name=None):
         if not ip_input:
             return
         
@@ -198,6 +201,7 @@ class SSHManager:
                     self.targets.append({
                         'ip': ip,
                         'port': port,
+                        'name': name,
                         'user': user,
                         'password': password,
                         'key_path': key_path,
@@ -362,13 +366,7 @@ class SSHManager:
         else:
             cd_cmd = f"cd {shlex.quote(cwd)}"
             
-        # Wrap everything in (...) 2>&1 to merge stderr into stdout stream IN ORDER.
-        # This prevents the "stderr appended at end" issue which corrupts the CWD parsing.
         full_cmd = f"({cd_cmd} 2>/dev/null; {cmd}; echo '___CWD___'; pwd) 2>&1"
-        
-        print(f"DEBUG_CONSOLE [{session_key}] CMD: {cmd!r}", flush=True)
-        print(f"DEBUG_CONSOLE [{session_key}] CWD: {cwd!r}", flush=True)
-        print(f"DEBUG_CONSOLE [{session_key}] FULL: {full_cmd!r}", flush=True)
         
         raw_output = self.execute(ip, port, full_cmd)
 

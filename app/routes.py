@@ -37,7 +37,8 @@ def add_target():
         request.form.get('port', 22),
         request.form.get('user', 'root'),
         request.form.get('password'),
-        key_path
+        key_path,
+        request.form.get('name')
     )
     return redirect(url_for('main.index'))
 
@@ -173,22 +174,31 @@ def remove_preload():
 @bp.route('/api/open_xshell', methods=['POST'])
 def open_xshell():
     import subprocess
+    import tempfile # Added import for tempfile
     data = request.json
     ip = data.get('ip')
     port = data.get('port', 22)
     user = data.get('user', 'root')
     password = data.get('password', '')
     
+    exec_cmd = data.get('exec_cmd')
+    
     xshell_path = r"Xshell" #不要修改
 
     try:
+        # Build command: Xshell [options] [url]
+        cmd_args = [f'"{xshell_path}"']
+        
         if password:
-            cmd = f'"{xshell_path}" -url ssh://{user}:{password}@{ip}:{port}'
+            cmd_args.append(f'-url ssh://{user}:{password}@{ip}:{port}')
         else:
-            cmd = f'"{xshell_path}" -url ssh://{user}@{ip}:{port}'
+            cmd_args.append(f'-url ssh://{user}@{ip}:{port}')
+        
+        cmd = ' '.join(cmd_args)
 
         subprocess.Popen(cmd, shell=True)
         return jsonify({'success': True, 'message': 'Xshell started'})
+
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
@@ -465,6 +475,28 @@ def api_files_download():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# ==================== Attack Module API ====================
+
+@bp.route('/api/attack/config', methods=['GET', 'POST'])
+def attack_config():
+    if request.method == 'POST':
+        data = request.json
+        template = data.get('template', '')
+        # excluded_ips assumed comma-separated string
+        excluded = data.get('excluded_ips', '') 
+        return jsonify(ssh_manager.set_enemy_config(template, excluded))
+    else:
+        status = ssh_manager.get_attack_status()
+        return jsonify({
+            'template': status.get('network_template', ''),
+            'excluded_ips': ', '.join(status.get('excluded_ips', [])),
+            'targets': status.get('targets', {})
+        })
+
+@bp.route('/api/attack/status', methods=['GET'])
+def attack_status():
+    return jsonify(ssh_manager.get_attack_status())
 
 # ==================== WebSocket 事件处理 ====================
 

@@ -1,17 +1,21 @@
 from .ssh_manager import SSHManager
 from .security_scanner import SecurityScanner
 from .defense_manager import DefenseManager
+from .attack_manager import AttackManager
 
 class SSHControllerFacade:
     def __init__(self):
         self.ssh = SSHManager()
         self.scanner = SecurityScanner(self.ssh)
         self.defense = DefenseManager(self.ssh, self.scanner)
+        self.attack = AttackManager(self.ssh)
 
     def init_app(self, app):
         self.ssh.init_app(app)
         self.scanner.init_app(app)
         self.defense.init_app(app)
+        self.attack.init_app(app)
+        self.scanner.set_attack_manager(self.attack)
 
     @property
     def targets(self): return self.ssh.targets
@@ -84,6 +88,11 @@ class SSHControllerFacade:
     def add_scheduled_task(self, *args, **kwargs): return self.defense.add_scheduled_task(*args, **kwargs)
     def remove_scheduled_task(self, *args, **kwargs): return self.defense.remove_scheduled_task(*args, **kwargs)
     def get_scheduled_tasks(self): return self.defense.get_scheduled_tasks()
+
+    # --- Attack Manager Delegates ---
+    def set_enemy_config(self, *args, **kwargs): return self.attack.set_enemy_config(*args, **kwargs)
+    def get_attack_status(self): return self.attack.get_attack_status()
+    def start_counter_attack_campaign(self, *args, **kwargs): return self.attack.start_counter_attack_campaign(*args, **kwargs)
     
 # Singleton Instance
 ssh_manager = SSHControllerFacade()
