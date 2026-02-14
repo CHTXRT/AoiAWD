@@ -58,14 +58,15 @@
                 </div>
             </div>
 
-            <!-- Vulnerability Report (PHP) - Compact List -->
+            <!-- PHP Vulnerability Report - 默认折叠 -->
             {% if t.detection and t.detection.php_vulns %}
-            <div style="margin-top: 8px;">
-                <div
-                    style="background:rgba(231, 76, 60, 0.1); border-left:3px solid #e74c3c; padding:4px 8px; font-size:12px; font-weight:bold; color:#e74c3c; margin-bottom:4px;">
-                    ⚠️ PHP Vulnerabilities
-                </div>
-                <div style="display:flex; flex-direction:column; gap:2px;">
+            <details style="margin-top: 8px;">
+                <summary
+                    style="cursor:pointer; background:rgba(231, 76, 60, 0.1); border-left:3px solid #e74c3c; padding:4px 8px; font-size:12px; font-weight:bold; color:#e74c3c; margin-bottom:4px; list-style:none; display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:10px;">▶</span>
+                    ⚠️ PHP Vulnerabilities ({{ t.detection.php_vulns.split('\n')|select|list|length }})
+                </summary>
+                <div style="display:flex; flex-direction:column; gap:2px; padding-top:4px;">
                     {% for line in t.detection.php_vulns.split('\n') %}
                     {% if line.strip() %}
                     {% set parts = line.split(':', 3) %}
@@ -93,71 +94,80 @@
                     {% endif %}
                     {% endfor %}
                 </div>
-            </div>
+            </details>
             {% endif %}
 
-            <!-- Backdoor Scan Results - Compact List -->
+            <!-- Backdoor Scan Results - 默认折叠 -->
             {% if t.backdoor_scan %}
-            <div style="margin-top: 8px;">
-                <div
-                    style="background:rgba(231, 76, 60, 0.1); border-left:3px solid #e74c3c; padding:4px 8px; font-size:12px; font-weight:bold; color:#e74c3c; margin-bottom:4px; display:flex; justify-content:space-between;">
-                    <span>🔍 Backdoor Scan</span>
-                    <span style="font-weight:normal; font-size:10px; color:#999;">{{ t.backdoor_scan.scan_time }}</span>
-                </div>
-
-                <!-- Stats Line -->
-                <div style="font-size:11px; margin-bottom:4px; display:flex; gap:10px;">
-                    {% if t.backdoor_scan.backdoors %}<span style="color:#e74c3c; font-weight:bold;">🚨 Backdoors: {{
-                        t.backdoor_scan.backdoors|length }}</span>{% endif %}
-                    {% if t.backdoor_scan.new_files %}<span style="color:#2ecc71;">🆕 New: {{
-                        t.backdoor_scan.new_files|length }}</span>{% endif %}
-                    {% if t.backdoor_scan.modified_files %}<span style="color:#f39c12;">✏️ Mod: {{
-                        t.backdoor_scan.modified_files|length }}</span>{% endif %}
-                    {% if t.backdoor_scan.deleted_files %}<span style="color:#95a5a6;">🗑️ Del: {{
-                        t.backdoor_scan.deleted_files|length }}</span>{% endif %}
-                </div>
-
-                <!-- Backdoor Details -->
-                {% if t.backdoor_scan.backdoors %}
-                <div style="display:flex; flex-direction:column; gap:2px;">
-                    {% for bd in t.backdoor_scan.backdoors %}
-                    <details
-                        style="background:var(--card-bg); border:1px solid #e74c3c; border-radius:3px; font-size:11px;">
-                        <summary style="cursor:pointer; padding:4px 8px; color:#e74c3c;">
-                            🚨 {{ bd.file }} {% if bd.is_new %}(New){% endif %}
-                        </summary>
-                        <div style="padding:8px; border-top:1px solid #e74c3c; color:#f39c12; background:#1e1e1e;">
-                            Feature: {{ bd.matches | join(', ') }}</div>
-                    </details>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                <!-- File Changes Details -->
-                {% if t.backdoor_scan.new_files or t.backdoor_scan.modified_files %}
-                <details style="margin-top:4px; font-size:11px;">
-                    <summary style="cursor:pointer; color:#999;">📂 Show Changed Files</summary>
-                    <div
-                        style="background:#1e1e1e; padding:5px; border-radius:3px; max-height:100px; overflow-y:auto; font-family:monospace;">
-                        {% for f in t.backdoor_scan.new_files %}<div style="color:#2ecc71;">+ {{ f }}</div>{% endfor %}
-                        {% for f in t.backdoor_scan.modified_files %}<div style="color:#f39c12;">~ {{ f }}</div>{%
-                        endfor %}
-                        {% for f in t.backdoor_scan.deleted_files %}<div style="color:#e74c3c;">- {{ f }}</div>{% endfor
-                        %}
+            <details style="margin-top: 8px;">
+                <summary
+                    style="cursor:pointer; background:rgba(231, 76, 60, 0.1); border-left:3px solid #e74c3c; padding:4px 8px; font-size:12px; font-weight:bold; color:#e74c3c; margin-bottom:4px; list-style:none; display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:10px;">▶</span>
+                    🔍 Backdoor Scan
+                    {% if t.backdoor_scan.backdoors %}<span style="color:#e74c3c; font-size:11px; margin-left:4px;">🚨
+                        {{ t.backdoor_scan.backdoors|length }}</span>{% endif %}
+                    <span style="font-weight:normal; font-size:10px; color:#999; margin-left:auto;">{{
+                        t.backdoor_scan.scan_time }}</span>
+                </summary>
+                <div style="padding-top:4px;">
+                    <!-- Stats Line -->
+                    <div style="font-size:11px; margin-bottom:4px; display:flex; gap:10px;">
+                        {% if t.backdoor_scan.backdoors %}<span style="color:#e74c3c; font-weight:bold;">🚨 Backdoors:
+                            {{
+                            t.backdoor_scan.backdoors|length }}</span>{% endif %}
+                        {% if t.backdoor_scan.new_files %}<span style="color:#2ecc71;">🆕 New: {{
+                            t.backdoor_scan.new_files|length }}</span>{% endif %}
+                        {% if t.backdoor_scan.modified_files %}<span style="color:#f39c12;">✏️ Mod: {{
+                            t.backdoor_scan.modified_files|length }}</span>{% endif %}
+                        {% if t.backdoor_scan.deleted_files %}<span style="color:#95a5a6;">🗑️ Del: {{
+                            t.backdoor_scan.deleted_files|length }}</span>{% endif %}
                     </div>
-                </details>
-                {% endif %}
-            </div>
+
+                    <!-- Backdoor Details -->
+                    {% if t.backdoor_scan.backdoors %}
+                    <div style="display:flex; flex-direction:column; gap:2px;">
+                        {% for bd in t.backdoor_scan.backdoors %}
+                        <details
+                            style="background:var(--card-bg); border:1px solid #e74c3c; border-radius:3px; font-size:11px;">
+                            <summary style="cursor:pointer; padding:4px 8px; color:#e74c3c;">
+                                🚨 {{ bd.file }} {% if bd.is_new %}(New){% endif %}
+                            </summary>
+                            <div style="padding:8px; border-top:1px solid #e74c3c; color:#f39c12; background:#1e1e1e;">
+                                Feature: {{ bd.matches | join(', ') }}</div>
+                        </details>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- File Changes Details -->
+                    {% if t.backdoor_scan.new_files or t.backdoor_scan.modified_files %}
+                    <details style="margin-top:4px; font-size:11px;">
+                        <summary style="cursor:pointer; color:#999;">📂 Show Changed Files</summary>
+                        <div
+                            style="background:#1e1e1e; padding:5px; border-radius:3px; max-height:100px; overflow-y:auto; font-family:monospace;">
+                            {% for f in t.backdoor_scan.new_files %}<div style="color:#2ecc71;">+ {{ f }}</div>{% endfor
+                            %}
+                            {% for f in t.backdoor_scan.modified_files %}<div style="color:#f39c12;">~ {{ f }}</div>{%
+                            endfor %}
+                            {% for f in t.backdoor_scan.deleted_files %}<div style="color:#e74c3c;">- {{ f }}</div>{%
+                            endfor
+                            %}
+                        </div>
+                    </details>
+                    {% endif %}
+                </div>
+            </details>
             {% endif %}
 
-            <!-- Python Vulnerability Report - Compact List -->
+            <!-- Python Vulnerability Report - 默认折叠 -->
             {% if t.detection and t.detection.python_vulns %}
-            <div style="margin-top: 8px;">
-                <div
-                    style="background:rgba(52, 152, 219, 0.1); border-left:3px solid #3498db; padding:4px 8px; font-size:12px; font-weight:bold; color:#3498db; margin-bottom:4px;">
-                    🐍 Python Vulnerabilities
-                </div>
-                <div style="display:flex; flex-direction:column; gap:2px;">
+            <details style="margin-top: 8px;">
+                <summary
+                    style="cursor:pointer; background:rgba(52, 152, 219, 0.1); border-left:3px solid #3498db; padding:4px 8px; font-size:12px; font-weight:bold; color:#3498db; margin-bottom:4px; list-style:none; display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:10px;">▶</span>
+                    🐍 Python Vulnerabilities ({{ t.detection.python_vulns.split('\n')|select|list|length }})
+                </summary>
+                <div style="display:flex; flex-direction:column; gap:2px; padding-top:4px;">
                     {% for line in t.detection.python_vulns.split('\n') %}
                     {% if line.strip() %}
                     {% set parts = line.split(':', 3) %}
@@ -185,7 +195,98 @@
                     {% endif %}
                     {% endfor %}
                 </div>
-            </div>
+            </details>
+            {% endif %}
+
+            <!-- php.ini 配置卡片 -->
+            {% if t.detection and t.detection.php_ini %}
+            {% set pini = t.detection.php_ini %}
+            <details style="margin-top: 8px;">
+                <summary
+                    style="cursor:pointer; background:rgba(155, 89, 182, 0.1); border-left:3px solid #9b59b6; padding:4px 8px; font-size:12px; font-weight:bold; color:#9b59b6; margin-bottom:4px; list-style:none; display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:10px;">▶</span>
+                    🔧 php.ini 配置
+                    {% if pini.writable %}
+                    <span
+                        style="background:rgba(46,204,113,0.2); color:#2ecc71; padding:0 4px; border-radius:2px; font-size:10px;">可写</span>
+                    {% else %}
+                    <span
+                        style="background:rgba(231,76,60,0.2); color:#e74c3c; padding:0 4px; border-radius:2px; font-size:10px;">只读</span>
+                    {% endif %}
+                    <span style="font-family:monospace; font-size:10px; color:#999; margin-left:auto;">{{ pini.path
+                        }}</span>
+                </summary>
+                <div style="padding:6px 0;">
+                    <!-- 路径和权限 -->
+                    <div
+                        style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:3px; padding:8px; margin-bottom:6px;">
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                            <span style="font-family:monospace; font-size:11px; color:#ccc;">{{ pini.path }}</span>
+                            {% if pini.writable and pini.path != '未找到' %}
+                            <button class="btn btn-sm"
+                                style="padding:0 6px; font-size:10px; line-height:1; height:20px; border:1px solid #9b59b6; background:rgba(155,89,182,0.1); color:#9b59b6;"
+                                onclick="event.stopPropagation(); quickEditFile('{{ t.ip }}', '{{ t.port }}', '{{ pini.path }}')"
+                                title="编辑 php.ini">✏️ 编辑</button>
+                            {% endif %}
+                        </div>
+
+                        <!-- 当前配置 -->
+                        {% if pini.configs %}
+                        <div
+                            style="display:grid; grid-template-columns:auto 1fr; gap:3px 10px; font-size:11px; font-family:monospace;">
+                            {% for key, val in pini.configs.items() %}
+                            <div style="color:#9b59b6; text-align:right; white-space:nowrap;">{{ key }}:</div>
+                            <div style="color:#ccc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                                title="{{ val }}">
+                                {% if key == 'disable_functions' and val and val != '未检测到' and val|length > 5 %}
+                                <span style="color:#2ecc71;">✅ 已配置</span>
+                                <span style="color:#666; font-size:10px;">({{ val.split(',')|length }} 个函数)</span>
+                                {% elif key == 'disable_functions' %}
+                                <span style="color:#e74c3c;">⚠️ 未配置</span>
+                                {% elif key == 'allow_url_include' and val == 'On' %}
+                                <span style="color:#e74c3c;">⚠️ {{ val }} (建议关闭)</span>
+                                {% elif key == 'display_errors' and val == 'On' %}
+                                <span style="color:#f39c12;">⚠️ {{ val }} (建议关闭)</span>
+                                {% else %}
+                                {{ val }}
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 加固建议 -->
+                    <details
+                        style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:3px; font-size:11px; margin-bottom:6px;">
+                        <summary style="cursor:pointer; padding:4px 8px; color:#9b59b6; font-weight:bold;">
+                            💡 加固建议
+                        </summary>
+                        <div
+                            style="padding:8px; border-top:1px solid var(--border-color); font-family:'Consolas',monospace; color:#d4d4d4; background:#1e1e1e; font-size:11px; white-space:pre-wrap;">
+                            disable_functions =
+                            system,exec,passthru,shell_exec,popen,proc_open,pcntl_exec,eval,assert,call_user_func,call_user_func_array,preg_replace,create_function,include,require,include_once,require_once,file_put_contents,file_get_contents,fwrite,fopen,fputs
+                            allow_url_include = Off
+                            display_errors = Off
+                            expose_php = Off
+                            open_basedir = /var/www/html:/tmp
+                            error_log = /var/log/php_errors.log
+                            log_errors = On</div>
+                    </details>
+
+                    <!-- 重启方式 -->
+                    {% if pini.restart_cmds %}
+                    <div
+                        style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:3px; padding:6px 8px; font-size:11px;">
+                        <span style="color:#9b59b6; font-weight:bold;">🔄 重启命令：</span>
+                        {% for cmd in pini.restart_cmds %}
+                        <code
+                            style="background:#1e1e1e; padding:1px 4px; border-radius:2px; color:#e2b93d; margin-left:4px;">{{ cmd }}</code>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </details>
             {% endif %}
 
         </div>

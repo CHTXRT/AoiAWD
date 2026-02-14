@@ -411,6 +411,30 @@
 
                     <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
 
+                    <!-- AOI 工具配置 -->
+                    <div style="margin-bottom: 30px;">
+                        <h4>🛡️ AOI 流量监控 (检测到 PHP 靶机后自动部署)</h4>
+                        <div class="flex-row" style="margin-bottom: 10px; align-items:center;">
+                            <span style="font-size:12px; color:#999; white-space:nowrap;">本机 IP：</span>
+                            <input type="text" id="local-ip-input" placeholder="如: 10.4.51.119" value="{{ local_ip }}"
+                                style="width: 200px;">
+                            <button class="btn btn-primary btn-sm" onclick="saveLocalIp()">保存</button>
+                            <span id="local-ip-status" style="font-size:11px; margin-left:8px;"></span>
+                        </div>
+                        <div
+                            style="font-size:11px; color:#666; padding:6px 8px; background:var(--card-bg); border:1px solid var(--border-color); border-radius:4px;">
+                            <div>📦 <code>tapeworm.phar</code> →
+                                <code>php tapeworm.phar -d /var/www/html -s &lt;本机IP&gt;:8023</code>
+                            </div>
+                            <div>📦 <code>roundworm</code> →
+                                <code>./roundworm -d -s &lt;本机IP&gt; -w /var/www/html</code>
+                            </div>
+                            <div style="color:#f39c12; margin-top:4px;">⚠️ 未配置本机 IP 时不会自动部署</div>
+                        </div>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
                     <!-- Add Target -->
                     <form action="/add_target" method="post" enctype="multipart/form-data" class="flex-row"
                         style="margin-bottom: 20px;">
@@ -618,6 +642,24 @@
                     showToast(`${dead.length} 个连接已断开`);
                 }
             }
+        }
+
+        // --- AOI 工具 ---
+        async function saveLocalIp() {
+            const ip = document.getElementById('local-ip-input').value.trim();
+            const status = document.getElementById('local-ip-status');
+            const data = await apiCall('/api/local_ip', { ip });
+            if (data && data.status === 'ok') {
+                status.innerHTML = '<span style="color:var(--success-color);">✅ 已保存</span>';
+                showToast('本机 IP 已保存: ' + ip);
+                setTimeout(() => status.innerHTML = '', 3000);
+            }
+        }
+
+        async function deployAoi(ip, port) {
+            if (!confirm('部署 AOI 工具到 ' + ip + ':' + port + '?')) return;
+            showToast('AOI 部署已启动...');
+            await apiCall('/api/deploy_aoi', { ip, port });
         }
 
         // --- 定时任务 ---

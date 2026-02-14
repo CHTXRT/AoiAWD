@@ -19,6 +19,7 @@ def index():
                            connected_count=connected,
                            total_count=len(ssh_manager.targets),
                            preload=ssh_manager.preload_config,
+                           local_ip=ssh_manager.get_local_ip(),
                            os=os)
 
 @bp.route('/add_target', methods=['POST'])
@@ -329,6 +330,32 @@ def api_toggle_rule():
     if rule:
         return jsonify({'status': 'ok', 'rule': rule})
     return jsonify({'error': '规则不存在'}), 404
+
+# ==================== 本机 IP / AOI 工具 API ====================
+
+@bp.route('/api/local_ip', methods=['GET'])
+def api_get_local_ip():
+    """获取本机 IP"""
+    return jsonify({'local_ip': ssh_manager.get_local_ip()})
+
+@bp.route('/api/local_ip', methods=['POST'])
+def api_set_local_ip():
+    """设置本机 IP"""
+    data = request.json
+    ip = data.get('ip', '')
+    ssh_manager.set_local_ip(ip)
+    return jsonify({'status': 'ok', 'local_ip': ip})
+
+@bp.route('/api/deploy_aoi', methods=['POST'])
+def api_deploy_aoi():
+    """手动部署 AOI 工具到指定靶机"""
+    data = request.json
+    ip = data['ip']
+    port = int(data.get('port', 22))
+    def _run():
+        ssh_manager.deploy_aoi_tools(ip, port)
+    threading.Thread(target=_run).start()
+    return jsonify({'status': 'ok', 'message': 'AOI 部署已启动'})
 
 # ==================== 远程文件管理器 API ====================
 
