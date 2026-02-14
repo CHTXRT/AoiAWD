@@ -1,3 +1,10 @@
+**/__pycache__
+**/.idea
+**/.vscode
+
+test*.py
+flags.txt
+
 logs/*
 !logs/.gitkeep
 data/backups/*
@@ -12,5 +19,3 @@ data/xshell/*
 
 keys/*
 !keys/.gitkeep
-app/__pycache__/*
-app/services/__pycache__/*
