@@ -98,7 +98,15 @@ class DefenseManager:
         target = next((t for t in self.ssh.targets if t['ip'] == ip and t['port'] == port), None)
         if not target: return
         
-        if target.get('backup_done') and not force_rerun: return
+        # Check if backup actually exists
+        backup_path = target.get('backup_path')
+        if target.get('backup_done') and not force_rerun:
+            if backup_path and os.path.exists(backup_path):
+                print(f"[{ip}:{port}] Backup already exists at {backup_path}, skipping.")
+                return
+            else:
+                print(f"[{ip}:{port}] Backup flagged as done but file missing. Re-running backup.")
+
         if not detection: detection = target.get('detection', {'types': []})
 
         print(f"[{ip}:{port}] Starting automated backup...")
@@ -172,10 +180,49 @@ class DefenseManager:
             self.ssh.upload(ip, int(port), backup_path, remote_tmp)
             
             if backup_path.endswith('.tar'):
-                self.ssh.execute(ip, int(port), f"tar -xf {remote_tmp} -C / 2>/dev/null")
-                self.ssh.execute(ip, int(port), f"rm {remote_tmp}")
-                print(f"[{ip}:{port}] Backup restored successfully.")
-                return True, '备份还原成功'
+                # Clean restore: Move current webroot to temp, detect webroot from tar? 
+                # Assumption: backup was created from /var/www/html or similar. 
+                # Let's assume standard AWD path /var/www/html. 
+                # To be safe, we first identify the webroot.
+                webroot = '/var/www/html'
+                # 1. Prepare backup location (Use /tmp to avoid permission issues in /var/www)
+                timestamp = int(time.time())
+                backup_old = f"/tmp/html_backup_{timestamp}"
+                print(f"[{ip}:{port}] Backing up current files to {backup_old}...", flush=True)
+                
+                self.ssh.execute(ip, int(port), f"mkdir -p {backup_old}")
+                
+                # 2. Move contents
+                # Capture output to debug
+                cmd_mv = f"mv {webroot}/* {backup_old}/ 2>/dev/null; mv {webroot}/.[!.]* {backup_old}/ 2>/dev/null"
+                out_mv = self.ssh.execute(ip, int(port), cmd_mv)
+               
+                # Verify move (optional, but good for debug)
+                # print(f"[{ip}:{port}] Move output: {out_mv}", flush=True)
+
+                # 3. Webroot is now clean-ish. Ensure it exists.
+                self.ssh.execute(ip, int(port), f"mkdir -p {webroot}")
+
+                # 4. Extract backup
+                print(f"[{ip}:{port}] Extracting backup to {webroot}...", flush=True)
+                res = self.ssh.execute(ip, int(port), f"tar -xf {remote_tmp} -C / 2>/dev/null")
+                
+                # 5. Check if restore worked
+                check = self.ssh.execute(ip, int(port), f"ls -A {webroot}")
+                if check:
+                    self.ssh.execute(ip, int(port), f"rm {remote_tmp}")
+                    # self.ssh.execute(ip, int(port), f"rm -rf {backup_old}") # Keep old for manual investigation? 
+                    # User asked to "restore to original state", implying delete new files.
+                    # We can keep .old for safety or delete it. Let's keep it for now but maybe later adding a cleanup task.
+                    # Or better, delete it to save space if success.
+                    # Adding a log about where the old files went.
+                    print(f"[{ip}:{port}] Backup restored. Old files moved to {backup_old}.", flush=True)
+                    return True, f'备份还原成功 (旧文件已移至 {backup_old})'
+                else:
+                    # Restore failed? Rollback
+                    print(f"[{ip}:{port}] Restore seems failed (dir empty), rolling back...", flush=True)
+                    self.ssh.execute(ip, int(port), f"rm -rf {webroot} && mv {backup_old} {webroot}")
+                    return False, '还原失败，已回滚'
             else:
                 detection = target.get('detection', {})
                 if 'pwn' in detection.get('evidence', {}):

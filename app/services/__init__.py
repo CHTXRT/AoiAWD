@@ -30,12 +30,17 @@ class SSHControllerFacade:
         # 使用明确的参数签名，确保 ip/port 能被准确捕获
         result = self.ssh.connect(ip, port, private_key_path)
         if result[0]: # connected
-            # Trigger detection
+            # Trigger detection then preload
             import threading
-            # 确保传递给 defense 的参数也是一致的
-            target_args = (ip, port) 
-            threading.Thread(target=self.defense.detect_target_type, args=target_args).start()
-            threading.Thread(target=self.defense.run_preload_tasks, args=target_args).start()
+            target_args = (ip, port)
+            
+            def _post_connect_sequence(ip, port):
+                # 1. Detect (includes Backup)
+                self.defense.detect_target_type(ip, port)
+                # 2. Preload Tasks (after potential backup)
+                self.defense.run_preload_tasks(ip, port)
+                
+            threading.Thread(target=_post_connect_sequence, args=target_args).start()
         return result
 
     def disconnect(self, *args, **kwargs): return self.ssh.disconnect(*args, **kwargs)

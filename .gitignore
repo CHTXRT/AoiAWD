@@ -12,3 +12,5 @@ data/xshell/*
 
 keys/*
 !keys/.gitkeep
+app/__pycache__/*
+app/services/__pycache__/*

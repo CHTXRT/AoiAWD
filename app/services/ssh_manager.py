@@ -5,6 +5,7 @@ import paramiko
 import ipaddress
 import stat
 import time
+import shlex
 from flask import render_template
 
 class SSHManager:
@@ -354,15 +355,32 @@ class SSHManager:
         port = int(port)
         session_key = f"{ip}:{port}"
         cwd = self.console_cwd.get(session_key, '~')
-        full_cmd = f"cd {cwd} 2>/dev/null; {cmd}; echo '___CWD___'; pwd"
+        
+        # Robust path handling: quote path, but keep ~ as is
+        if cwd == '~':
+            cd_cmd = 'cd'
+        else:
+            cd_cmd = f"cd {shlex.quote(cwd)}"
+            
+        # Wrap everything in (...) 2>&1 to merge stderr into stdout stream IN ORDER.
+        # This prevents the "stderr appended at end" issue which corrupts the CWD parsing.
+        full_cmd = f"({cd_cmd} 2>/dev/null; {cmd}; echo '___CWD___'; pwd) 2>&1"
+        
+        print(f"DEBUG_CONSOLE [{session_key}] CMD: {cmd!r}", flush=True)
+        print(f"DEBUG_CONSOLE [{session_key}] CWD: {cwd!r}", flush=True)
+        print(f"DEBUG_CONSOLE [{session_key}] FULL: {full_cmd!r}", flush=True)
+        
         raw_output = self.execute(ip, port, full_cmd)
 
         if raw_output and '___CWD___' in raw_output:
             parts = raw_output.rsplit('___CWD___', 1)
-            output = parts[0].rstrip('\\n')
+            output = parts[0].rstrip('\n')
             new_cwd = parts[1].strip()
             if new_cwd:
                 self.console_cwd[session_key] = new_cwd
+            else:
+                 # If pwd returns empty (unlikely), keep old
+                 pass
             return output, new_cwd
         return raw_output, cwd
 
