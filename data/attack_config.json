@@ -12,14 +12,14 @@
         "172.18.0.14": {
             "status": "confirmed",
             "logs": [],
-            "last_msg": "timeout(running)",
+            "last_msg": "Implanted (Active)",
             "password": "admin_ccmd",
             "shell_uri": "/include/.index.php"
         },
         "172.18.0.24": {
             "status": "confirmed",
             "logs": [],
-            "last_msg": "timeout(running)",
+            "last_msg": "Implanted (Active)",
             "password": "admin_ccmd",
             "shell_uri": "/include/.index.php"
         }

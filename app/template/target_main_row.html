@@ -36,7 +36,7 @@
         <button class="btn btn-sm" style="background: #e67e22; color: white;" title="www-data 权限终端"
             onclick="openWwwdataTab('{{ t.ip }}', '{{ t.port }}')">www-data</button>
         <button class="btn btn-sm" style="background: #d35400; color: white;" title="Xshell (www-data)"
-            onclick="openXshellWwwData('{{ t.ip }}', '{{ t.port }}', '{{ t.user }}', '{{ t.password }}', 'www-data', '{{ t.wwwdata_password if t.wwwdata_password else '' }}')">Xshell(w)</button>
+            onclick="openXshellWwwData('{{ t.ip }}', '{{ t.port }}', '{{ t.user }}', '{{ t.password }}')">Xshell(w)</button>
         {% endif %}
         {% if t.aoi_deployed %}
         <a href="http://localhost:8037/" target="_blank" class="btn btn-sm"

@@ -509,20 +509,11 @@ function openXshell(ip, port, user, password) {
     }
 }
 
-function openXshellWwwData(ip, port, defaultUser, defaultPass, wdUser, wdPass) {
+function openXshellWwwData(ip, port, user, password) {
     // Always copy command for manual escalation
-    const cmd = '/tmp/mujica -p';
-    navigator.clipboard.writeText(cmd).then(() => {
-        showToast('已复制提权命令: ' + cmd + ' (需手动粘贴)');
-    }).catch(err => {
-        showToast('复制命令失败: ' + cmd);
+    apiCall('/api/open_xshell_wwwdata', { ip, port, user, password}).then(d => {
+        if (d) showToast(d.message);
     });
-
-    if (wdPass && wdPass !== 'None' && wdPass !== '') {
-        openXshell(ip, port, wdUser, wdPass);
-    } else {
-        openXshell(ip, port, defaultUser, defaultPass);
-    }
 }
 
 // --- Multi-Tab Console Logic ---

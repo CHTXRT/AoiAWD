@@ -201,6 +201,25 @@ def open_xshell():
 
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
+    
+@bp.route('/api/open_xshell_wwwdata', methods=['POST'])
+def open_xshell_wwwdata():
+    from .utils import xshell
+    data = request.get_json() or {}
+    ip = data.get('ip') or ''
+    port = data.get('port', 22)
+    user = data.get('user', 'root')
+    password = data.get('password', '')
+
+    xsh = xshell.Xsh(ip, user, port, password=password, execute_cmd='/tmp/mujica -p')
+    with open(f"data/xshell/{ip}_{port}.xsh", "w") as f:
+        f.write(str(xsh))
+    try:
+        # 绝对路径调用Xsh文件路径
+        subprocess.Popen(f"Xshell {os.path.abspath(f'data/xshell/{ip}_{port}.xsh')}", shell=True)
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+    return jsonify({'status': 'ok', 'message': 'Xshell for www-data started'})
 
 # ==================== 不死马/后门检测 API ====================
 
