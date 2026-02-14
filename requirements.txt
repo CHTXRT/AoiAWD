@@ -1,0 +1,5 @@
+Flask
+flask_socketio
+paramiko
+Requests
+Werkzeug
