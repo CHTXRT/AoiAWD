@@ -30,6 +30,10 @@ def check_auth():
     if request.endpoint == 'main.login':
         return
         
+    # Allow localhost
+    if request.remote_addr in ['127.0.0.1', '::1', 'localhost']:
+        return
+
     # Check if user is authenticated
     auth_status = session.get('authenticated')
     

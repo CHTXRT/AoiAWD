@@ -1,5 +1,5 @@
 {
-    "network_template": "172.18.0.4,172.18.0.14,172.18.0.24",
+    "network_template": "172.18.0.14",
     "excluded_ips": [],
     "targets": {
         "172.18.0.4": {
@@ -7,21 +7,21 @@
             "logs": [],
             "last_msg": "Implanted (Active)",
             "password": "admin_ccmd",
-            "shell_uri": "/include/.k43egr.php"
+            "shell_uri": "/include/.l6u3uy.php"
         },
         "172.18.0.14": {
+            "status": "uncertain",
+            "logs": [],
+            "last_msg": "Implanted (Active)",
+            "password": "admin_ccmd",
+            "shell_uri": "include/.3ui4rj.php"
+        },
+        "172.18.0.24": {
             "status": "confirmed",
             "logs": [],
             "last_msg": "Implanted (Active)",
             "password": "admin_ccmd",
-            "shell_uri": "/include/.k43egr.php"
-        },
-        "172.18.0.24": {
-            "status": "failed",
-            "logs": [],
-            "last_msg": "HTTPConnectionPool(host='172.18.0.24', port=80): Max retries exceeded with url: /include/shell.php (Caused by ConnectTimeoutError(<HTTPConnection(host='172.18.0.24', port=80) at 0x1da99aa7570>, 'Connection to 172.18.0.24 timed out. (connect timeout=1)'))",
-            "password": "admin_ccmd",
-            "shell_uri": "/include/.e5ycob.php"
+            "shell_uri": "/include/.l6u3uy.php"
         }
     }
 }

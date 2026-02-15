@@ -2,15 +2,31 @@
 
 let fmIp = null, fmPort = null, fmCurrentPath = '/';
 
-function openFileManager(ip, port) {
+async function openFileManager(ip, port) {
     fmIp = ip;
     fmPort = port;
+    
+    // Default fallback
     fmCurrentPath = '/var/www/html';
+    try {
+        const res = await fetch(`/api/files/default_path?ip=${ip}&port=${port}`);
+        const data = await res.json();
+        if (data.path) fmCurrentPath = data.path;
+    } catch (e) {
+        console.error("Failed to fetch default path", e);
+    }
+
     const key = 'fm-' + ip + ':' + port;
 
     document.getElementById('console-section').style.display = 'block';
     if (openTabs.has(key)) {
         activateTab(key);
+        // Also update the path input if switching back, maybe? 
+        // Or just load the *saved* path for that tab? 
+        // If tab exists, we probably shouldn't reset path unless user re-opened it explicitly to reset?
+        // But openFileManager is called when clicking "Files" button.
+        // Let's reload the dir.
+        fmLoadDir(ip, port, fmCurrentPath);
         return;
     }
     openTabs.add(key);
@@ -76,6 +92,7 @@ function openFileManager(ip, port) {
     activateTab(key);
     fmLoadDir(ip, port, fmCurrentPath);
 }
+
 
 function closeFmTab(e, ip, port) {
     e.stopPropagation();

@@ -4,6 +4,7 @@ from .core.connection_manager import ConnectionManager
 
 from .security_scanner import SecurityScanner
 from .defense_manager import DefenseManager
+from .immortal_shell_killer import ImmortalShellKiller
 from .attack_manager import AttackManager
 
 import threading
@@ -14,8 +15,9 @@ class SSHControllerFacade:
         self.km = KeyManager()
         self.cm = ConnectionManager(self.tm, self.km)
         
+        self.immortal_killer = ImmortalShellKiller(self.cm, self.tm)
         self.scanner = SecurityScanner(self.cm, self.tm)
-        self.defense = DefenseManager(self.cm, self.tm, self.scanner)
+        self.defense = DefenseManager(self.cm, self.tm, self.scanner, self.immortal_killer)
         self.attack = AttackManager(self.cm, self.tm)
         self.scanner.set_attack_manager(self.attack)
 
@@ -34,6 +36,7 @@ class SSHControllerFacade:
 
     def set_socketio(self, socketio): 
         self.tm.set_socketio(socketio)
+        self.immortal_killer.set_socketio(socketio)
 
     # --- Target Manager Delegates ---
     def add_target(self, *args, **kwargs): return self.tm.add_target(*args, **kwargs)
@@ -103,7 +106,12 @@ class SSHControllerFacade:
     def save_preload_config(self): return self.defense.save_preload_config()
     def add_scheduled_task(self, *args, **kwargs): return self.defense.add_scheduled_task(*args, **kwargs)
     def remove_scheduled_task(self, *args, **kwargs): return self.defense.remove_scheduled_task(*args, **kwargs)
+    def remove_scheduled_task(self, *args, **kwargs): return self.defense.remove_scheduled_task(*args, **kwargs)
     def get_scheduled_tasks(self): return self.defense.get_scheduled_tasks()
+
+    # --- Immortal Shell Killer Delegates ---
+    def start_immortal_killer(self, *args, **kwargs): return self.immortal_killer.start_monitoring(*args, **kwargs)
+    def stop_immortal_killer(self, *args, **kwargs): return self.immortal_killer.stop_monitoring(*args, **kwargs)
 
     # --- Attack Manager Delegates ---
     def set_enemy_config(self, *args, **kwargs): return self.attack.set_enemy_config(*args, **kwargs)

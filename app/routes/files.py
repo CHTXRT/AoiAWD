@@ -122,3 +122,12 @@ def api_files_download():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@bp.route('/api/files/default_path', methods=['GET'])
+def api_files_default_path():
+    """获取靶机默认文件路径"""
+    ip = request.args.get('ip')
+    port = request.args.get('port', 22)
+    path = ssh_manager.defense.get_target_default_path(ip, int(port))
+    return jsonify({'path': path})

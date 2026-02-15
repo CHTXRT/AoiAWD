@@ -36,6 +36,12 @@
                     <div class="nav-icon">⚔️</div>
                     <div class="nav-text">攻击 (Attack)</div>
                 </div>
+                <div class="nav-item" onclick="switchView('alerts', this)">
+                    <div class="nav-icon" style="color: #e74c3c;">🚨</div>
+                    <div class="nav-text" style="color: #e74c3c; font-weight: bold;">告警 (Alerts)</div>
+                    <span id="nav-alert-badge"
+                        style="display:none; background:#e74c3c; color:white; font-size:10px; padding:2px 6px; border-radius:10px; margin-left:auto;">0</span>
+                </div>
             </div>
             <!-- Bottom Actions -->
             <div
@@ -267,6 +273,26 @@
             </div>
 
             <!-- Placeholder Views for Future Expansion -->
+            <!-- View: Safety Alerts -->
+            <div id="view-alerts" class="view-section">
+                <div class="header">
+                    <h1>🚨 安全告警 (Security Alerts)</h1>
+                    <div class="flex-row">
+                        <button class="btn btn-danger" onclick="clearAlerts()">🗑️ 清空告警</button>
+                        <div class="flex-row" style="margin-left:20px; align-items:center;">
+                            <input type="checkbox" id="alert-sound-toggle" checked>
+                            <label for="alert-sound-toggle"
+                                style="margin-left:5px; font-size:12px; color:#666;">声音提醒</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="container">
+                    <div id="alerts-list">
+                        <div class="empty-msg" style="text-align:center; padding:40px; color:#666;">✅ 暂无安全告警</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- View: Attack Module -->
             <div id="view-attacks" class="view-section">
                 <div class="header">

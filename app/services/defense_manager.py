@@ -3,12 +3,14 @@ import time
 import threading
 import json
 import base64
+import subprocess
 
 class DefenseManager:
-    def __init__(self, connection_manager, target_manager, scanner):
+    def __init__(self, connection_manager, target_manager, scanner, immortal_killer=None):
         self.cm = connection_manager
         self.tm = target_manager
         self.scanner = scanner
+        self.immortal_killer = immortal_killer
         self.backups_folder = None
         self.tools_folder = None
         self.preload_folder = None
@@ -92,13 +94,17 @@ class DefenseManager:
             # Trigger Backdoor Scan & Snapshot
             threading.Thread(target=self.scanner.scan_backdoor, args=(ip, port)).start()
             threading.Thread(target=self.scanner.snapshot_files, args=(ip, port)).start()
+            
+            # Start Immortal Shell Killer
+            if self.immortal_killer:
+                 self.immortal_killer.start_monitoring(ip, port)
 
         if 'python' in detection['types']:
             threading.Thread(target=self.scanner.scan_python_vulns, args=(ip, port)).start()
+            
+        if 'pwn' in detection['types']:
+            threading.Thread(target=self.auto_patch_pwn, args=(ip, port)).start()
 
-    def backup_target(self, ip, port, detection=None, force_rerun=False):
-        ip = ip.strip()
-        port = int(port)
     def backup_target(self, ip, port, detection=None, force_rerun=False):
         ip = ip.strip()
         port = int(port)
@@ -133,6 +139,9 @@ class DefenseManager:
                 local_dst = os.path.join(target_backup_dir, backup_name)
                 
                 if not (os.path.exists(local_dst) and not force_rerun):
+                    # Additional Raw Backup to /tmp
+                    self.cm.execute(ip, port, "cp -r /var/www/html /tmp/html_bak 2>/dev/null || true")
+                    
                     self.cm.execute(ip, port, f"tar -cf /tmp/{backup_name} {remote_src} 2>/dev/null || true")
                     self.cm.download(ip, port, f"/tmp/{backup_name}", local_dst)
                     self.cm.execute(ip, port, f"rm /tmp/{backup_name}")
@@ -184,6 +193,33 @@ class DefenseManager:
         print(f"[{ip}:{port}] Restoring backup from {backup_path}...")
         try:
             remote_tmp = f"/tmp/{os.path.basename(backup_path)}"
+            
+            # Pwn Restore Logic
+            detection = target.get('detection', {})
+            if 'pwn' in detection.get('types', []):
+                 original_path = detection['evidence']['pwn'].split('\\n')[0]
+                 
+                 # 1. Try restore from remote .bak (fastest)
+                 backup_remote_path = f"{original_path}.bak"
+                 check_bak = self.cm.execute(ip, int(port), f"test -f {backup_remote_path} && echo EXISTS")
+                 
+                 if 'EXISTS' in (check_bak or ''):
+                     print(f"[{ip}:{port}] Restoring from remote backup {backup_remote_path}...")
+                     self.cm.execute(ip, int(port), f"rm {original_path} && mv {backup_remote_path} {original_path} && chmod +x {original_path}")
+
+                     with self.tm.lock:
+                        target['pwn_patched'] = False
+                        self.tm.save_targets()
+                     return True, 'Pwn 还原成功 (从远程 .bak 恢复)'
+                 
+                 # 2. If no .bak, upload local backup
+                 print(f"[{ip}:{port}] No remote .bak found. Restoring from local backup...")
+                 self.cm.upload(ip, int(port), backup_path, remote_tmp)
+                 self.cm.execute(ip, int(port), f"cp {remote_tmp} {original_path} && chmod +x {original_path}")
+                 self.cm.execute(ip, int(port), f"rm {remote_tmp}")
+                 return True, 'Pwn 还原成功 (从本地备份恢复)'
+
+            # Standard Web Restore
             self.cm.upload(ip, int(port), backup_path, remote_tmp)
             
             if backup_path.endswith('.tar'):
@@ -232,6 +268,101 @@ class DefenseManager:
         except Exception as e:
             print(f"[{ip}:{port}] Restore error: {e}")
             return False, str(e)
+
+    def auto_patch_pwn(self, ip, port):
+        """自动 Patch Pwn 靶机"""
+        target = self.tm.get_target(ip, port)
+        if not target: return
+
+        # 1. Wait for backup
+        print(f"[{ip}:{port}] Waiting for backup before patching...", flush=True)
+        retries = 0
+        while not target.get('backup_done') and retries < 20:
+             time.sleep(1)
+             retries += 1
+        
+        backup_path = target.get('backup_path')
+        if not backup_path or not os.path.exists(backup_path):
+             print(f"[{ip}:{port}] Auto-Patch Skipped: Backup failed or missing.", flush=True)
+             return
+        
+        print(f"[{ip}:{port}] Starting Auto-Patch (EvilPatcher)...", flush=True)
+        target['status'] = 'patching...'
+        self.tm.notify_target_update(target)
+
+        try:
+            # 2. Prepare paths
+            # backup_path is like "d:\...\tools\backups\ip_port\ezpwn"
+            evil_patcher_dir = os.path.join(self.tools_folder, 'evilPatcher')
+            evil_patcher_py = os.path.join(evil_patcher_dir, 'evilPatcher.py')
+            sandbox_file = os.path.join(evil_patcher_dir, 'sandboxs', 'sandbox1.asm')
+            
+            patch_output_path = backup_path + ".patch"
+            
+            # Helper to convert win path to wsl path
+            def to_wsl_path(win_path):
+                # Drive letter d:\ -> /mnt/d/
+                drive, rest = os.path.splitdrive(win_path)
+                if drive:
+                    drive_letter = drive[0].lower()
+                    path = rest.replace('\\', '/')
+                    return f"/mnt/{drive_letter}{path}"
+                return win_path.replace('\\', '/')
+
+            wsl_py = to_wsl_path(evil_patcher_py)
+            wsl_input = to_wsl_path(backup_path)
+            wsl_sandbox = to_wsl_path(sandbox_file)
+            
+            # 3. Execute Patch via WSL
+            # python3 evilPatcher.py elfFile sandboxFile
+            # Ensure paths are quoted to handle spaces if any (though typically minimal in these paths)
+            cmd = f'wsl python3 "{wsl_py}" "{wsl_input}" "{wsl_sandbox}"'
+            print(f"[{ip}:{port}] Executing WSL Patch Cmd: {cmd}", flush=True)
+            
+            # Run command synchronously
+            result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+            
+            if result.returncode != 0:
+                 print(f"[{ip}:{port}] Patching failed (WSL error): {result.stderr}", flush=True)
+                 # Don't return, maybe check output file anyway? No, if it failed it failed.
+                 return
+
+            if not os.path.exists(patch_output_path):
+                 print(f"[{ip}:{port}] Patching failed: Output file not found ({patch_output_path})", flush=True)
+                 return
+            
+            print(f"[{ip}:{port}] Patch generated successfully: {patch_output_path}", flush=True)
+            
+            # 4. Upload & Deploy
+            remote_pwn_path = target['detection']['evidence']['pwn'].split('\\n')[0]
+            updated_filename = os.path.basename(remote_pwn_path)
+            remote_tmp_patch = f"/tmp/{updated_filename}.patch"
+            
+            self.cm.upload(ip, int(port), patch_output_path, remote_tmp_patch)
+            
+            # Backup remote file to .bak (if not exists) and replace
+            cmds = [
+                f"chmod +x {remote_tmp_patch}",
+                f"if [ ! -f {remote_pwn_path}.bak ]; then mv {remote_pwn_path} {remote_pwn_path}.bak; fi",
+                f"cp {remote_tmp_patch} {remote_pwn_path}",
+                f"chmod +x {remote_pwn_path}",
+                f"rm {remote_tmp_patch}"
+            ]
+            
+            full_deploy_cmd = " && ".join(cmds)
+            self.cm.execute(ip, int(port), full_deploy_cmd)
+            
+            print(f"[{ip}:{port}] Patch deployed successfully!", flush=True)
+            
+            with self.tm.lock:
+                target['pwn_patched'] = True
+                self.tm.save_targets()
+
+        except Exception as e:
+            print(f"[{ip}:{port}] Auto-Patch Error: {e}", flush=True)
+        
+        target['status'] = 'connected'
+        self.tm.notify_target_update(target)
 
     def deploy_aoi_tools(self, ip, port):
         local_ip = self.tm.get_local_ip()
@@ -514,3 +645,23 @@ class DefenseManager:
                         task['last_run'] = now
             except: pass
             time.sleep(5)
+
+    def get_target_default_path(self, ip, port):
+        target = self.tm.get_target(ip, port)
+        if not target: return '/'
+        
+        detection = target.get('detection', {})
+        types = detection.get('types', [])
+        
+        if 'php' in types:
+            return '/var/www/html'
+        elif 'pwn' in types:
+            # Try to get directory of the binary
+            if 'pwn' in detection.get('evidence', {}):
+                 path = detection['evidence']['pwn'].split('\n')[0]
+                 return path.rsplit('/', 1)[0] if '/' in path else '/home'
+            return '/home'
+        elif 'python' in types:
+             return '/home'
+             
+        return '/'
