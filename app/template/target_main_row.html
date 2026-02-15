@@ -36,15 +36,14 @@
         <button class="btn btn-sm" style="background: #e67e22; color: white;" title="www-data 权限终端"
             onclick="openWwwdataTab('{{ t.ip }}', '{{ t.port }}')">www-data</button>
         <button class="btn btn-sm" style="background: #d35400; color: white;" title="Xshell (www-data)"
-            onclick="openXshellWwwData('{{ t.ip }}', '{{ t.port }}', '{{ t.user }}', '{{ t.password }}')">Xshell(w)</button>
+            onclick="openXshellWwwData('{{ t.ip }}', '{{ t.port }}')">Xshell(w)</button>
         {% endif %}
         {% if t.aoi_deployed %}
         <a href="http://localhost:8037/" target="_blank" class="btn btn-sm"
             style="background: #9b59b6; color: white; text-decoration: none; cursor: pointer;" title="AOI 管理面板"
             onclick="event.stopPropagation()">🛡️AOI</a>
         {% endif %}
-        <button class="btn btn-warning btn-sm"
-            onclick="openXshell('{{ t.ip }}', '{{ t.port }}', '{{ t.user }}', '{{ t.password }}')">Xshell</button>
+        <button class="btn btn-warning btn-sm" onclick="openXshell('{{ t.ip }}', '{{ t.port }}')">Xshell</button>
         <button class="btn btn-danger btn-sm" onclick="removeTarget('{{ t.ip }}', '{{ t.port }}')">Del</button>
     </td>
 </tr>

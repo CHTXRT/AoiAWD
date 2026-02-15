@@ -5,10 +5,12 @@ import time
 import threading
 
 class SecurityScanner:
-    def __init__(self, ssh_manager):
-        self.ssh = ssh_manager
+    def __init__(self, connection_manager, target_manager):
+        self.cm = connection_manager
+        self.tm = target_manager
         self.custom_php_rules = []
         self.custom_rules_file = None
+        self.attack_manager = None
         
         # 后门特征正则 (Updated: 2026-02-14)
         self.BACKDOOR_PATTERNS = [
@@ -34,6 +36,9 @@ class SecurityScanner:
     def init_app(self, app):
          self.custom_rules_file = os.path.join(app.config['DATA_DIR'], 'custom_php_rules.json')
          self.load_custom_rules()
+
+    def set_attack_manager(self, attack_manager):
+        self.attack_manager = attack_manager
 
     def load_custom_rules(self):
         if self.custom_rules_file and os.path.exists(self.custom_rules_file):
@@ -73,11 +78,11 @@ class SecurityScanner:
     def scan_php_vulns(self, ip, port):
         ip = ip.strip()
         port = int(port)
-        target = next((t for t in self.ssh.targets if t['ip'] == ip and t['port'] == port), None)
+        target = self.tm.get_target(ip, port)
         if not target: return
 
         target['status'] = 'scanning...'
-        self.ssh.notify_target_update(target)
+        self.tm.notify_target_update(target)
 
         builtin_patterns = [
             'system\\s*\\(', 'exec\\s*\\(', 'passthru\\s*\\(', 'shell_exec\\s*\\(',
@@ -102,7 +107,7 @@ class SecurityScanner:
         cmd = f"grep -rnEH '{grep_expr}' /var/www/html --include='*.php' | head -n 30"
 
         try:
-            output = self.ssh.execute(ip, port, cmd)
+            output = self.cm.execute(ip, port, cmd)
             processed_lines = []
             if output and output.strip():
                 attacks_to_trigger = []
@@ -132,10 +137,10 @@ class SecurityScanner:
                         processed_lines.append(line)
                 
                 final_output = '\n'.join(processed_lines)
-                with self.ssh.lock:
+                with self.tm.lock:
                     if 'detection' not in target: target['detection'] = {}
                     target['detection']['php_vulns'] = final_output
-                    self.ssh.save_targets()
+                    self.tm.save_targets()
                 print(f"[{ip}:{port}] PHP Scan found risks! (Processed {len(processed_lines)} lines)", flush=True)
 
                 # Launch attacks after saving scan results
@@ -154,19 +159,19 @@ class SecurityScanner:
         except Exception as e:
             print(f"Scan error: {e}", flush=True)
         finally:
-            with self.ssh.lock:
+            with self.tm.lock:
                 target['status'] = 'connected'
-                self.ssh.notify_target_update(target)
-                self.ssh.save_targets()
+                self.tm.notify_target_update(target)
+                self.tm.save_targets()
 
     def scan_python_vulns(self, ip, port):
         ip = ip.strip()
         port = int(port)
-        target = next((t for t in self.ssh.targets if t['ip'] == ip and t['port'] == port), None)
+        target = self.tm.get_target(ip, port)
         if not target: return
 
         target['status'] = 'scanning...'
-        self.ssh.notify_target_update(target)
+        self.tm.notify_target_update(target)
         
         patterns = {
             r'eval\s*\(': 'eval',
@@ -201,7 +206,7 @@ class SecurityScanner:
              ]
              grep_expr = '|'.join(grep_patterns)
              cmd = f"grep -rnE '{grep_expr}' /home --include='*.py' --exclude-dir=upload --exclude-dir=uploads | head -n 50"
-             output = self.ssh.execute(ip, port, cmd)
+             output = self.cm.execute(ip, port, cmd)
              
              processed_lines = []
              if output and output.strip():
@@ -220,19 +225,19 @@ class SecurityScanner:
 
              if processed_lines:
                 final_output = '\\n'.join(processed_lines[:50])
-                with self.ssh.lock:
+                with self.tm.lock:
                     if 'detection' not in target: target['detection'] = {}
                     target['detection']['python_vulns'] = final_output
-                    self.ssh.save_targets()
+                    self.tm.save_targets()
 
              target['status'] = 'connected'
-             self.ssh.notify_target_update(target)
-             self.ssh.save_targets()
+             self.tm.notify_target_update(target)
+             self.tm.save_targets()
         except Exception as e:
             print(f"Python scan error: {e}")
 
     def snapshot_files(self, ip, port):
-        target = next((t for t in self.ssh.targets if t['ip'] == ip and t['port'] == int(port)), None)
+        target = self.tm.get_target(ip, port)
         if not target: 
             print(f"[{ip}:{port}] Snapshot failed: Target not found")
             return False, '靶机未找到'
@@ -243,7 +248,7 @@ class SecurityScanner:
         for scan_dir in scan_dirs:
             exclude = "-not -path '*/upload/*' -not -path '*/uploads/*'" if 'home' in scan_dir else ''
             cmd = f"find {scan_dir} -type f {exclude} -exec md5sum {{}} \\; 2>/dev/null"
-            output = self.ssh.execute(ip, int(port), cmd)
+            output = self.cm.execute(ip, int(port), cmd)
             if output and 'Error' not in output:
                 for line in output.strip().split('\\n'):
                     line = line.strip()
@@ -253,20 +258,17 @@ class SecurityScanner:
                         md5_hash, filepath = parts
                         snapshot[filepath] = md5_hash
 
-        with self.ssh.lock:
+        with self.tm.lock:
             target['file_snapshot'] = snapshot
             target['snapshot_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
-            self.ssh.save_targets()
+            self.tm.save_targets()
         
         count = len(snapshot)
         print(f"[{ip}:{port}] Snapshot completed. Tracked {count} files.")
         return True, f'快照完成，共 {count} 个文件'
 
-    def set_attack_manager(self, attack_manager):
-        self.attack_manager = attack_manager
-
     def scan_backdoor(self, ip, port):
-        target = next((t for t in self.ssh.targets if t['ip'] == ip and t['port'] == int(port)), None)
+        target = self.tm.get_target(ip, port)
         if not target: 
              print(f"[{ip}:{port}] Backdoor scan failed: Target not found", flush=True)
              return {'error': '靶机未找到'}
@@ -283,7 +285,7 @@ class SecurityScanner:
         for scan_dir in scan_dirs:
             exclude = "-not -path '*/upload/*' -not -path '*/uploads/*'" if 'home' in scan_dir else ''
             cmd = f"find {scan_dir} -type f {exclude} -exec md5sum {{}} \\; 2>/dev/null"
-            output = self.ssh.execute(ip, int(port), cmd)
+            output = self.cm.execute(ip, int(port), cmd)
             if output and 'Error' not in output:
                 for line in output.strip().split('\\n'):
                     line = line.strip()
@@ -309,7 +311,7 @@ class SecurityScanner:
         for filepath in suspect_files[:50]:
             if not filepath.endswith(('.php', '.py', '.phtml', '.pht', '.php5', '.inc')): continue
             cmd = f"cat '{filepath}' 2>/dev/null"
-            content = self.ssh.execute(ip, int(port), cmd)
+            content = self.cm.execute(ip, int(port), cmd)
             if content and 'Error' not in content:
                 matches = self._match_backdoor_patterns(content)
                 if matches:
@@ -320,9 +322,9 @@ class SecurityScanner:
                         'is_new': filepath in results['new_files'],
                     })
 
-        with self.ssh.lock:
+        with self.tm.lock:
             target['backdoor_scan'] = results
-            self.ssh.save_targets()
+            self.tm.save_targets()
         
         print(f"[{ip}:{port}] Backdoor scan finished. Found {len(results['backdoors'])} backdoors.", flush=True)
         return results

@@ -1,4 +1,6 @@
 import os
+import secrets
+import string
 
 class Config:
     # app/config.py is in .../awd/app/config.py
@@ -12,7 +14,16 @@ class Config:
     BACKUPS_FOLDER = os.path.join(DATA_DIR, 'backups')
     CONFIG_FILE = os.path.join(DATA_DIR, 'preload_config.json')
     TARGETS_FILE = os.path.join(DATA_DIR, 'targets.json')
+
+    # Security
+    SECRET_KEY = os.environ.get('SECRET_KEY') or secrets.token_hex(16)
     
+    # Team Token Logic
+    # 1. Environment Variable
+    # 2. Randomly Generated
+    _generated_token = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(8))
+    TEAM_TOKEN = os.environ.get('AWD_TEAM_TOKEN', _generated_token)
+
     @staticmethod
     def init_app(app):
         # 确保目录存在

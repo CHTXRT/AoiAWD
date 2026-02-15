@@ -1,0 +1,35 @@
+:root {
+    --bg-color: #f4f6f8;
+    --text-color: #2c3e50;
+    --card-bg: #ffffff;
+    --border-color: #dfe3e8;
+    --primary-color: #3498db;
+    --danger-color: #e74c3c;
+    --success-color: #2ecc71;
+    --warning-color: #f1c40f;
+    --console-bg: #2d3436;
+    --console-text: #f1f2f6;
+    --shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+    /* Cyberpunk Theme Defaults */
+    --cyber-bg: #0d0d0d;
+    --neon-cyan: #00f3ff;
+    --neon-pink: #ff0055;
+    --neon-yellow: #fcee0a;
+    --neon-green: #39ff14;
+    --neon-blue: #00bfff;
+}
+
+[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #ecf0f1;
+    --card-bg: #2d2d2d;
+    --border-color: #404040;
+    --primary-color: #3498db;
+    --danger-color: #e74c3c;
+    --success-color: #2ecc71;
+    --warning-color: #f1c40f;
+    --console-bg: #000000;
+    --console-text: #00ff00;
+    --shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}

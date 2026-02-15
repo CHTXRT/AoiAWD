@@ -5,7 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AWD Controller</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- CSS Modules -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/vars.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/terminal.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/attack.css') }}">
+
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 </head>
@@ -28,16 +36,6 @@
                     <div class="nav-icon">⚔️</div>
                     <div class="nav-text">攻击 (Attack)</div>
                 </div>
-                <!-- 
-                <div class="nav-item" onclick="switchView('defense', this)">
-                    <div class="nav-icon">🛡️</div>
-                    <div class="nav-text">防御 (Defense)</div>
-                </div>
-                <div class="nav-item" onclick="switchView('settings', this)">
-                    <div class="nav-icon">⚙️</div>
-                    <div class="nav-text">设置 (Settings)</div>
-                </div>
-                -->
             </div>
             <!-- Bottom Actions -->
             <div
@@ -175,6 +173,50 @@
                                     </div>
                                 </details>
 
+                                <!-- SSH 密钥管理 -->
+                                <details style="margin-bottom: 20px;">
+                                    <summary>🔑 SSH 密钥管理 (Key Management)</summary>
+                                    <div class="card-content" style="padding-top: 10px;">
+                                        <div class="flex-row"
+                                            style="margin-bottom: 10px; align-items: flex-end; gap: 10px;">
+                                            <div>
+                                                <div style="font-size: 12px; color: #999; margin-bottom: 2px;">📄 选择多个文件
+                                                    (Shift/Ctrl)</div>
+                                                <input type="file" id="key-upload-input" multiple style="width: 200px;">
+                                            </div>
+                                            <div>
+                                                <div style="font-size: 12px; color: #999; margin-bottom: 2px;">📂 或选择文件夹
+                                                    (Folder)</div>
+                                                <input type="file" id="key-upload-folder" webkitdirectory directory
+                                                    multiple style="width: 200px;">
+                                            </div>
+                                            <button class="btn btn-primary btn-sm" onclick="uploadKeys()">📤 开始上传
+                                                (Upload)</button>
+                                            <button class="btn btn-secondary btn-sm" onclick="loadKeys()">🔄 刷新
+                                                (Refresh)</button>
+                                        </div>
+                                        <div id="keys-list-container"
+                                            style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px;">
+                                            <table style="font-size: 13px; width: 100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width: 30%">文件名</th>
+                                                        <th style="width: 15%">大小</th>
+                                                        <th style="width: 40%">关联靶机 (Used By)</th>
+                                                        <th style="width: 15%">操作</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="keys-table-body">
+                                                    <tr>
+                                                        <td colspan="4" style="text-align:center; color:#999;">
+                                                            请点击刷新加载...</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </details>
+
                                 <!-- Add Target & List -->
                                 <form action="/add_target" method="post" enctype="multipart/form-data" class="flex-row"
                                     style="margin-bottom: 20px;">
@@ -296,7 +338,16 @@
 
     <div id="toast"></div>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- JS Modules -->
+    <script src="{{ url_for('static', filename='js/modules/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/ssh.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/terminal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/files.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/attack.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/defense.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/rules.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/keys.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/app.js') }}"></script>
 </body>
 
 </html>

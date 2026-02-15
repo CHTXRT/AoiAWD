@@ -1,0 +1,194 @@
+/* Cards */
+.card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.card-content {
+    padding: 20px;
+}
+
+details {
+    width: 100%;
+}
+
+summary {
+    padding: 15px;
+    cursor: pointer;
+    font-weight: 600;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-bottom: 1px solid var(--border-color);
+    outline: none;
+    user-select: none;
+}
+
+summary:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    font-weight: 600;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.target-row:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.status-cell {
+    color: var(--text-color);
+}
+
+.status-cell[data-status="connected"] {
+    color: var(--success-color);
+}
+
+.status-cell[data-status="error"] {
+    color: var(--danger-color);
+}
+
+/* Inputs & Buttons */
+input[type="text"],
+input[type="password"],
+input[type="file"] {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    outline: none;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: opacity 0.2s;
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+}
+
+.btn-warning {
+    background-color: var(--warning-color);
+    color: #333;
+}
+
+.btn-secondary {
+    background-color: #95a5a6;
+}
+
+.btn-success {
+    background-color: var(--success-color);
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+/* Tabs */
+.tabs-header {
+    display: flex;
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    overflow-x: auto;
+}
+
+.tab-btn {
+    padding: 12px 20px;
+    cursor: pointer;
+    border-right: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tab-btn.active {
+    background-color: var(--bg-color);
+    border-bottom: 2px solid var(--primary-color);
+    font-weight: 600;
+}
+
+.tab-btn:hover:not(.active) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.close-tab {
+    margin-left: 8px;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.close-tab:hover {
+    opacity: 1;
+    color: var(--danger-color);
+}
+
+.tab-content {
+    display: none;
+    padding: 20px;
+    background-color: var(--bg-color);
+    height: 600px;
+    flex-direction: column;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+/* Toast */
+#toast {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 12px;
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 30px;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#toast.show {
+    visibility: visible;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}

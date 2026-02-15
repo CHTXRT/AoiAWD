@@ -1,72 +1,88 @@
-from .ssh_manager import SSHManager
+from .core.target_manager import TargetManager
+from .core.key_manager import KeyManager
+from .core.connection_manager import ConnectionManager
+
 from .security_scanner import SecurityScanner
 from .defense_manager import DefenseManager
 from .attack_manager import AttackManager
 
+import threading
+
 class SSHControllerFacade:
     def __init__(self):
-        self.ssh = SSHManager()
-        self.scanner = SecurityScanner(self.ssh)
-        self.defense = DefenseManager(self.ssh, self.scanner)
-        self.attack = AttackManager(self.ssh)
+        self.tm = TargetManager()
+        self.km = KeyManager()
+        self.cm = ConnectionManager(self.tm, self.km)
+        
+        self.scanner = SecurityScanner(self.cm, self.tm)
+        self.defense = DefenseManager(self.cm, self.tm, self.scanner)
+        self.attack = AttackManager(self.cm, self.tm)
+        self.scanner.set_attack_manager(self.attack)
 
     def init_app(self, app):
-        self.ssh.init_app(app)
+        self.tm.init_app(app)
+        self.km.init_app(app)
         self.scanner.init_app(app)
         self.defense.init_app(app)
         self.attack.init_app(app)
-        self.scanner.set_attack_manager(self.attack)
 
     @property
-    def targets(self): return self.ssh.targets
+    def targets(self): return self.tm.targets
 
     @property
     def preload_config(self): return self.defense.preload_config
 
-    def set_socketio(self, socketio): self.ssh.set_socketio(socketio)
+    def set_socketio(self, socketio): 
+        self.tm.set_socketio(socketio)
 
-    # --- SSH Manager Delegates ---
-    def add_target(self, *args, **kwargs): return self.ssh.add_target(*args, **kwargs)
-    def remove_target(self, *args, **kwargs): return self.ssh.remove_target(*args, **kwargs)
-    def update_password(self, *args, **kwargs): return self.ssh.update_password(*args, **kwargs)
-    
+    # --- Target Manager Delegates ---
+    def add_target(self, *args, **kwargs): return self.tm.add_target(*args, **kwargs)
+    def remove_target(self, *args, **kwargs): 
+        # First disconnect
+        ip = args[0] if args else kwargs.get('ip')
+        port = args[1] if len(args) > 1 else kwargs.get('port')
+        if ip and port: self.cm.disconnect(ip, port)
+        return self.tm.remove_target(*args, **kwargs)
+        
+    def get_local_ip(self): return self.tm.get_local_ip()
+    def set_local_ip(self, *args, **kwargs): return self.tm.set_local_ip(*args, **kwargs)
+    def update_password(self, *args, **kwargs): return self.tm.update_password(*args, **kwargs)
+    def _ensure_initialized(self): 
+         if not self.tm.targets and self.tm.targets_file:
+             self.tm.load_targets()
+
+    # --- Key Manager Delegates ---
+    def get_all_keys_info(self, *args, **kwargs): return self.km.get_all_keys_info(self.tm.targets)
+    def delete_key(self, *args, **kwargs): return self.km.delete_key(*args, **kwargs)
+
+    # --- Connection Manager Delegates ---
     def connect(self, ip, port, private_key_path=None): 
-        # 使用明确的参数签名，确保 ip/port 能被准确捕获
-        result = self.ssh.connect(ip, port, private_key_path)
+        result = self.cm.connect(ip, port, private_key_path)
         if result[0]: # connected
             # Trigger detection then preload
-            import threading
             target_args = (ip, port)
             
             def _post_connect_sequence(ip, port):
-                # 1. Detect (includes Backup)
                 self.defense.detect_target_type(ip, port)
-                # 2. Preload Tasks (after potential backup)
                 self.defense.run_preload_tasks(ip, port)
                 
             threading.Thread(target=_post_connect_sequence, args=target_args).start()
         return result
 
-    def disconnect(self, *args, **kwargs): return self.ssh.disconnect(*args, **kwargs)
-    def execute(self, *args, **kwargs): return self.ssh.execute(*args, **kwargs)
-    def execute_with_cwd(self, *args, **kwargs): return self.ssh.execute_with_cwd(*args, **kwargs)
-    def upload(self, *args, **kwargs): return self.ssh.upload(*args, **kwargs)
-    def download(self, *args, **kwargs): return self.ssh.download(*args, **kwargs)
-    def list_remote_dir(self, *args, **kwargs): return self.ssh.list_remote_dir(*args, **kwargs)
-    def read_remote_file(self, *args, **kwargs): return self.ssh.read_remote_file(*args, **kwargs)
-    def write_remote_file(self, *args, **kwargs): return self.ssh.write_remote_file(*args, **kwargs)
-    def delete_remote_file(self, *args, **kwargs): return self.ssh.delete_remote_file(*args, **kwargs)
-    def connect_all(self): return self.ssh.connect_all()
-    def disconnect_all(self): return self.ssh.disconnect_all()
-    def batch_execute(self, *args, **kwargs): return self.ssh.batch_execute(*args, **kwargs)
-    def check_connections(self): return self.ssh.check_connections()
-    def get_local_ip(self): return self.ssh.get_local_ip()
-    def set_local_ip(self, *args, **kwargs): return self.ssh.set_local_ip(*args, **kwargs)
-    def _ensure_initialized(self): 
-         # Simple check if targets loaded.
-         if not self.ssh.targets and self.ssh.data_dir:
-             self.ssh.load_targets()
-
+    def disconnect(self, *args, **kwargs): return self.cm.disconnect(*args, **kwargs)
+    def execute(self, *args, **kwargs): return self.cm.execute(*args, **kwargs)
+    def execute_with_cwd(self, *args, **kwargs): return self.cm.execute_with_cwd(*args, **kwargs)
+    def upload(self, *args, **kwargs): return self.cm.upload(*args, **kwargs)
+    def download(self, *args, **kwargs): return self.cm.download(*args, **kwargs)
+    def list_remote_dir(self, *args, **kwargs): return self.cm.list_remote_dir(*args, **kwargs)
+    def read_remote_file(self, *args, **kwargs): return self.cm.read_remote_file(*args, **kwargs)
+    def write_remote_file(self, *args, **kwargs): return self.cm.write_remote_file(*args, **kwargs)
+    def delete_remote_file(self, *args, **kwargs): return self.cm.delete_remote_file(*args, **kwargs)
+    def connect_all(self): return self.cm.connect_all()
+    def disconnect_all(self): return self.cm.disconnect_all()
+    def batch_execute(self, *args, **kwargs): return self.cm.batch_execute(*args, **kwargs)
+    def check_connections(self): return self.cm.check_connections()
+    
     # --- Security Scanner Delegates ---
     def scan_php_vulns(self, *args, **kwargs): return self.scanner.scan_php_vulns(*args, **kwargs)
     def scan_python_vulns(self, *args, **kwargs): return self.scanner.scan_python_vulns(*args, **kwargs)
@@ -89,7 +105,6 @@ class SSHControllerFacade:
     def remove_scheduled_task(self, *args, **kwargs): return self.defense.remove_scheduled_task(*args, **kwargs)
     def get_scheduled_tasks(self): return self.defense.get_scheduled_tasks()
 
-    # --- Attack Manager Delegates ---
     # --- Attack Manager Delegates ---
     def set_enemy_config(self, *args, **kwargs): return self.attack.set_enemy_config(*args, **kwargs)
     def get_attack_status(self): return self.attack.get_attack_status()

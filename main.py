@@ -10,6 +10,13 @@ signal.signal(signal.SIGINT, signal_handler)
 
 if __name__ == '__main__':
     print("AWD 控制台启动中...")
-    print(f"请访问: http://localhost:8080")
     app = create_app()
+    
+    # Print Team Token
+    token = app.config['TEAM_TOKEN']
+    print("\n" + "="*50)
+    print(" \033[91m[SECURITY] AWD TEAM TOKEN: " + token + "\033[0m")
+    print("="*50 + "\n")
+    
+    print(f"请访问: http://localhost:8080")
     socketio.run(app, host='0.0.0.0', port=8080, debug=True, use_reloader=False, allow_unsafe_werkzeug=True)

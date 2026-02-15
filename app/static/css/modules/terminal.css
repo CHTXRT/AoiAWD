@@ -1,0 +1,24 @@
+/* Terminal & Console */
+.console-output {
+    flex-grow: 1;
+    background-color: var(--console-bg);
+    color: var(--console-text);
+    font-family: 'Consolas', monospace;
+    padding: 15px;
+    border-radius: 4px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    white-space: pre-wrap;
+    font-size: 13px;
+}
+
+.console-input-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.console-input {
+    flex-grow: 1;
+    font-family: monospace;
+}
