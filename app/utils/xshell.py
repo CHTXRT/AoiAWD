@@ -55,6 +55,8 @@ Host={self.ip}
 ExpectSend_Expect_0=$
 ExpectSend_Send_0={self.execute_cmd}
 Password={self.pwd_encrypt(self.password) if self.password else ''}
+UseExpectSend=1
+ExpectSend_Count=1
 UserName={self.username}"""
     
     def __repr__(self) -> str:
