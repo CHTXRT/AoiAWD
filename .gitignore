@@ -5,11 +5,12 @@
 test*.py
 flags.txt
 
-logs/*
-!logs/.gitkeep
+data/attack_config.json
+data/local_ip.txt
+data/preload_config.json
+data/targets.json
 data/backups/*
 !data/backups/.gitkeep
-data/targets.json
 data/logs/*
 !data/logs/.gitkeep
 data/uploads/*

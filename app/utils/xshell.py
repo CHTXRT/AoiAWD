@@ -43,7 +43,11 @@ Version=8.1
 Port={self.port}
 Host={self.ip}
 [CONNECTION:AUTHENTICATION]
+ExpectSend_Expect_0=$
+ExpectSend_Send_0=bash
 Password={self.pwd_encrypt(self.password) if self.password else ''}
+UseExpectSend=1
+ExpectSend_Count=1
 UserName={self.username}"""
         else:
             return f"""[SessionInfo]
@@ -69,7 +73,7 @@ UserName={self.username}"""
         str2 = str1[::-1]   # 字符串倒序
         data = base64.b64decode(password)  # b64解码
         hash_object = hashlib.sha256()  # sha256编码
-        hash_object.update(bytes(str2, 'utf-8'))
+        hash_object.update(bytes(str2, 'gbk'))
         key = hash_object.digest()
         pass_data = data[:(len(data)-32)]
         decrypted = ARC4.new(key).decrypt(pass_data)  # RC4加密
@@ -82,7 +86,7 @@ UserName={self.username}"""
         str1 = Xsh.USER[::-1] + Xsh.SID
         str2 = str1[::-1]   # 字符串倒序
         hash_object = hashlib.sha256()  # sha256编码
-        hash_object.update(bytes(str2, 'utf-8'))
+        hash_object.update(bytes(str2, 'gbk'))
         key = hash_object.digest()
         cipher = ARC4.new(key)  # RC4加密
         encrypted = cipher.encrypt(bytes(password, 'utf-8'))  # 加密
