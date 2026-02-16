@@ -36,6 +36,16 @@
                     {% if t.backup_path %}<div
                         style="font-size:10px; color:#666; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
                         title="{{ t.backup_path }}">{{ t.backup_path }}</div>{% endif %}
+
+                    <!-- Maintenance Mode -->
+                    <div style="margin-top:6px; border-top:1px solid var(--border-color); padding-top:4px;">
+                        <label
+                            style="display:flex; align-items:center; gap:6px; font-size:11px; cursor:pointer; color:var(--text-color);">
+                            <input type="checkbox" onchange="toggleMaintenance('{{ t.ip }}', '{{ t.port }}', this)" {%
+                                if t.maintenance_mode %}checked{% endif %}>
+                            <span>🛡️ 维护模式 (暂停查杀)</span>
+                        </label>
+                    </div>
                 </div>
 
                 <!-- Evidence (Compact List) -->

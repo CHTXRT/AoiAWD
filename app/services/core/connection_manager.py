@@ -3,6 +3,8 @@ import threading
 import os
 import stat
 import shlex
+import base64
+import re
 
 class ConnectionManager:
     def __init__(self, target_manager, key_manager):
@@ -109,21 +111,32 @@ class ConnectionManager:
         port = int(port)
         session_key = f"{ip}:{port}"
         
+        client = None
+        
+        # 1. Get Client (Critical Section)
         with self._get_session_lock(session_key):
-            if session_key not in self.sessions:
-                return "Not connected"
-            try:
-                transport = self.sessions[session_key].get_transport()
+            if session_key in self.sessions:
+                client = self.sessions[session_key]
+                transport = client.get_transport()
                 if not transport or not transport.is_active():
-                    self.connect(ip, port)
-                
-                if session_key not in self.sessions:
-                     return "Not connected"
+                    client = None # Needs reconnect
+            
+            if not client:
+                # Try connect
+                self.connect(ip, port)
+                if session_key in self.sessions:
+                    client = self.sessions[session_key]
+        
+        if not client:
+            return "Not connected"
 
-                stdin, stdout, stderr = self.sessions[session_key].exec_command(cmd, timeout=10)
-                return stdout.read().decode() + stderr.read().decode()
-            except Exception as e:
-                return f"Error: {str(e)}"
+        # 2. Execute Command (Parallel Section - No Lock)
+        try:
+            # Paramiko exec_command is thread-safe on the same client (creates new channel)
+            stdin, stdout, stderr = client.exec_command(cmd, timeout=10)
+            return stdout.read().decode() + stderr.read().decode()
+        except Exception as e:
+            return f"Error: {str(e)}"
 
     def execute_with_cwd(self, ip, port, cmd):
         ip = ip.strip()
@@ -203,7 +216,35 @@ class ConnectionManager:
                 else:
                      return False, f"Upload verification failed: {check}"
             except Exception as e:
-                return False, str(e)
+                # Fallback to shell upload
+                print(f"[{ip}:{port}] SFTP Upload failed ({e}), trying Shell fallback...", flush=True)
+                return self._upload_shell(ip, port, local_path, remote_path)
+
+    def _upload_shell(self, ip, port, local_path, remote_path):
+        try:
+            with open(local_path, 'rb') as f:
+                content = f.read()
+            b64 = base64.b64encode(content).decode()
+            
+            # If path ends with /, append filename
+            if remote_path.endswith('/'):
+                filename = os.path.basename(local_path)
+                remote_path += filename
+            
+            # Simple check if directory exists, if not maybe just write?
+            # We assume remote_path is full path or we fail.
+            
+            cmd = f"echo '{b64}' | base64 -d > '{remote_path}'"
+            out = self.execute(ip, port, cmd)
+            
+            # Verify
+            verify_cmd = f"ls '{remote_path}'"
+            if "No such file" in self.execute(ip, port, verify_cmd):
+                return False, "Shell upload failed verification"
+                
+            return True, f"Success (Shell): {remote_path}"
+        except Exception as e:
+            return False, f"Shell Upload Error: {e}"
 
     def download(self, ip, port, remote_path, local_path):
         ip = ip.strip()
@@ -220,7 +261,28 @@ class ConnectionManager:
                     sftp.close()
                 return True, f"Downloaded: {local_path}"
             except Exception as e:
-                return False, str(e)
+                # Fallback
+                print(f"[{ip}:{port}] SFTP Download failed ({e}), trying Shell fallback...", flush=True)
+                return self._download_shell(ip, port, remote_path, local_path)
+
+    def _download_shell(self, ip, port, remote_path, local_path):
+        try:
+            cmd = f"cat '{remote_path}' | base64"
+            out = self.execute(ip, port, cmd)
+            if "No such file" in out or "cat:" in out:
+                return False, "File not found or unreadable"
+            
+            # Cleanup output (remove verify strings if any, though execute returns stdout+stderr)
+            # base64 output should be clean.
+            try:
+                content = base64.b64decode(out.strip())
+                with open(local_path, 'wb') as f:
+                    f.write(content)
+                return True, f"Downloaded (Shell): {local_path}"
+            except:
+                return False, "Decode failed"
+        except Exception as e:
+            return False, str(e)
 
     def list_remote_dir(self, ip, port, path):
         ip = ip.strip()

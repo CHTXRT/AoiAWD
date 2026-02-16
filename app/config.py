@@ -14,6 +14,7 @@ class Config:
     BACKUPS_FOLDER = os.path.join(DATA_DIR, 'backups')
     CONFIG_FILE = os.path.join(DATA_DIR, 'preload_config.json')
     TARGETS_FILE = os.path.join(DATA_DIR, 'targets.json')
+    IMMORTAL_LOG_FILE = os.path.join(DATA_DIR, 'immortal_alerts.json')
 
     # Security
     SECRET_KEY = os.environ.get('SECRET_KEY') or secrets.token_hex(16)

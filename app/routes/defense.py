@@ -140,3 +140,78 @@ def api_deploy_aoi():
         ssh_manager.deploy_aoi_tools(ip, port)
     threading.Thread(target=_run).start()
     return jsonify({'status': 'ok', 'message': 'AOI 部署已启动'})
+
+@bp.route('/api/defense/immortal/alerts', methods=['GET'])
+def api_get_immortal_alerts():
+    """获取不死马查杀历史告警"""
+    return jsonify({'alerts': ssh_manager.get_immortal_alerts()})
+
+@bp.route('/api/defense/whitelist/add', methods=['POST'])
+def api_add_whitelist():
+    data = request.json
+    ssh_manager.add_whitelist(data['ip'], int(data.get('port', 22)), data['file'])
+    return jsonify({'status': 'ok', 'message': '已加入白名单'})
+
+@bp.route('/api/defense/whitelist/remove', methods=['POST'])
+def api_remove_whitelist():
+    data = request.json
+    ssh_manager.remove_whitelist(data['ip'], int(data.get('port', 22)), data['file'])
+    return jsonify({'status': 'ok', 'message': '已移出白名单'})
+
+@bp.route('/api/defense/quarantine/restore', methods=['POST'])
+def api_restore_quarantine():
+    data = request.json
+    success, msg = ssh_manager.restore_quarantine(data['ip'], int(data.get('port', 22)), data['file'], data['quarantine_path'])
+    return jsonify({'status': 'ok' if success else 'error', 'message': msg})
+
+@bp.route('/api/target/maintenance', methods=['POST'])
+def api_maintenance_mode():
+    data = request.json
+    res = ssh_manager.tm.toggle_maintenance_mode(data['ip'], int(data.get('port', 22)), data['enabled'])
+    return jsonify({'status': 'ok' if res else 'error'})
+
+@bp.route('/api/defense/immortal/kill_persist', methods=['POST'])
+def api_kill_persist():
+    data = request.json
+    ip = data['ip']
+    port = data.get('port', 22)
+    file_path = data['file']
+    action = data.get('action', 'start') # start | stop
+    
+    if action == 'start':
+        success, msg = ssh_manager.immortal_killer.start_persistent_kill(ip, port, file_path)
+    else:
+        success, msg = ssh_manager.immortal_killer.stop_persistent_kill(ip, port, file_path)
+        
+    return jsonify({'status': 'ok' if success else 'error', 'message': msg})
+
+@bp.route('/api/defense/immortal/kill_status', methods=['POST'])
+def api_kill_status():
+    data = request.json
+    status = ssh_manager.immortal_killer.get_persistent_status(data['ip'], data.get('port', 22), data['file'])
+    return jsonify({'active': status})
+@bp.route('/api/defense/immortal/killers', methods=['GET'])
+def api_get_active_killers_list():
+    killers = ssh_manager.immortal_killer.get_active_killers()
+    return jsonify({'killers': killers})
+
+@bp.route('/api/defense/monitor/logs', methods=['GET'])
+def api_get_monitor_logs():
+    """获取最近的监控日志"""
+    # monitor is exposed in ssh_manager facade? Yes, self.monitor
+    if hasattr(ssh_manager, 'monitor') and ssh_manager.monitor:
+        # Reverse to show newest first
+        return jsonify({'logs': list(reversed(ssh_manager.monitor.logs))})
+    return jsonify({'logs': []})
+
+@bp.route('/api/defense/monitor/alerts', methods=['GET'])
+def api_get_monitor_alerts():
+    """获取历史告警"""
+    alerts_file = os.path.join(current_app.config['DATA_DIR'], 'monitor_alerts.json')
+    if os.path.exists(alerts_file):
+        try:
+            with open(alerts_file, 'r') as f:
+                alerts = json.load(f)
+                return jsonify({'alerts': list(reversed(alerts))})
+        except: pass
+    return jsonify({'alerts': []})

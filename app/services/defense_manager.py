@@ -11,6 +11,7 @@ class DefenseManager:
         self.tm = target_manager
         self.scanner = scanner
         self.immortal_killer = immortal_killer
+        self.monitor_service = None # Will be set via setter or init
         self.backups_folder = None
         self.tools_folder = None
         self.preload_folder = None
@@ -20,6 +21,9 @@ class DefenseManager:
         self.scheduled_tasks = {}
         self._scheduler_running = False
         self._scheduler_thread = None
+
+    def set_monitor_service(self, monitor_service):
+        self.monitor_service = monitor_service
 
     def init_app(self, app):
          self.backups_folder = app.config['BACKUPS_FOLDER']
@@ -90,14 +94,12 @@ class DefenseManager:
             threading.Thread(target=self.scanner.scan_php_vulns, args=(ip, port)).start()
             threading.Thread(target=self.setup_wwwdata_shell, args=(ip, port)).start()
             threading.Thread(target=self._detect_php_ini, args=(ip, port)).start()
-            threading.Thread(target=self.deploy_aoi_tools, args=(ip, port)).start()
-            # Trigger Backdoor Scan & Snapshot
-            threading.Thread(target=self.scanner.scan_backdoor, args=(ip, port)).start()
-            threading.Thread(target=self.scanner.snapshot_files, args=(ip, port)).start()
             
-            # Start Immortal Shell Killer
-            if self.immortal_killer:
-                 self.immortal_killer.start_monitoring(ip, port)
+            # Use sequential initialization for PHP defense to avoid conflict
+            threading.Thread(target=self._init_php_defense, args=(ip, port)).start()
+
+            # Use sequential initialization for PHP defense to avoid conflict
+            threading.Thread(target=self._init_php_defense, args=(ip, port)).start()
 
         if 'python' in detection['types']:
             threading.Thread(target=self.scanner.scan_python_vulns, args=(ip, port)).start()
@@ -209,6 +211,7 @@ class DefenseManager:
 
                      with self.tm.lock:
                         target['pwn_patched'] = False
+                        self.tm.notify_target_update(target)
                         self.tm.save_targets()
                      return True, 'Pwn 还原成功 (从远程 .bak 恢复)'
                  
@@ -217,6 +220,7 @@ class DefenseManager:
                  self.cm.upload(ip, int(port), backup_path, remote_tmp)
                  self.cm.execute(ip, int(port), f"cp {remote_tmp} {original_path} && chmod +x {original_path}")
                  self.cm.execute(ip, int(port), f"rm {remote_tmp}")
+                 self.tm.notify_target_update(target)
                  return True, 'Pwn 还原成功 (从本地备份恢复)'
 
             # Standard Web Restore
@@ -247,7 +251,9 @@ class DefenseManager:
                 check = self.cm.execute(ip, int(port), f"ls -A {webroot}")
                 if check:
                     self.cm.execute(ip, int(port), f"rm {remote_tmp}")
+                    self.cm.execute(ip, int(port), f"rm {remote_tmp}")
                     print(f"[{ip}:{port}] Backup restored. Old files moved to {backup_old}.", flush=True)
+                    self.tm.notify_target_update(target)
                     return True, f'备份还原成功 (旧文件已移至 {backup_old})'
                 else:
                     # Restore failed? Rollback
@@ -261,9 +267,12 @@ class DefenseManager:
                     self.cm.execute(ip, int(port), f"cp {remote_tmp} {original_path} && chmod +x {original_path}")
                     self.cm.execute(ip, int(port), f"rm {remote_tmp}")
                     print(f"[{ip}:{port}] Binary restored successfully.")
+                    
+                    self.tm.notify_target_update(target)
                     return True, '二进制文件还原成功'
                 
                 print(f"[{ip}:{port}] Backup uploaded to {remote_tmp}.")
+                self.tm.notify_target_update(target)
                 return True, f'备份文件已上传到 {remote_tmp}'
         except Exception as e:
             print(f"[{ip}:{port}] Restore error: {e}")
@@ -364,9 +373,27 @@ class DefenseManager:
         target['status'] = 'connected'
         self.tm.notify_target_update(target)
 
+    def _init_php_defense(self, ip, port):
+        """Sequential initialization for PHP targets: AOI -> Immortal Killer -> PyGuard"""
+        print(f"[{ip}:{port}] Starting PHP Defense Initialization...", flush=True)
+        
+        # 1. Deploy AOI (Safe deployment will handle timestamps)
+        self.deploy_aoi_tools(ip, port)
+
+        # 2. Deploy PyGuard (Python-based Monitor)
+        if self.monitor_service:
+            self.monitor_service.deploy_agent(ip, port)
+        
+        # 3. Start Immortal Shell Killer
+        if self.immortal_killer:
+            print(f"[{ip}:{port}] Starting Immortal Shell Killer after AOI...", flush=True)
+            self.immortal_killer.start_monitoring(ip, port)
+
     def deploy_aoi_tools(self, ip, port):
         local_ip = self.tm.get_local_ip()
-        if not local_ip: return
+        if not local_ip:
+            print(f"[{ip}:{port}] AOI Deploy Skipped: Local IP not set. Please configure Local IP in settings.", flush=True)
+            return
         
         target = self.tm.get_target(ip, port)
         if not target: return
@@ -375,27 +402,79 @@ class DefenseManager:
         tapeworm_path = os.path.join(aoi_dir, 'tapeworm.phar')
         roundworm_path = os.path.join(aoi_dir, 'roundworm')
         
-        if not os.path.exists(tapeworm_path) or not os.path.exists(roundworm_path): return
+        if not os.path.exists(tapeworm_path) or not os.path.exists(roundworm_path):
+            print(f"[{ip}:{port}] AOI Deploy Skipped: Tools not found in {aoi_dir}", flush=True)
+            return
         
+        # --- Critical: Handling Immortal Shell Killer Conflict ---
+        was_monitoring = False
+        if self.immortal_killer and self.immortal_killer.is_monitoring(ip, port):
+            print(f"[{ip}:{port}] Pausing Immortal Shell Killer for AOI deployment...", flush=True)
+            self.immortal_killer.stop_monitoring(ip, port)
+            was_monitoring = True
+            
         try:
+            # 1. Backup Timestamps
+            # Use stat to get current mtime and generate a script to restore it
+            # format: touch -d @<unix_timestamp> <file>
+            # Fixed quoting for filenames with spaces: 'touch -d @%Y "%n"'
+            print(f"[{ip}:{port}] Backing up PHP file timestamps...", flush=True)
+            cmd_backup_mtime = "find /var/www/html -name '*.php' -exec stat -c 'touch -d @%Y \"%n\"' {} \\; > /tmp/restore_mtime.sh"
+            self.cm.execute(ip, port, cmd_backup_mtime)
+            
+            # 2. Deploy AOI (Synchronous to ensure file mods complete before restore)
+            print(f"[{ip}:{port}] Deploying AOI Tools...", flush=True)
             self.cm.upload(ip, port, tapeworm_path, '/tmp/tapeworm.phar')
             self.cm.upload(ip, port, roundworm_path, '/tmp/roundworm')
             self.cm.execute(ip, port, 'chmod +x /tmp/roundworm')
             
             ip1 = f"{local_ip}:8023"
-            tapeworm_cmd = f"cd /var/www/html && nohup php /tmp/tapeworm.phar -d /var/www/html -s {ip1} > /dev/null 2>&1 &"
+            # Remove nohup and & to wait for completion
+            tapeworm_cmd = f"cd /var/www/html && php /tmp/tapeworm.phar -d /var/www/html -s {ip1}"
             self.cm.execute(ip, port, tapeworm_cmd)
             
             ip2 = local_ip
+            # Roundworm might be a long running process?? If so we should keep it bg but it modifies files?
+            # Assuming roundworm is also a patcher/scanner. If it hangs, we might timeout.
+            # Let's try synchronous with a timeout? Or just assume it's fast.
+            # "Roundworm" usually implies a stronger WAF.
+            # Let's keep Tapeworm sync (it definitely modifies files).
+            # Let's keep Roundworm bg if it's a daemon, but if it modifies files launch it first?
+            # Warning: If roundworm is a daemon, execute() will hang. 
+            # Reverting Roundworm to BG if it's a watcher. But Tapeworm is the main patcher.
             roundworm_cmd = f"nohup /tmp/roundworm -d -s {ip2} -w /var/www/html > /dev/null 2>&1 &"
             self.cm.execute(ip, port, roundworm_cmd)
             
+            # Wait a bit for any background tools to touch files
+            time.sleep(2)
+            
             with self.tm.lock:
                 target['aoi_deployed'] = True
-                print("AOI deploy Success!")
+                print(f"[{ip}:{port}] AOI deploy Success!", flush=True)
                 self.tm.notify_target_update(target)
                 self.tm.save_targets()
-        except: pass
+                
+            # 3. Restore Timestamps
+            print(f"[{ip}:{port}] Restoring PHP file timestamps...", flush=True)
+            self.cm.execute(ip, port, "sh /tmp/restore_mtime.sh")
+            self.cm.execute(ip, port, "rm /tmp/restore_mtime.sh")
+            
+        except Exception as e:
+            print(f"[{ip}:{port}] AOI Deploy Error: {e}", flush=True)
+        except Exception as e:
+            print(f"[{ip}:{port}] AOI Deploy Error: {e}", flush=True)
+
+        # 5. Snapshot & Backdoor Scan (At the end of init, so AOI files are included in baseline)
+        print(f"[{ip}:{port}] Creating Security Snapshot...", flush=True)
+        self.scanner.snapshot_files(ip, port)
+        
+        print(f"[{ip}:{port}] Starting Initial Backdoor Scan...", flush=True)
+        self.scanner.scan_backdoor(ip, port)
+
+        # 6. Resume Immortal Shell Killer
+        if was_monitoring and self.immortal_killer:
+             print(f"[{ip}:{port}] Resuming Immortal Shell Killer...", flush=True)
+             self.immortal_killer.start_monitoring(ip, port)
 
     def setup_wwwdata_shell(self, ip, port):
         target = self.tm.get_target(ip, port)

@@ -130,8 +130,14 @@ class SecurityScanner:
                         if pass_match and ('eval' in content or 'assert' in content or 'system' in content):
                             shell_pass = pass_match.group(2)
                             filepath = parts[0]
-                            # Collect for later execution to don't block scan
-                            attacks_to_trigger.append((ip, int(port), filepath, shell_pass))
+                            
+                            # EXCLUSION: Ignore hidden files (starting with .)
+                            filename = os.path.basename(filepath)
+                            if filename.startswith('.'):
+                                print(f"[{ip}:{port}] Ignoring hidden file for counter-attack: {filepath}", flush=True)
+                            else:
+                                # Collect for later execution to don't block scan
+                                attacks_to_trigger.append((ip, int(port), filepath, shell_pass))
                             
                     else:
                         processed_lines.append(line)
@@ -244,15 +250,37 @@ class SecurityScanner:
 
         print(f"[{ip}:{port}] Starting file snapshot...")
         snapshot = {}
-        scan_dirs = ['/var/www/html', '/home']
+        
+        # Determine directories based on target type to avoid irrelevant scans
+        detection = target.get('detection', {})
+        types = detection.get('types', [])
+        scan_dirs = []
+        if 'php' in types:
+            scan_dirs.append('/var/www/html')
+        if 'python' in types:
+            scan_dirs.append('/home')
+        
+        # Fallback if undetected or Pwn (usually home)
+        if not scan_dirs:
+            scan_dirs = ['/var/www/html', '/home']
+
         for scan_dir in scan_dirs:
             exclude = "-not -path '*/upload/*' -not -path '*/uploads/*'" if 'home' in scan_dir else ''
-            cmd = f"find {scan_dir} -type f {exclude} -exec md5sum {{}} \\; 2>/dev/null"
+            # Optimized: Use xargs for speed and better compatibility
+            # Use -print0 to handle filenames with spaces
+            cmd = f"find {scan_dir} -type f {exclude} -print0 | xargs -0 md5sum 2>/dev/null"
             output = self.cm.execute(ip, int(port), cmd)
+            
             if output and 'Error' not in output:
-                for line in output.strip().split('\\n'):
+                lines = output.strip().split('\n')
+                # DEBUG: If files are very few, maybe something is wrong (or it's a fresh container)
+                if len(lines) < 5:
+                     print(f"[{ip}:{port}] Snapshot WARN: Only {len(lines)} files found in {scan_dir}. Raw: {output[:200]}", flush=True)
+                
+                for line in lines:
                     line = line.strip()
                     if not line: continue
+                    # md5sum output: hash  filename
                     parts = line.split(None, 1)
                     if len(parts) == 2:
                         md5_hash, filepath = parts
@@ -261,6 +289,7 @@ class SecurityScanner:
         with self.tm.lock:
             target['file_snapshot'] = snapshot
             target['snapshot_time'] = time.strftime('%Y-%m-%d %H:%M:%S')
+            self.tm.notify_target_update(target)
             self.tm.save_targets()
         
         count = len(snapshot)
@@ -273,6 +302,9 @@ class SecurityScanner:
              print(f"[{ip}:{port}] Backdoor scan failed: Target not found", flush=True)
              return {'error': '靶机未找到'}
 
+        target['status'] = 'scanning backdoor...'
+        self.tm.notify_target_update(target)
+
         print(f"[{ip}:{port}] Starting backdoor scan...", flush=True)
         results = {
             'new_files': [], 'modified_files': [], 'deleted_files': [], 'backdoors': [],
@@ -281,7 +313,18 @@ class SecurityScanner:
 
         baseline = target.get('file_snapshot', {})
         current_files = {}
-        scan_dirs = ['/var/www/html', '/home']
+        
+        # Sync logic with snapshot_files
+        detection = target.get('detection', {})
+        types = detection.get('types', [])
+        scan_dirs = []
+        if 'php' in types:
+            scan_dirs.append('/var/www/html')
+        if 'python' in types:
+            scan_dirs.append('/home')
+        if not scan_dirs:
+             scan_dirs = ['/var/www/html', '/home']
+
         for scan_dir in scan_dirs:
             exclude = "-not -path '*/upload/*' -not -path '*/uploads/*'" if 'home' in scan_dir else ''
             cmd = f"find {scan_dir} -type f {exclude} -exec md5sum {{}} \\; 2>/dev/null"
@@ -324,6 +367,8 @@ class SecurityScanner:
 
         with self.tm.lock:
             target['backdoor_scan'] = results
+            target['status'] = 'connected'
+            self.tm.notify_target_update(target)
             self.tm.save_targets()
         
         print(f"[{ip}:{port}] Backdoor scan finished. Found {len(results['backdoors'])} backdoors.", flush=True)

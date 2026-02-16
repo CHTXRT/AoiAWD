@@ -52,6 +52,14 @@ function toggleRow(ip, port) {
 }
 
 // Global WebSocket Listeners for UI Updates (outside of Terminal)
+// Ideally, wsSocket should be a shared global socket.
+if (typeof wsSocket === 'undefined') {
+    // If not defined by terminal.js, create one.
+    // Or check if 'socket' from defense.js can be reused (but scope is tricky).
+    // Let's create a global one.
+    window.wsSocket = io();
+}
+
 if (typeof wsSocket !== 'undefined' && wsSocket) {
     wsSocket.on('target_update', (data) => {
         console.log('Received target_update:', data);
@@ -227,7 +235,7 @@ function toggleAlertCard(cardId) {
     }
 }
 
-function addAlert(data) {
+function addAlert(data, silent = false) {
     const list = document.getElementById('alerts-list');
     const empty = list.querySelector('.empty-msg');
     if (empty) empty.remove();
@@ -247,17 +255,32 @@ function addAlert(data) {
     // Add row
     const tbody = card.querySelector('.alert-rows');
     const row = document.createElement('tr');
+    // Check if persistent kill is active for this file (need to check backend or store state)
+    // For now, default button state.
     row.style.animation = "fadeIn 0.5s";
     row.innerHTML = `
         <td style="padding:8px; border-bottom:1px solid var(--border-color); color:#999;">${data.time}</td>
         <td style="padding:8px; border-bottom:1px solid var(--border-color); font-family:monospace; color:#f39c12;">${data.file}</td>
-        <td style="padding:8px; border-bottom:1px solid var(--border-color); color:#2ecc71;">${data.action}</td>
+        <td style="padding:8px; border-bottom:1px solid var(--border-color); color:#2ecc71; display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
+            <span>${data.action}</span>
+            <div style="display:flex; gap:4px;">
+                ${data.quarantine_path ?
+            `<button class="btn btn-sm btn-warning" onclick="restoreFile('${data.ip}', '${data.port}', '${data.file.replace(/\\/g, '\\\\')}', '${data.quarantine_path.replace(/\\/g, '\\\\')}', this)" title="还原隔离文件并信任">🛡️ 还原</button>` :
+            `<button class="btn btn-sm btn-secondary" onclick="trustFile('${data.ip}', '${data.port}', '${data.file.replace(/\\/g, '\\\\')}', this)" title="加入白名单，防止误杀">🛡️ 信任</button>`
+        }
+                
+                <button class="btn btn-sm btn-info" style="background:#3498db; border:none;" onclick="viewFileContent('${data.ip}', '${data.port}', '${data.file.replace(/\\/g, '\\\\')}')" title="审计文件内容">👁️ 审计</button>
+                
+                <button id="btn-kill-${data.ip.replace(/\./g, '-')}-${data.port}-${hex_md5(data.file)}" class="btn btn-sm btn-danger" style="background:#e74c3c; border:none;" onclick="togglePersistentKill('${data.ip}', '${data.port}', '${data.file.replace(/\\/g, '\\\\')}', this)" title="启动毫秒级持续查杀">⚡ 持续查杀</button>
+            </div>
+        </td>
     `;
     tbody.insertBefore(row, tbody.firstChild);
 
-    // Auto expand if collapsed
+    // Auto expand if collapsed (only if not silent load?)
+    // Maybe keep collapsed on load to avoid clutter
     const content = card.querySelector('.card-content');
-    if (content.style.display === 'none') {
+    if (!silent && content.style.display === 'none') {
         toggleAlertCard(card.id);
     }
 
@@ -270,8 +293,10 @@ function addAlert(data) {
     navBadge.innerText = alertCount;
     navBadge.style.display = 'inline-block';
 
-    playAlertSound();
-    showToast(`🚨 ALERT: Immortal Shell on ${data.ip}`, 'error');
+    if (!silent) {
+        playAlertSound();
+        showToast(`🚨 ALERT: Immortal Shell on ${data.ip} `, 'error');
+    }
 }
 
 function clearAlerts() {
@@ -280,9 +305,192 @@ function clearAlerts() {
     document.getElementById('nav-alert-badge').style.display = 'none';
 }
 
+async function loadAlerts() {
+    try {
+        const res = await fetch('/api/defense/immortal/alerts');
+        const data = await res.json();
+        if (data && data.alerts) {
+            // Reverse so newest is first? addAlert prepends, so if list is chronological (oldest first), we iterate normal.
+            // If backend list is chronological (append), we should iterate in order. addAlert uses list.prepend, so last added will be top.
+            // So iterating persistent list (old -> new) means Newest will be at top. Correct.
+            data.alerts.forEach(alert => {
+                // We use addAlert but without sound/toast for initial load?
+                // Or maybe we want to just populate quietly.
+                addAlert(alert, true); // true = silent mode
+            });
+        }
+    } catch (e) { console.error("Error loading alerts", e); }
+}
+
+async function trustFile(ip, port, file, btn) {
+    if (!confirm(`确定要信任文件 ${file} 吗？\n信任后，不死马查杀将忽略对该文件的检查。`)) return;
+    performTrust(ip, port, file, btn);
+}
+
+async function performTrust(ip, port, file, btn) {
+    try {
+        const res = await fetch('/api/defense/whitelist/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ip, port, file })
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+            showToast(data.message);
+            if (btn) {
+                btn.innerText = '✅ 已信任';
+                btn.disabled = true;
+                btn.classList.remove('btn-secondary');
+                btn.closest('tr').style.opacity = '0.6';
+            }
+        } else {
+            showToast('操作失败', 'error');
+        }
+    } catch (e) { console.error(e); showToast('请求错误', 'error'); }
+}
+
+async function restoreFile(ip, port, file, quarantine_path, btn) {
+    if (!confirm(`确定要还原并信任 ${file} 吗？\n这将覆盖当前文件，并将其加入白名单。`)) return;
+
+    try {
+        const res = await fetch('/api/defense/quarantine/restore', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ip, port, file, quarantine_path })
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+            showToast('已还原并加入白名单');
+            if (btn) {
+                btn.innerText = '✅ 已还原';
+                btn.disabled = true;
+                btn.classList.remove('btn-warning');
+                btn.closest('tr').style.opacity = '0.6';
+            }
+        } else {
+            showToast('还原失败: ' + data.message, 'error');
+        }
+    } catch (e) { console.error(e); showToast('请求错误', 'error'); }
+}
+
+async function toggleMaintenance(ip, port, checkbox) {
+    const enabled = checkbox.checked;
+    await apiCall('/api/target/maintenance', { ip, port, enabled });
+    showToast(enabled ? '维护模式已开启 (暂停查杀)' : '维护模式已关闭 (恢复查杀)');
+}
+
+// --- Persistent Killer Logic ---
+async function viewFileContent(ip, port, path) {
+    try {
+        const res = await fetch('/api/files/read', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ip, port, path })
+        });
+        const data = await res.json();
+
+        // Use a simple modal
+        const modalId = 'file-viewer-modal';
+        let modal = document.getElementById(modalId);
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = modalId;
+            modal.style.cssText = `position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; display:flex; align-items:center; justify-content:center;`;
+            modal.innerHTML = `
+                <div style="background:var(--card-bg); width:80%; height:80%; border-radius:8px; display:flex; flex-direction:column; box-shadow:0 10px 30px rgba(0,0,0,0.5); border:1px solid var(--border-color);">
+                    <div style="padding:15px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                        <h3 style="margin:0; font-size:16px;">📂 文件审计: <span id="viewer-filename"></span></h3>
+                        <button onclick="document.getElementById('${modalId}').style.display='none'" style="background:none; border:none; color:var(--text-color); font-size:20px; cursor:pointer;">&times;</button>
+                    </div>
+                    <div style="flex:1; overflow:auto; padding:0; background:#1e1e1e;">
+                        <pre style="margin:0; padding:15px; font-family:'Consolas',monospace; color:#d4d4d4; font-size:12px; white-space:pre-wrap; word-break:break-all;" id="viewer-content"></pre>
+                    </div>
+                    <div style="padding:15px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:10px;">
+                        <button class="btn btn-secondary" onclick="document.getElementById('${modalId}').style.display='none'">关闭</button>
+                        <button class="btn btn-danger" id="viewer-kill-btn">⚡ 启动持续查杀</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        document.getElementById('viewer-filename').innerText = path;
+        document.getElementById('viewer-content').innerText = data.content || data.error || '[Empty]';
+
+        const killBtn = document.getElementById('viewer-kill-btn');
+        killBtn.onclick = () => {
+            modal.style.display = 'none';
+            togglePersistentKill(ip, port, path, null);
+        };
+
+        modal.style.display = 'flex';
+
+    } catch (e) { showToast('读取文件失败: ' + e, 'error'); }
+}
+
+async function togglePersistentKill(ip, port, file, btn) {
+    // If called from modal, btn is null. We should find the button in alert card if possible, 
+    // but file path might be from anywhere.
+    // Let's use MD5 of file path to find button if passed
+
+    const confirmMsg = btn && btn.innerText.includes('停止') ?
+        `确定要停止对 ${file} 的持续查杀吗？` :
+        `⚠️ 高危操作：确定要对 ${file} 启动持续查杀吗？\n\n系统将生成驻留脚本，毫秒级轮询删除该文件并建立文件夹占位。`;
+
+    if (!confirm(confirmMsg)) return;
+
+    const action = (btn && btn.innerText.includes('停止')) ? 'stop' : 'start';
+
+    try {
+        const res = await fetch('/api/defense/immortal/kill_persist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ip, port, file, action })
+        });
+        const data = await res.json();
+
+        if (data.status === 'ok') {
+            showToast(action === 'start' ? '⚡ 持续查杀已启动' : '🛑 持续查杀已停止');
+
+            // Try to update button state globally (could be multiple buttons for same file)
+            // But we need hex_md5 which I need to ensure is available or implement simple one.
+            // app.js doesn't have md5 lib by default. 
+            // I will implement a simple hash or just rely on reloading/checking status.
+
+            if (btn) {
+                if (action === 'start') {
+                    btn.innerText = '🛑 停止查杀';
+                    btn.classList.add('pulse-red'); // Need css
+                } else {
+                    btn.innerText = '⚡ 持续查杀';
+                    btn.classList.remove('pulse-red');
+                }
+            }
+        } else {
+            showToast('操作失败: ' + data.message, 'error');
+        }
+    } catch (e) { console.error(e); showToast('请求异常', 'error'); }
+}
+
+// Simple MD5 impl or similar for ID generation? 
+// Actually I can just use a simple string hash for ID if needed, or rely on passing button reference.
+// The button ID I added above used hex_md5. I need to add that library or use a simple replacement.
+// Let's add a simple hash function.
+
+function hex_md5(s) {
+    // Placeholder: just a simple hash to avoid requiring full md5 lib
+    // Used for generating valid IDs for buttons
+    var h = 0, l = s.length, i = 0;
+    if (l > 0)
+        while (i < l)
+            h = (h << 5) - h + s.charCodeAt(i++) | 0;
+    return "h" + h; // Prepend char to ensure valid ID
+}
+
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
     loadScheduledTasks();
+    loadAlerts(); // Load persisted alerts
     if (typeof loadCustomRules === 'function') loadCustomRules();
     if (typeof loadKeys === 'function') loadKeys(); // Load keys initially
 });

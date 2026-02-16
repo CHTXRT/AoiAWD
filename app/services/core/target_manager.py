@@ -66,8 +66,10 @@ class TargetManager:
                             'aoi_deployed': t.get('aoi_deployed'),
                             'file_snapshot': t.get('file_snapshot'),
                             'snapshot_time': t.get('snapshot_time'),
+                            'maintenance_mode': t.get('maintenance_mode'),
                             'backup_done': t.get('backup_done'),
-                            'backdoor_scan': t.get('backdoor_scan')
+                            'backdoor_scan': t.get('backdoor_scan'),
+                            'whitelist': t.get('whitelist', [])
                         })
                     json.dump(targets_to_save, f, indent=4)
             except Exception as e:
@@ -155,6 +157,39 @@ class TargetManager:
             target['password'] = password
             self.save_targets()
             return True, "Password updated"
+
+    def add_whitelist(self, ip, port, file_path):
+        target = self.get_target(ip, port)
+        if not target: return False
+        
+        with self.lock:
+            if 'whitelist' not in target: target['whitelist'] = []
+            if file_path not in target['whitelist']:
+                target['whitelist'].append(file_path)
+                self.save_targets()
+                self.notify_target_update(target)
+        return True
+
+    def remove_whitelist(self, ip, port, file_path):
+        target = self.get_target(ip, port)
+        if not target: return False
+        
+        with self.lock:
+            if 'whitelist' in target and file_path in target['whitelist']:
+                target['whitelist'].remove(file_path)
+                self.save_targets()
+                self.notify_target_update(target)
+        return True
+
+    def toggle_maintenance_mode(self, ip, port, enabled):
+        target = self.get_target(ip, port)
+        if not target: return False
+        
+        with self.lock:
+            target['maintenance_mode'] = bool(enabled)
+            self.save_targets()
+            self.notify_target_update(target)
+        return True
 
     def parse_ip_range(self, ip_input):
         ips = []

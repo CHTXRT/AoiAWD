@@ -5,7 +5,9 @@ from .core.connection_manager import ConnectionManager
 from .security_scanner import SecurityScanner
 from .defense_manager import DefenseManager
 from .immortal_shell_killer import ImmortalShellKiller
+from .immortal_shell_killer import ImmortalShellKiller
 from .attack_manager import AttackManager
+from .monitor_service import MonitorService
 
 import threading
 
@@ -19,6 +21,9 @@ class SSHControllerFacade:
         self.scanner = SecurityScanner(self.cm, self.tm)
         self.defense = DefenseManager(self.cm, self.tm, self.scanner, self.immortal_killer)
         self.attack = AttackManager(self.cm, self.tm)
+        self.monitor = MonitorService(self.cm, self.tm)
+        self.defense.set_monitor_service(self.monitor)
+        
         self.scanner.set_attack_manager(self.attack)
 
     def init_app(self, app):
@@ -26,7 +31,9 @@ class SSHControllerFacade:
         self.km.init_app(app)
         self.scanner.init_app(app)
         self.defense.init_app(app)
+        self.defense.init_app(app)
         self.attack.init_app(app)
+        self.monitor.start()
 
     @property
     def targets(self): return self.tm.targets
@@ -37,6 +44,7 @@ class SSHControllerFacade:
     def set_socketio(self, socketio): 
         self.tm.set_socketio(socketio)
         self.immortal_killer.set_socketio(socketio)
+        self.monitor.set_socketio(socketio)
 
     # --- Target Manager Delegates ---
     def add_target(self, *args, **kwargs): return self.tm.add_target(*args, **kwargs)
@@ -109,9 +117,16 @@ class SSHControllerFacade:
     def remove_scheduled_task(self, *args, **kwargs): return self.defense.remove_scheduled_task(*args, **kwargs)
     def get_scheduled_tasks(self): return self.defense.get_scheduled_tasks()
 
+    # --- Whitelist Delegates ---
+    def add_whitelist(self, *args, **kwargs): return self.tm.add_whitelist(*args, **kwargs)
+    def remove_whitelist(self, *args, **kwargs): return self.tm.remove_whitelist(*args, **kwargs)
+    def toggle_maintenance_mode(self, *args, **kwargs): return self.tm.toggle_maintenance_mode(*args, **kwargs)
+
     # --- Immortal Shell Killer Delegates ---
     def start_immortal_killer(self, *args, **kwargs): return self.immortal_killer.start_monitoring(*args, **kwargs)
     def stop_immortal_killer(self, *args, **kwargs): return self.immortal_killer.stop_monitoring(*args, **kwargs)
+    def get_immortal_alerts(self): return self.immortal_killer.get_alerts()
+    def restore_quarantine(self, *args, **kwargs): return self.immortal_killer.restore_from_quarantine(*args, **kwargs)
 
     # --- Attack Manager Delegates ---
     def set_enemy_config(self, *args, **kwargs): return self.attack.set_enemy_config(*args, **kwargs)
