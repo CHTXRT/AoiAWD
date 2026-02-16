@@ -158,6 +158,16 @@ class TargetManager:
             self.save_targets()
             return True, "Password updated"
 
+    def update_single_snapshot(self, ip, port, file_path, md5_hash):
+        """Update snapshot for a single file (e.g. after whitelisting)"""
+        target = self.get_target(ip, port)
+        if not target: return
+        
+        with self.lock:
+            if 'file_snapshot' not in target: target['file_snapshot'] = {}
+            target['file_snapshot'][file_path] = md5_hash
+            self.save_targets()
+
     def add_whitelist(self, ip, port, file_path):
         target = self.get_target(ip, port)
         if not target: return False

@@ -150,45 +150,104 @@ class ImmortalShellKiller:
 
         return False
 
-    def _is_safe_in_backup(self, ip, port, file_path):
-        """Check if the file exists in backup and has same content (MD5)"""
+    def _is_safe_baseline(self, ip, port, file_path):
+        """Check if the file matches EITHER the original backup OR the latest snapshot"""
         target = self.tm.get_target(ip, port)
-        if not target or not target.get('backup_path'): return False
-        
-        backup_path = target['backup_path']
-        if not os.path.exists(backup_path): return False
-        
-        try:
-            # 1. Get Remote MD5
-            remote_md5_out = self.cm.execute(ip, port, f"md5sum {file_path}")
-            if not remote_md5_out or ' ' not in remote_md5_out: return False
-            remote_md5 = remote_md5_out.split()[0].strip()
-            
-            # 2. Get Backup MD5
-            # Extract from tar to stream/temp to calculate MD5
-            rel_path = file_path.lstrip('/')
-            with tarfile.open(backup_path, 'r') as tar:
-                try:
-                    member = tar.getmember(rel_path)
-                    f_obj = tar.extractfile(member)
-                    if f_obj:
-                        backup_md5 = hashlib.md5(f_obj.read()).hexdigest()
-                        if remote_md5 == backup_md5:
-                            return True
-                except KeyError:
-                    pass # File not in backup
-        except Exception as e:
-            # print(f"Backup check error: {e}")
-            pass
+        if not target: return False
+
+        # 1. Check against latest Snapshot (Dynamic Baseline - e.g. AOI modified)
+        snapshot = target.get('file_snapshot', {})
+
+        if snapshot and file_path in snapshot:
+            try:
+                # Get Remote MD5
+                remote_md5_out = self.cm.execute(ip, port, f"md5sum {file_path}")
+                if remote_md5_out and ' ' in remote_md5_out:
+                    remote_md5 = remote_md5_out.split()[0].strip()
+                    if remote_md5 == snapshot[file_path]:
+                        # Matches Snapshot - Safe
+                        return True
+            except: pass
+
+        # 2. Check against Original Backup (Static Baseline - Clean State)
+        backup_path = target.get('backup_path')
+        if backup_path and os.path.exists(backup_path):
+            try:
+                # Get Remote MD5 (if not already fetched)
+                # Recalculate only if necessary or reuse? For simplicity we check again or use variable if refactored.
+                # Here we just re-execute or move md5 calculation up.
+                # Let's verify remote MD5 again to be sure.
+                remote_md5_out = self.cm.execute(ip, port, f"md5sum {file_path}")
+                if not remote_md5_out or ' ' not in remote_md5_out: return False
+                remote_md5 = remote_md5_out.split()[0].strip()
+                
+                # Extract from tar to stream/temp
+                rel_path = file_path.lstrip('/')
+                with tarfile.open(backup_path, 'r') as tar:
+                    try:
+                        member = tar.getmember(rel_path)
+                        f_obj = tar.extractfile(member)
+                        if f_obj:
+                            backup_md5 = hashlib.md5(f_obj.read()).hexdigest()
+                            if remote_md5 == backup_md5:
+                                return True
+                    except KeyError:
+                        pass # File not in backup
+            except Exception as e:
+                # print(f"Backup check error: {e}")
+                pass
             
         return False
+
+    def _is_aoi_modified(self, ip, port, file_path):
+        """Check if file is modified by AOI tools (TapeWorm/Roundworm)"""
+        try:
+            # Read first 1KB - signatures usually at top
+            # TapeWorm puts: <?php // TapeWorm WAF ...
+            # Roundworm might put similar
+            content_out = self.cm.execute(ip, port, f"head -n 20 {file_path}")
+            if not content_out: return False
+            
+            # Signatures
+            signatures = [
+                'TapeWorm', 
+                '.tapeworm', 
+                'roundworm', 
+                'waf.php', 
+                'AWD-Defender AOI',
+                '.ini_set.php'
+            ]
+            
+            for sig in signatures:
+                if sig.lower() in content_out.lower():
+                    return True
+            
+            return False
+        except Exception as e:
+            # print(f"AOI check error: {e}")
+            return False
 
     def _remediate(self, ip, port, file_path):
         # 0. Safety Check: If file is identical to backup, IT IS SAFE.
         # This prevents locking legitimate files like Smarty/Composer that contain eval/popen.
-        if self._is_safe_in_backup(ip, port, file_path):
-            print(f"[{ip}:{port}] Skipping {file_path} (Matches Backup - False Positive)", flush=True)
+        # 0. Safety Check: If file is identical to backup OR snapshot, IT IS SAFE.
+        # This prevents locking legitimate files like Smarty/Composer that contain eval/popen.
+        if self._is_safe_baseline(ip, port, file_path):
+            # print(f"[{ip}:{port}] Skipping {file_path} (Matches Backup - False Positive)", flush=True)
             return
+
+        # 0.5. Check for AOI / WAF modifications (TapeWorm, Roundworm)
+        # If the file contains AOI signatures, we trust it and UPDATE the snapshot
+        if self._is_aoi_modified(ip, port, file_path):
+            #  print(f"[{ip}:{port}] Skipping {file_path} (AOI/WAF Modified - Trusted)", flush=True)
+             # Update snapshot so next time _is_safe_baseline returns True
+             try:
+                 md5_out = self.cm.execute(ip, port, f"md5sum {file_path}")
+                 if md5_out and ' ' in md5_out:
+                     md5_val = md5_out.split()[0].strip()
+                     threading.Thread(target=self.tm.update_single_snapshot, args=(ip, port, file_path, md5_val), daemon=True).start()
+             except: pass
+             return
 
         print(f"[{ip}:{port}] 🚨 Immortal Shell Detected (Optimized): {file_path}", flush=True)
         

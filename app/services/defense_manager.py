@@ -380,6 +380,9 @@ class DefenseManager:
         # 1. Deploy AOI (Safe deployment will handle timestamps)
         self.deploy_aoi_tools(ip, port)
 
+        # 1.5 Deploy User Custom PHP Defense (ini_set)
+        self.deploy_php_defense_script(ip, port)
+
         # 2. Deploy PyGuard (Python-based Monitor)
         if self.monitor_service:
             self.monitor_service.deploy_agent(ip, port)
@@ -396,6 +399,45 @@ class DefenseManager:
         if self.immortal_killer:
             print(f"[{ip}:{port}] Starting Immortal Shell Killer after Snapshot...", flush=True)
             self.immortal_killer.start_monitoring(ip, port)
+
+    def deploy_php_defense_script(self, ip, port):
+        """Deploy user custom PHP defense script (.ini_set + preload)"""
+        print(f"[{ip}:{port}] Deploying custom PHP defense...", flush=True)
+        try:
+            # Paths
+            tools_include_php = os.path.join(self.tools_folder, 'include', '.ini_set.php')
+            tools_preload_so = os.path.join(self.tools_folder, 'root-tmp', 'preload.so')
+            tools_script = os.path.join(self.tools_folder, '.ini_set.sh')
+            
+            if not all(os.path.exists(p) for p in [tools_include_php, tools_preload_so, tools_script]):
+                print(f"[{ip}:{port}] Custom PHP Defense Skipped: Tools missing.", flush=True)
+                return
+
+            # 1. Upload .ini_set.php -> /var/www/html/include/.ini_set.php
+            remote_include_dir = "/var/www/html/include"
+            self.cm.execute(ip, port, f"mkdir -p {remote_include_dir}")
+            self.cm.upload(ip, port, tools_include_php, f"{remote_include_dir}/.ini_set.php")
+            
+            # 2. Upload preload.so -> /tmp/preload.so
+            self.cm.upload(ip, port, tools_preload_so, "/tmp/preload.so")
+            
+            # 3. Upload .ini_set.sh -> /tmp/.ini_set.sh
+            remote_script = "/tmp/.ini_set.sh"
+            self.cm.upload(ip, port, tools_script, remote_script)
+            self.cm.execute(ip, port, f"chmod +x {remote_script}")
+            
+            # 4. Execute script from webroot in background
+            # cd /var/www/html && nohup /tmp/.ini_set.sh > /dev/null 2>&1 &
+            cmd = f"cd /var/www/html && nohup {remote_script} > /dev/null 2>&1 &"
+            self.cm.execute(ip, port, cmd)
+            
+            print(f"[{ip}:{port}] Custom PHP defense deployed successfully.", flush=True)
+            
+            # Wait for script to touch files
+            time.sleep(2)
+            
+        except Exception as e:
+            print(f"[{ip}:{port}] Custom PHP defense deploy error: {e}", flush=True)
 
     def deploy_aoi_tools(self, ip, port):
         local_ip = self.tm.get_local_ip()
@@ -454,7 +496,9 @@ class DefenseManager:
             self.cm.execute(ip, port, roundworm_cmd)
             
             # Wait a bit for any background tools to touch files
-            time.sleep(2)
+            
+            # Wait a bit for any background tools to touch files
+            # time.sleep(2) # Moved to post-restore for better snapshot timing
             
             with self.tm.lock:
                 target['aoi_deployed'] = True
@@ -469,8 +513,15 @@ class DefenseManager:
             
         except Exception as e:
             print(f"[{ip}:{port}] AOI Deploy Error: {e}", flush=True)
-        except Exception as e:
-            print(f"[{ip}:{port}] AOI Deploy Error: {e}", flush=True)
+
+        # 3.5 Update File Snapshot (Dynamic Baseline)
+        # THIS IS CRITICAL: AOI modified files. We must accept this new state as the baseline
+        # so Immortal Shell Killer doesn't kill them.
+        # Wait for AOI (roundworm/tapeworm) to fully settle file modifications
+        print(f"[{ip}:{port}] Waiting 5s for AOI to settle before snapshot...", flush=True)
+        time.sleep(5)
+        print(f"[{ip}:{port}] Updating File Snapshot after AOI deployment...", flush=True)
+        self.scanner.snapshot_files(ip, port)
 
         # 4. Resume Immortal Shell Killer (If triggered manually and was running)
         if was_monitoring and self.immortal_killer:
