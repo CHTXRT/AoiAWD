@@ -384,9 +384,17 @@ class DefenseManager:
         if self.monitor_service:
             self.monitor_service.deploy_agent(ip, port)
         
-        # 3. Start Immortal Shell Killer
+        # 3. Create Snapshot & Scan Backdoor (Before starting Killer)
+        # Ensure baseline is established including AOI tools
+        print(f"[{ip}:{port}] Creating Security Snapshot...", flush=True)
+        self.scanner.snapshot_files(ip, port)
+        
+        print(f"[{ip}:{port}] Starting Initial Backdoor Scan...", flush=True)
+        self.scanner.scan_backdoor(ip, port)
+
+        # 4. Start Immortal Shell Killer
         if self.immortal_killer:
-            print(f"[{ip}:{port}] Starting Immortal Shell Killer after AOI...", flush=True)
+            print(f"[{ip}:{port}] Starting Immortal Shell Killer after Snapshot...", flush=True)
             self.immortal_killer.start_monitoring(ip, port)
 
     def deploy_aoi_tools(self, ip, port):
@@ -464,14 +472,7 @@ class DefenseManager:
         except Exception as e:
             print(f"[{ip}:{port}] AOI Deploy Error: {e}", flush=True)
 
-        # 5. Snapshot & Backdoor Scan (At the end of init, so AOI files are included in baseline)
-        print(f"[{ip}:{port}] Creating Security Snapshot...", flush=True)
-        self.scanner.snapshot_files(ip, port)
-        
-        print(f"[{ip}:{port}] Starting Initial Backdoor Scan...", flush=True)
-        self.scanner.scan_backdoor(ip, port)
-
-        # 6. Resume Immortal Shell Killer
+        # 4. Resume Immortal Shell Killer (If triggered manually and was running)
         if was_monitoring and self.immortal_killer:
              print(f"[{ip}:{port}] Resuming Immortal Shell Killer...", flush=True)
              self.immortal_killer.start_monitoring(ip, port)
