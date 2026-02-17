@@ -1,6 +1,8 @@
 // --- SSH Connection & Target Logic ---
 
 async function connect(ip, port) {
+    console.log(`[SSH] Connect called for ${ip}:${port}`);
+    console.trace();  // 打印调用栈
     showToast("Connecting to " + ip + ":" + port + "...");
     const data = await apiCall('/api/connect', { ip, port });
     if (data) {
@@ -39,6 +41,8 @@ async function updatePassword(ip, port) {
 }
 
 async function connectAll() {
+    console.log('[SSH] ConnectAll called');
+    console.trace();  // 打印调用栈
     if (!confirm('确定要连接所有靶机吗？')) return;
     showToast('正在连接所有靶机...');
     const data = await apiCall('/api/connect_all', {});

@@ -1,0 +1,1363 @@
+[21:31:14] [[92mINFO[0m] [[94mSystem[0m] AWD ¿ØÖÆÌ¨Æô¶¯ÖÐ...
+[21:31:14] [[92mINFO[0m] [[97mTargetManager[0m] Loaded 3 targets from D:\misc\awd\AWD-Defender\data\targets.json
+[21:31:14] [[92mINFO[0m] [[96mAgentListener[0m] New subscriber added, total: 1
+[21:31:14] [[92mINFO[0m] [[92mMonitor[0m] MonitorService subscribed to agent events
+[21:31:14] [[92mINFO[0m] [[96mAgentListener[0m] Agent listener started on 0.0.0.0:8024
+[21:31:14] [[92mINFO[0m] [[94mSSHController[0m] Agent listener started on port 8024
+[21:31:14] [[92mINFO[0m] [[41m[97mImmortal[0m] SocketIO set to <flask_socketio.SocketIO object at 0x0000016BC5F5AF90>
+[21:31:14] [[92mINFO[0m] [[94mSystem[0m] ==================================================
+[21:31:14] [[92mINFO[0m] [[94mSystem[0m] [SECURITY] AWD TEAM TOKEN: zavFaLdh
+[21:31:14] [[92mINFO[0m] [[94mSystem[0m] ==================================================
+[21:31:14] [[92mINFO[0m] [[94mSystem[0m] Çë·ÃÎÊ: http://localhost:8080
+[21:31:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:31:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335077,"dir":"/var/www/html"}\n'
+[21:31:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:31:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:31:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:31:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:31:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335088,"dir":"/var/www/html"}\n'
+[21:31:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:31:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:31:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:31:29] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:31:29] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{type:file,time:12345,path:/test.php,mask:256}\n'
+[21:31:29] [[93mWARNING[0m] [[96mAgentListener[0m] [AgentListener] Invalid JSON from 127.0.0.1: Expecting property name enclosed in double quotes: line 1 column 2 (char 1), data: b'{type:file,time:12345,path:/test.php,mask:256}\n'
+[21:31:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:31:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335095,"dir":"/var/www/html"}\n'
+[21:31:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:31:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:31:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:31:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:31:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335100,"dir":"/var/www/html"}\n'
+[21:31:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:31:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:31:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:31:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:31:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335102,"dir":"/var/www/html"}\n'
+[21:31:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:31:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:31:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:31:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:31:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335107,"dir":"/var/www/html"}\n'
+[21:31:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:31:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:31:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:31:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:31:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335118,"dir":"/var/www/html"}\n'
+[21:31:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:31:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:31:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:32:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:32:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335125,"dir":"/var/www/html"}\n'
+[21:32:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:32:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:32:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:32:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:32:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335130,"dir":"/var/www/html"}\n'
+[21:32:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:32:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:32:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:32:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:32:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335132,"dir":"/var/www/html"}\n'
+[21:32:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:32:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:32:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:32:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:32:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335137,"dir":"/var/www/html"}\n'
+[21:32:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:32:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:32:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:32:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:32:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335147,"dir":"/var/www/html"}\n'
+[21:32:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:32:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:32:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:32:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:32:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335148,"dir":"/var/www/html"}\n'
+[21:32:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:32:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:32:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:32:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:32:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335155,"dir":"/var/www/html"}\n'
+[21:32:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:32:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:32:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:32:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:32:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335160,"dir":"/var/www/html"}\n'
+[21:32:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:32:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:32:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:32:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:32:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335162,"dir":"/var/www/html"}\n'
+[21:32:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:32:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:32:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:32:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:32:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335167,"dir":"/var/www/html"}\n'
+[21:32:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:32:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:32:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:32:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:32:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335178,"dir":"/var/www/html"}\n'
+[21:32:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:32:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:32:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:33:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:33:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335185,"dir":"/var/www/html"}\n'
+[21:33:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:33:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:33:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:33:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:33:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335190,"dir":"/var/www/html"}\n'
+[21:33:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:33:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:33:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:33:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:33:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335192,"dir":"/var/www/html"}\n'
+[21:33:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:33:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:33:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:33:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:33:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335197,"dir":"/var/www/html"}\n'
+[21:33:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:33:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:33:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:33:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:33:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335208,"dir":"/var/www/html"}\n'
+[21:33:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:33:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:33:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:33:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:33:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335214,"dir":"/var/www/html"}\n'
+[21:33:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:33:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:33:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:33:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:33:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335215,"dir":"/var/www/html"}\n'
+[21:33:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:33:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:33:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:33:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:33:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335220,"dir":"/var/www/html"}\n'
+[21:33:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:33:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:33:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:33:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:33:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335222,"dir":"/var/www/html"}\n'
+[21:33:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:33:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:33:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:33:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:33:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335227,"dir":"/var/www/html"}\n'
+[21:33:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:33:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:33:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:33:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:33:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335238,"dir":"/var/www/html"}\n'
+[21:33:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:33:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:33:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:34:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335244,"dir":"/var/www/html"}\n'
+[21:34:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:34:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:34:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:34:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335245,"dir":"/var/www/html"}\n'
+[21:34:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:34:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:34:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:34:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335250,"dir":"/var/www/html"}\n'
+[21:34:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:34:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:34:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:34:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335252,"dir":"/var/www/html"}\n'
+[21:34:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:34:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:34:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:34:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335257,"dir":"/var/www/html"}\n'
+[21:34:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:34:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:34:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:34:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335268,"dir":"/var/www/html"}\n'
+[21:34:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:34:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:34:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:34:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335274,"dir":"/var/www/html"}\n'
+[21:34:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:34:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:34:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:34:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335275,"dir":"/var/www/html"}\n'
+[21:34:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:34:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:34:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:34:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335280,"dir":"/var/www/html"}\n'
+[21:34:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:34:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:34:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:34:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335282,"dir":"/var/www/html"}\n'
+[21:34:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:34:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:34:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:34:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335287,"dir":"/var/www/html"}\n'
+[21:34:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:34:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:34:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/test_event.php","mask":256,"time":1771335297}]}\n'
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/test_event.php","mask":256,"time":1771335297}]}\n'
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/test_event.php","mask":256,"time":1771335297}]}\n'
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/test_event.php","mask":256,"time":1771335297}]}\n'
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/test_event.php","mask":256,"time":1771335297}]}\n'
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/test_event.php","mask":256,"time":1771335297}]}\n'
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/test_event.php (mask:256)
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/test_event.php (mask:256)
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/test_event.php (mask:256)
+[21:34:57] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/test_event.php
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:34:57] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/test_event.php
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/test_event.php (mask:256)
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/test_event.php (mask:256)
+[21:34:57] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/test_event.php
+[21:34:57] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: New script file created: test_event.php
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/test_event.php (mask:256)
+[21:34:57] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: New script file created: test_event.php
+[21:34:57] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/test_event.php
+[21:34:57] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/test_event.php
+[21:34:57] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: New script file created: test_event.php
+[21:34:57] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/test_event.php
+[21:34:57] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:34:57', 'type': 'file', 'details': {'path': '/var/www/html/test_event.php', 'mask': 256, 'event': 'CREATE'}, 'alert': True, 'message': 'New script file created: test_event.php'}
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:34:57] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:34:57', 'type': 'file', 'details': {'path': '/var/www/html/test_event.php', 'mask': 256, 'event': 'CREATE'}, 'alert': True, 'message': 'New script file created: test_event.php'}
+[21:34:57] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: New script file created: test_event.php
+[21:34:57] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: New script file created: test_event.php
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:34:57] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:34:57', 'type': 'file', 'details': {'path': '/var/www/html/test_event.php', 'mask': 256, 'event': 'CREATE'}, 'alert': True, 'message': 'New script file created: test_event.php'}
+[21:34:57] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: New script file created: test_event.php
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:34:57] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:34:57', 'type': 'file', 'details': {'path': '/var/www/html/test_event.php', 'mask': 256, 'event': 'CREATE'}, 'alert': True, 'message': 'New script file created: test_event.php'}
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:34:57] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:34:57', 'type': 'file', 'details': {'path': '/var/www/html/test_event.php', 'mask': 256, 'event': 'CREATE'}, 'alert': True, 'message': 'New script file created: test_event.php'}
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:34:57] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:34:57', 'type': 'file', 'details': {'path': '/var/www/html/test_event.php', 'mask': 256, 'event': 'CREATE'}, 'alert': True, 'message': 'New script file created: test_event.php'}
+[21:34:57] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/test_event.php","mask":138,"time":1771335297}]}\n'
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/test_event.php","mask":138,"time":1771335297}]}\n'
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/test_event.php","mask":138,"time":1771335297}]}\n'
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/test_event.php","mask":138,"time":1771335297}]}\n'
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/test_event.php","mask":138,"time":1771335297}]}\n'
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/test_event.php","mask":138,"time":1771335297}]}\n'
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/test_event.php (mask:138)
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/test_event.php
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335298,"dir":"/var/www/html"}\n'
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/test_event.php (mask:138)
+[21:34:58] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: test_event.php
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/test_event.php
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/test_event.php (mask:138)
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/test_event.php (mask:138)
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/test_event.php (mask:138)
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:34:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/test_event.php
+[21:34:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:34:58', 'type': 'file', 'details': {'path': '/var/www/html/test_event.php', 'mask': 138, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: test_event.php'}
+[21:34:58] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: test_event.php
+[21:34:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/test_event.php
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/test_event.php (mask:138)
+[21:34:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/test_event.php
+[21:34:58] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: test_event.php
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:34:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/test_event.php
+[21:34:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:34:58', 'type': 'file', 'details': {'path': '/var/www/html/test_event.php', 'mask': 138, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: test_event.php'}
+[21:34:58] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: test_event.php
+[21:34:58] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: test_event.php
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:34:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:34:58', 'type': 'file', 'details': {'path': '/var/www/html/test_event.php', 'mask': 138, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: test_event.php'}
+[21:34:58] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: test_event.php
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:34:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:34:58', 'type': 'file', 'details': {'path': '/var/www/html/test_event.php', 'mask': 138, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: test_event.php'}
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:34:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:34:58', 'type': 'file', 'details': {'path': '/var/www/html/test_event.php', 'mask': 138, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: test_event.php'}
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:34:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:34:58', 'type': 'file', 'details': {'path': '/var/www/html/test_event.php', 'mask': 138, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: test_event.php'}
+[21:34:58] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:35:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:35:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335304,"dir":"/var/www/html"}\n'
+[21:35:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:35:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:35:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:35:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:35:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335305,"dir":"/var/www/html"}\n'
+[21:35:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:35:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:35:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:35:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:35:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335310,"dir":"/var/www/html"}\n'
+[21:35:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:35:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:35:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:35:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:35:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335312,"dir":"/var/www/html"}\n'
+[21:35:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:35:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:35:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:35:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:35:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335317,"dir":"/var/www/html"}\n'
+[21:35:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:35:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:35:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:35:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:35:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335328,"dir":"/var/www/html"}\n'
+[21:35:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:35:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:35:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:35:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:35:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335334,"dir":"/var/www/html"}\n'
+[21:35:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:35:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:35:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:35:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:35:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335335,"dir":"/var/www/html"}\n'
+[21:35:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:35:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:35:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:35:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:35:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335340,"dir":"/var/www/html"}\n'
+[21:35:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:35:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:35:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:35:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:35:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335342,"dir":"/var/www/html"}\n'
+[21:35:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:35:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:35:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:35:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:35:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335347,"dir":"/var/www/html"}\n'
+[21:35:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:35:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:35:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:35:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:35:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335358,"dir":"/var/www/html"}\n'
+[21:35:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:35:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:35:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:36:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:36:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335364,"dir":"/var/www/html"}\n'
+[21:36:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:36:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:36:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:36:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:36:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335365,"dir":"/var/www/html"}\n'
+[21:36:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:36:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:36:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:36:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:36:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335370,"dir":"/var/www/html"}\n'
+[21:36:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:36:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:36:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:36:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:36:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335372,"dir":"/var/www/html"}\n'
+[21:36:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:36:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:36:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:36:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:36:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335377,"dir":"/var/www/html"}\n'
+[21:36:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:36:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:36:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:36:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:36:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335388,"dir":"/var/www/html"}\n'
+[21:36:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:36:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:36:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:36:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:36:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335394,"dir":"/var/www/html"}\n'
+[21:36:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:36:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:36:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:36:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:36:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335395,"dir":"/var/www/html"}\n'
+[21:36:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:36:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:36:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:36:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:36:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335400,"dir":"/var/www/html"}\n'
+[21:36:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:36:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:36:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:36:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:36:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335402,"dir":"/var/www/html"}\n'
+[21:36:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:36:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:36:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:36:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:36:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335407,"dir":"/var/www/html"}\n'
+[21:36:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:36:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:36:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:36:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:36:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335418,"dir":"/var/www/html"}\n'
+[21:36:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:36:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:36:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:37:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:37:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335424,"dir":"/var/www/html"}\n'
+[21:37:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:37:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:37:04] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:37:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:37:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335425,"dir":"/var/www/html"}\n'
+[21:37:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:37:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:37:05] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:37:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:37:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335430,"dir":"/var/www/html"}\n'
+[21:37:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:37:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:37:10] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:37:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:37:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335432,"dir":"/var/www/html"}\n'
+[21:37:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:37:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:37:12] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:37:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:37:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335437,"dir":"/var/www/html"}\n'
+[21:37:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:37:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:37:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:37:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:37:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335448,"dir":"/var/www/html"}\n'
+[21:37:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:37:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:37:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:37:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:37:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335454,"dir":"/var/www/html"}\n'
+[21:37:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:37:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:37:34] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:37:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:37:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335455,"dir":"/var/www/html"}\n'
+[21:37:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:37:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:37:35] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:37:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:37:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335460,"dir":"/var/www/html"}\n'
+[21:37:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:37:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:37:40] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:37:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:37:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335462,"dir":"/var/www/html"}\n'
+[21:37:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:37:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:37:42] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:37:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:37:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335467,"dir":"/var/www/html"}\n'
+[21:37:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:37:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:37:47] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:37:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:37:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335478,"dir":"/var/www/html"}\n'
+[21:37:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:37:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:37:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:38:21] [[92mINFO[0m] [[96mConnection[0m] Connecting to 127.0.0.1:18895... (call stack: dispatch_request@902 -> api_connect@11 -> connect@106, auto_detect: False)
+[21:38:24] [[92mINFO[0m] [[96mConnection[0m] Connected to 127.0.0.1:18895 successfully
+[21:38:24] [[92mINFO[0m] [[92mDefense[0m] [127.0.0.1:18895] Backup already exists at D:\misc\awd\AWD-Defender\data\backups\127.0.0.1_18895\web.tar, skipping
+[21:38:24] [[92mINFO[0m] [[92mDefense[0m] [127.0.0.1:18895] Starting PHP Defense Initialization...
+[21:38:24] [[92mINFO[0m] [[94mSSHController[0m] [127.0.0.1:18895] Auto-deploy check: type='', has_php=False, auto_deploy=True
+[21:38:24] [[92mINFO[0m] [[92mDefense[0m] [127.0.0.1:18895] Deploying AOI Tools...
+[21:38:24] [[92mINFO[0m] [[94mSSHController[0m] [127.0.0.1:18895] PHP target detected, auto-deploying Agent...
+[21:38:24] [[92mINFO[0m] [[93mSecurityScanner[0m] [127.0.0.1:18895] PHP Scan found risks! (Processed 26 lines)
+[21:38:24] [[93mWARNING[0m] [[93mSecurityScanner[0m] [127.0.0.1:18895] VULN SCAN: Found potential webshell in /var/www/html/include/shell.php. Password: 'admin_ccmd'. Triggering counter-attack!
+[21:38:24] [[93mWARNING[0m] [[91mAttackManager[0m] Attack cancelled: No enemy network template
+[21:38:24] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Starting Agent deployment...
+[21:38:24] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Target local_ip field: None, global: 'host.docker.internal'
+[21:38:24] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Using global local IP/hostname: host.docker.internal
+[21:38:24] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Detecting target architecture...
+[21:38:24] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Detected arch: x86_64
+[21:38:24] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Detected architecture: x86_64
+[21:38:24] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Looking for agent: wd_agent_x64 -> D:\misc\awd\AWD-Defender\agents\wd_agent_x64
+[21:38:24] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Using agent binary: D:\misc\awd\AWD-Defender\agents\wd_agent_x64
+[21:38:24] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Uploading agent to /tmp/.wd_5504...
+[21:38:24] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Upload successful
+[21:38:24] [[92mINFO[0m] [[92mDefense[0m] [127.0.0.1:18895] AOI deploy Success!
+[21:38:24] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Starting agent with callback to host.docker.internal:8024...
+[21:38:24] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Agent log will be at: /tmp/.wd_5504.log
+[21:38:24] [[92mINFO[0m] [[92mDefense[0m] [127.0.0.1:18895] Waiting 5s for AOI to settle before snapshot...
+[21:38:24] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:38:24] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Network test OK: can connect to host.docker.internal:8024
+[21:38:24] [[93mWARNING[0m] [[96mAgentListener[0m] [AgentListener] No data from 127.0.0.1
+[21:38:25] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] DNS lookup test for host.docker.internal: fdc4:f303:9324::254 host.docker.internal
+
+[21:38:25] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Agent start command: chmod +x /tmp/.wd_5504 && nohup /tmp/.wd_5504 host.docker.internal 8024 /var/www/html -v
+[21:38:27] [[93mWARNING[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Agent log file empty or not found
+[21:38:27] [[92mINFO[0m] [[96mAgentDeployer[0m] [127.0.0.1:18895] Agent process check: glzjin     495  0.0  0.0   2028   800 ?        S    13:38   0:00 /tmp/.wd_5504 host.docker.internal 8024 /var/www/html -v
+
+Exception in thread Thread-194 (_post_connect_sequence):
+Traceback (most recent call last):
+  File "C:\Python314\Lib\threading.py", line 1082, in _bootstrap_inner
+    self._context.run(self.run)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Python314\Lib\threading.py", line 1024, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\misc\awd\AWD-Defender\app\services\__init__.py", line 142, in _post_connect_sequence
+    deploy_success, deploy_msg = self.agent_deployer.deploy(
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        ip, port, self.agent_watch_dir
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\misc\awd\AWD-Defender\app\services\agent_deployer.py", line 256, in deploy
+    if remote_path in output:
+                      ^^^^^^
+NameError: name 'output' is not defined
+[21:38:27] [[92mINFO[0m] [[92mDefense[0m] [127.0.0.1:18895] Enabled www-data SSH login. User: www-data, Pass: WwwData@1#18895
+[21:38:27] [[92mINFO[0m] [[92mDefense[0m] [127.0.0.1:18895] Starting speedy www-data shell deployment...
+[21:38:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:38:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/.shell_1771335504.php","mask":256,"time":1771335507}]}\n'
+[21:38:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:38:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:38:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:38:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/.shell_1771335504.php (mask:256)
+[21:38:27] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/.shell_1771335504.php
+[21:38:27] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: New script file created: .shell_1771335504.php
+[21:38:27] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:27', 'type': 'file', 'details': {'path': '/var/www/html/.shell_1771335504.php', 'mask': 256, 'event': 'CREATE'}, 'alert': True, 'message': 'New script file created: .shell_1771335504.php'}
+[21:38:27] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:38:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:38:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/.shell_1771335504.php","mask":10,"time":1771335507}]}\n'
+[21:38:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:38:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:38:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:38:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/.shell_1771335504.php (mask:10)
+[21:38:28] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/.shell_1771335504.php
+[21:38:28] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: .shell_1771335504.php
+[21:38:28] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:28', 'type': 'file', 'details': {'path': '/var/www/html/.shell_1771335504.php', 'mask': 10, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: .shell_1771335504.php'}
+[21:38:28] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:38:29] [[92mINFO[0m] [[92mDefense[0m] [127.0.0.1:18895] SUID shell created via Remote Trigger
+[21:38:29] [[92mINFO[0m] [[92mDefense[0m] [127.0.0.1:18895] www-data shell success
+[21:38:29] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:38:29] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/.shell_1771335504.php","mask":512,"time":1771335509}]}\n'
+[21:38:29] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:38:29] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:38:29] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:38:29] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/.shell_1771335504.php (mask:512)
+[21:38:29] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/.shell_1771335504.php
+[21:38:29] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Hidden file activity: .shell_1771335504.php
+[21:38:29] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:29', 'type': 'file', 'details': {'path': '/var/www/html/.shell_1771335504.php', 'mask': 512, 'event': 'DELETE'}, 'alert': True, 'message': 'Hidden file activity: .shell_1771335504.php'}
+[21:38:29] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:38:29] [[92mINFO[0m] [[92mDefense[0m] [127.0.0.1:18895] Updating File Snapshot after AOI deployment...
+[21:38:29] [[92mINFO[0m] [[93mSecurityScanner[0m] [127.0.0.1:18895] Starting file snapshot...
+[21:38:29] [[92mINFO[0m] [[93mSecurityScanner[0m] [127.0.0.1:18895] Snapshot completed. Tracked 181 files
+[21:38:31] [[92mINFO[0m] [[92mDefense[0m] [127.0.0.1:18895] Deploying custom PHP defense...
+[21:38:31] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:38:31] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/.ini_set.php","mask":256,"time":1771335511}]}\n'
+[21:38:31] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:38:31] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:38:31] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:38:31] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/.ini_set.php (mask:256)
+[21:38:31] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/.ini_set.php
+[21:38:31] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: New script file created: .ini_set.php
+[21:38:32] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:31', 'type': 'file', 'details': {'path': '/var/www/html/.ini_set.php', 'mask': 256, 'event': 'CREATE'}, 'alert': True, 'message': 'New script file created: .ini_set.php'}
+[21:38:32] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:38:32] [[92mINFO[0m] [[92mDefense[0m] [127.0.0.1:18895] Custom PHP defense deployed successfully
+[21:38:32] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:38:32] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/.ini_set.php","mask":10,"time":1771335511}]}\n'
+[21:38:32] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:38:32] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:38:32] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:38:32] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/.ini_set.php (mask:10)
+[21:38:32] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/.ini_set.php
+[21:38:32] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: .ini_set.php
+[21:38:32] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:32', 'type': 'file', 'details': {'path': '/var/www/html/.ini_set.php', 'mask': 10, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: .ini_set.php'}
+[21:38:32] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/cacf.php","mask":128,"time":1771335512},{"path":"/var/www/html/function.php","mask":128,"time":1771335512},{"path":"/var/www/html/home.php","mask":128,'
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 153 events from 127.0.0.1
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/cacf.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/cacf.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/cacf.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/function.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/function.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/function.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/home.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/home.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/home.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_append.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_append.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_append.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_templatebase.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_templatebase.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_templatebase.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_function.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_function.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_function.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_resource_string.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_resource_string.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_resource_string.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_private_php.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_private_php.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_private_php.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smartyexception.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smartyexception.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smartyexception.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_if.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_if.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_if.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_resource_extends.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_resource_extends.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_resource_extends.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_ldelim.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_ldelim.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_ldelim.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_resource_file.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_resource_file.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_resource_file.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_template.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_template.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_template.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_private_registered_function.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_private_registered_function.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_private_registered_function.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_capture.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_capture.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_capture.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smartycompilerexception.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smartycompilerexception.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smartycompilerexception.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_resource_stream.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_resource_stream.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_resource_stream.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_resource_uncompiled.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_resource_uncompiled.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_resource_uncompiled.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_insert.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_insert.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_insert.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_cacheresource.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_cacheresource.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_cacheresource.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_resource_php.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_resource_php.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_resource_php.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_call.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_call.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_call.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_configfileparser.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_configfileparser.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_configfileparser.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_resource_custom.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_resource_custom.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_resource_custom.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_for.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_for.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_for.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_write_file.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_write_file.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_write_file.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_testinstall.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_testinstall.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_testinstall.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_cacheresource_file.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_cacheresource_file.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_cacheresource_file.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_block.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_block.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_block.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_parsetree_dqcontent.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_parsetree_dqcontent.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_parsetree_dqcontent.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_private_object_block_function.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_private_object_block_function.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_private_object_block_function.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_undefined_variable.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_undefined_variable.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_undefined_variable.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_private_special_variable.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_private_special_variable.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_private_special_variable.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_utility.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_utility.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_utility.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_data.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_data.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_data.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_parsetree_text.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_parsetree_text.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_parsetree_text.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_parsetree_tag.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_parsetree_tag.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_parsetree_tag.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_extension_defaulttemplatehandler.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_extension_defaulttemplatehandler.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_extension_defaulttemplatehandler.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_extends.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_extends.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_extends.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_extension_config.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_extension_config.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_extension_config.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_debug.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_debug.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_debug.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_templatelexer.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_templatelexer.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_templatelexer.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_assign.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_assign.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_assign.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_get_include_path.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_get_include_path.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_get_include_path.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_extension_codeframe.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_extension_codeframe.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_extension_codeframe.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_nocache.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_nocache.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_nocache.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_continue.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_continue.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_continue.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compilebase.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compilebase.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compilebase.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_eval.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_eval.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_eval.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_private_function_plugin.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_private_function_plugin.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_private_function_plugin.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_include_php.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_include_php.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_include_php.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_parsetree_code.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_parsetree_code.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_parsetree_code.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_parsetree.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_parsetree.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_parsetree.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_variable.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_variable.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_variable.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_parsetree_dq.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_parsetree_dq.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_parsetree_dq.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_data.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_data.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_data.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_private_block_plugin.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_private_block_plugin.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_private_block_plugin.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_resource_recompiled.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_resource_recompiled.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_resource_recompiled.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_private_print_expression.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_private_print_expression.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_private_print_expression.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_templatecompilerbase.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_templatecompilerbase.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_templatecompilerbase.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_resource.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_resource.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_resource.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_template_cached.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_template_cached.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_template_cached.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_filter_handler.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_filter_handler.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_filter_handler.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_smartytemplatecompiler.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_smartytemplatecompiler.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_smartytemplatecompiler.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_resource_eval.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_resource_eval.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_resource_eval.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_template_config.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_template_config.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_template_config.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_resource_registered.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_resource_registered.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_resource_registered.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_section.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_section.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_section.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_nocache_insert.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_nocache_insert.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_nocache_insert.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_security.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_security.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_security.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_break.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_break.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_break.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_debug.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_debug.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_debug.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_cacheresource_custom.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_cacheresource_custom.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_cacheresource_custom.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_template_compiled.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_template_compiled.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_template_compiled.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_private_registered_block.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_private_registered_block.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_private_registered_block.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_setfilter.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_setfilter.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_setfilter.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_rdelim.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_rdelim.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_rdelim.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_template_source.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_template_source.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_template_source.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_while.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_while.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_while.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_include.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_include.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_include.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_foreach.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_foreach.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_foreach.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_templateparser.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_templateparser.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_templateparser.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_configfilelexer.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_configfilelexer.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_configfilelexer.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_private_modifier.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_private_modifier.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_private_modifier.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_private_object_function.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_private_object_function.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_private_object_function.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_function_call_handler.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_function_call_handler.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_function_call_handler.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_config_file_compiler.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_config_file_compiler.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_config_file_compiler.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_cacheresource_keyvaluestore.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_cacheresource_keyvaluestore.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_cacheresource_keyvaluestore.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_parsetree_template.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_parsetree_template.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_parsetree_template.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_config_load.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_config_load.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_config_load.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/SmartyBC.class.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/SmartyBC.class.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/SmartyBC.class.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/Autoloader.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/Autoloader.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/Autoloader.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/Autofoucer.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/Autofoucer.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/Autofoucer.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/Smarty.class.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/Smarty.class.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/Smarty.class.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.to_charset.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.to_charset.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.to_charset.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/function.cycle.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/function.cycle.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/function.cycle.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/shared.mb_wordwrap.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/shared.mb_wordwrap.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/shared.mb_wordwrap.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifier.truncate.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifier.truncate.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifier.truncate.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/outputfilter.trimwhitespace.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/outputfilter.trimwhitespace.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/outputfilter.trimwhitespace.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifier.replace.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifier.replace.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifier.replace.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/shared.mb_str_replace.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/shared.mb_str_replace.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/shared.mb_str_replace.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifier.debug_print_var.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifier.debug_print_var.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifier.debug_print_var.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/function.html_options.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/function.html_options.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/function.html_options.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.strip.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.strip.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.strip.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.default.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.default.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.default.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/function.counter.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/function.counter.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/function.counter.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/function.html_select_date.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/function.html_select_date.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/function.html_select_date.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.count_characters.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.count_characters.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.count_characters.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.count_sentences.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.count_sentences.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.count_sentences.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.upper.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.upper.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.upper.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/function.html_table.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/function.html_table.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/function.html_table.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/function.html_checkboxes.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/function.html_checkboxes.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/function.html_checkboxes.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifier.escape.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifier.escape.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifier.escape.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.unescape.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.unescape.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.unescape.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.wordwrap.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.wordwrap.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.wordwrap.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.string_format.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.string_format.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.string_format.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/function.mailto.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/function.mailto.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/function.mailto.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.from_charset.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.from_charset.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.from_charset.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.count_paragraphs.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.count_paragraphs.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.count_paragraphs.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifier.spacify.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifier.spacify.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifier.spacify.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/function.html_image.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/function.html_image.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/function.html_image.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifier.date_format.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifier.date_format.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifier.date_format.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/variablefilter.htmlspecialchars.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/variablefilter.htmlspecialchars.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/variablefilter.htmlspecialchars.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.cat.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.cat.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.cat.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/function.fetch.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/function.fetch.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/function.fetch.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.count_words.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.count_words.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.count_words.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.indent.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.indent.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.indent.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.lower.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.lower.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.lower.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/function.html_radios.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/function.html_radios.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/function.html_radios.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifier.capitalize.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifier.capitalize.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifier.capitalize.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/shared.escape_special_chars.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/shared.escape_special_chars.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/shared.escape_special_chars.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/function.math.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/function.math.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/function.math.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifier.regex_replace.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifier.regex_replace.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifier.regex_replace.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.escape.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.escape.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.escape.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/shared.literal_compiler_param.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/shared.literal_compiler_param.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/shared.literal_compiler_param.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.strip_tags.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.strip_tags.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.strip_tags.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/shared.make_timestamp.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/shared.make_timestamp.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/shared.make_timestamp.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/block.textformat.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/block.textformat.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/block.textformat.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/shared.mb_unicode.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/shared.mb_unicode.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/shared.mb_unicode.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/function.html_select_time.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/function.html_select_time.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/function.html_select_time.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/modifiercompiler.noprint.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/modifiercompiler.noprint.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/modifiercompiler.noprint.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/run.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/run.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/run.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/File.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/File.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/File.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/base.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/base.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/base.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/User.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/User.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/User.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/shell.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/shell.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/shell.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/config.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/config.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/config.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/log1.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/log1.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/log1.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/.ini_set.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/.ini_set.php
+[21:38:33] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Hidden file activity: .ini_set.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/.ini_set.php', 'mask': 128, 'event': 'MOVED_TO'}, 'alert': True, 'message': 'Hidden file activity: .ini_set.php'}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/log.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/log.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/log.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/index.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/index.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/index.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/TapeWorm.69946f50c9c43.php (mask:128)
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/TapeWorm.69946f50c9c43.php
+[21:38:33] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:33', 'type': 'file', 'details': {'path': '/var/www/html/TapeWorm.69946f50c9c43.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:33] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 153 events
+[21:38:34] [[92mINFO[0m] [[92mDefense[0m] [127.0.0.1:18895] Creating Security Snapshot...
+[21:38:34] [[92mINFO[0m] [[93mSecurityScanner[0m] [127.0.0.1:18895] Starting file snapshot...
+[21:38:34] [[92mINFO[0m] [[93mSecurityScanner[0m] [127.0.0.1:18895] Snapshot completed. Tracked 182 files
+[21:38:34] [[92mINFO[0m] [[92mDefense[0m] [127.0.0.1:18895] Starting Initial Backdoor Scan...
+[21:38:34] [[92mINFO[0m] [[93mSecurityScanner[0m] [127.0.0.1:18895] Starting backdoor scan...
+[21:38:34] [[92mINFO[0m] [[93mSecurityScanner[0m] [127.0.0.1:18895] Scanning content of 1 suspect files using batch grep...
+[21:38:34] [[92mINFO[0m] [[93mSecurityScanner[0m] [127.0.0.1:18895] Backdoor scan finished. Found 0 backdoors
+[21:38:36] [[92mINFO[0m] [[92mDefense[0m] [127.0.0.1:18895] Starting Immortal Shell Killer after Snapshot...
+[21:38:36] [[92mINFO[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] Starting SSH poll mode monitoring
+[21:38:36] [[92mINFO[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] Started (ID=1562394338912, mode=hybrid)
+[21:38:36] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 81 open FAILED: open failed: Administratively prohibited
+[21:38:36] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 83 open FAILED: open failed: Administratively prohibited
+[21:38:36] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 82 open FAILED: open failed: Administratively prohibited
+[21:38:36] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 84 open FAILED: open failed: Administratively prohibited
+[21:38:36] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 85 open FAILED: open failed: Administratively prohibited
+[21:38:36] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 86 open FAILED: open failed: Administratively prohibited
+[21:38:46] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 121 open FAILED: open failed: Administratively prohibited
+[21:38:46] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 123 open FAILED: open failed: Administratively prohibited
+[21:38:46] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 124 open FAILED: open failed: Administratively prohibited
+[21:38:46] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 125 open FAILED: open failed: Administratively prohibited
+[21:38:46] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 126 open FAILED: open failed: Administratively prohibited
+[21:38:48] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:38:48] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/2.php","mask":256,"time":1771335528}]}\n'
+[21:38:48] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:38:48] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:38:48] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:38:48] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/2.php (mask:256)
+[21:38:48] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/2.php
+[21:38:48] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: New script file created: 2.php
+[21:38:48] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:48', 'type': 'file', 'details': {'path': '/var/www/html/2.php', 'mask': 256, 'event': 'CREATE'}, 'alert': True, 'message': 'New script file created: 2.php'}
+[21:38:48] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:38:49] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:38:49] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/2.php","mask":10,"time":1771335528}]}\n'
+[21:38:49] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:38:49] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:38:49] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:38:49] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/2.php (mask:10)
+[21:38:49] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/2.php
+[21:38:49] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: 2.php
+[21:38:49] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:49', 'type': 'file', 'details': {'path': '/var/www/html/2.php', 'mask': 10, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: 2.php'}
+[21:38:49] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:38:50] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:38:50] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/2.php","mask":128,"time":1771335529}]}\n'
+[21:38:50] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:38:50] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:38:50] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:38:50] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/2.php (mask:128)
+[21:38:50] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/2.php
+[21:38:50] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:50', 'type': 'file', 'details': {'path': '/var/www/html/2.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:38:50] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:38:55] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:38:55] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335535,"dir":"/var/www/html"}\n'
+[21:38:55] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:38:55] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:38:55] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:38:56] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 160 open FAILED: open failed: Administratively prohibited
+[21:38:56] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 161 open FAILED: open failed: Administratively prohibited
+[21:38:56] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 159 open FAILED: open failed: Administratively prohibited
+[21:38:56] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 162 open FAILED: open failed: Administratively prohibited
+[21:38:56] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 163 open FAILED: open failed: Administratively prohibited
+[21:38:56] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 164 open FAILED: open failed: Administratively prohibited
+[21:38:56] [[92mINFO[0m] [[96mConnection[0m] Connecting to 127.0.0.1:18895... (call stack: _remediate@359 -> _is_aoi_modified@495 -> execute@171, auto_detect: False)
+[21:38:57] [[92mINFO[0m] [[96mConnection[0m] Connected to 127.0.0.1:18895 successfully
+[21:38:57] [[93mWARNING[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] IMMORTAL SHELL DETECTED: /var/www/html/include/2.php
+[21:38:57] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 10 open FAILED: open failed: Administratively prohibited
+[21:38:57] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 11 open FAILED: open failed: Administratively prohibited
+[21:38:57] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 12 open FAILED: open failed: Administratively prohibited
+[21:38:57] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 13 open FAILED: open failed: Administratively prohibited
+[21:38:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:38:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/2.php","mask":512,"time":1771335537}]}\n'
+[21:38:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:38:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:38:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:38:57] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/2.php (mask:512)
+[21:38:57] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/2.php
+[21:38:57] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:57', 'type': 'file', 'details': {'path': '/var/www/html/2.php', 'mask': 512, 'event': 'DELETE'}}
+[21:38:57] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:38:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:38:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/2.php","mask":1073742080,"time":1771335537}]}\n'
+[21:38:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:38:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:38:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:38:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/2.php (mask:1073742080)
+[21:38:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/2.php
+[21:38:58] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: New script file created: 2.php
+[21:38:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:38:58', 'type': 'file', 'details': {'path': '/var/www/html/2.php', 'mask': 1073742080, 'event': 'CREATE'}, 'alert': True, 'message': 'New script file created: 2.php'}
+[21:38:58] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:39:06] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 31 open FAILED: open failed: Administratively prohibited
+[21:39:06] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 34 open FAILED: open failed: Administratively prohibited
+[21:39:06] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 33 open FAILED: open failed: Administratively prohibited
+[21:39:06] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 35 open FAILED: open failed: Administratively prohibited
+[21:39:06] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 36 open FAILED: open failed: Administratively prohibited
+[21:39:06] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 37 open FAILED: open failed: Administratively prohibited
+[21:39:16] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 62 open FAILED: open failed: Administratively prohibited
+[21:39:16] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 63 open FAILED: open failed: Administratively prohibited
+[21:39:16] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 64 open FAILED: open failed: Administratively prohibited
+[21:39:16] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 65 open FAILED: open failed: Administratively prohibited
+[21:39:16] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 66 open FAILED: open failed: Administratively prohibited
+[21:39:16] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 67 open FAILED: open failed: Administratively prohibited
+[21:39:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:39:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/2.php","mask":1073742336,"time":1771335557}]}\n'
+[21:39:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:39:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:39:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:39:17] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/2.php (mask:1073742336)
+[21:39:17] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/2.php
+[21:39:17] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:39:17', 'type': 'file', 'details': {'path': '/var/www/html/2.php', 'mask': 1073742336, 'event': 'DELETE'}}
+[21:39:17] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:39:19] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:39:19] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/2.php","mask":256,"time":1771335559}]}\n'
+[21:39:19] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:39:19] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:39:20] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:39:20] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/2.php (mask:256)
+[21:39:20] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/2.php
+[21:39:20] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: New script file created: 2.php
+[21:39:20] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:39:20', 'type': 'file', 'details': {'path': '/var/www/html/2.php', 'mask': 256, 'event': 'CREATE'}, 'alert': True, 'message': 'New script file created: 2.php'}
+[21:39:20] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:39:20] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:39:20] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/2.php","mask":10,"time":1771335559}]}\n'
+[21:39:20] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:39:20] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:39:20] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:39:20] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/2.php (mask:10)
+[21:39:20] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/2.php
+[21:39:20] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: 2.php
+[21:39:20] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:39:20', 'type': 'file', 'details': {'path': '/var/www/html/2.php', 'mask': 10, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: 2.php'}
+[21:39:20] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:39:21] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:39:21] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/2.php","mask":128,"time":1771335560}]}\n'
+[21:39:21] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:39:21] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:39:21] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:39:21] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/2.php (mask:128)
+[21:39:21] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/2.php
+[21:39:21] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:39:21', 'type': 'file', 'details': {'path': '/var/www/html/2.php', 'mask': 128, 'event': 'MOVED_TO'}}
+[21:39:21] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:39:25] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:39:25] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335565,"dir":"/var/www/html"}\n'
+[21:39:25] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:39:25] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:39:25] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:39:26] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 99 open FAILED: open failed: Administratively prohibited
+[21:39:26] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 104 open FAILED: open failed: Administratively prohibited
+[21:39:26] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 105 open FAILED: open failed: Administratively prohibited
+[21:39:27] [[93mWARNING[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] IMMORTAL SHELL DETECTED: /var/www/html/include/2.php
+[21:39:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:39:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/2.php","mask":512,"time":1771335567}]}\n'
+[21:39:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:39:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:39:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:39:27] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/2.php (mask:512)
+[21:39:27] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/2.php
+[21:39:27] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:39:27', 'type': 'file', 'details': {'path': '/var/www/html/2.php', 'mask': 512, 'event': 'DELETE'}}
+[21:39:27] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:39:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:39:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/2.php","mask":1073742080,"time":1771335567}]}\n'
+[21:39:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:39:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:39:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:39:28] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/2.php (mask:1073742080)
+[21:39:28] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/2.php
+[21:39:28] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: New script file created: 2.php
+[21:39:28] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:39:28', 'type': 'file', 'details': {'path': '/var/www/html/2.php', 'mask': 1073742080, 'event': 'CREATE'}, 'alert': True, 'message': 'New script file created: 2.php'}
+[21:39:28] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:39:37] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 151 open FAILED: open failed: Administratively prohibited
+[21:39:37] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 152 open FAILED: open failed: Administratively prohibited
+[21:39:37] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 153 open FAILED: open failed: Administratively prohibited
+[21:39:37] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 154 open FAILED: open failed: Administratively prohibited
+[21:39:47] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 183 open FAILED: open failed: Administratively prohibited
+[21:39:47] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 184 open FAILED: open failed: Administratively prohibited
+[21:39:47] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 185 open FAILED: open failed: Administratively prohibited
+[21:39:47] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 186 open FAILED: open failed: Administratively prohibited
+[21:39:55] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:39:55] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"heartbeat","time":1771335595,"dir":"/var/www/html"}\n'
+[21:39:55] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=heartbeat
+[21:39:55] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: heartbeat from 127.0.0.1
+[21:39:55] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Heartbeat from 127.0.0.1
+[21:39:57] [[92mINFO[0m] [[96mConnection[0m] Connecting to 127.0.0.1:18895... (call stack: _remediate@355 -> _is_safe_baseline@471 -> execute@171, auto_detect: False)
+[21:39:57] [[92mINFO[0m] [[96mConnection[0m] Connected to 127.0.0.1:18895 successfully
+[21:39:57] [[93mWARNING[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] IMMORTAL SHELL DETECTED: /var/www/html/lib/User.php
+[21:39:57] [[93mWARNING[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] IMMORTAL SHELL DETECTED: /var/www/html/org/smarty/sysplugins/smarty_internal_compile_include.php
+[21:39:57] [[93mWARNING[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] IMMORTAL SHELL DETECTED: /var/www/html/org/smarty/plugins/function.mailto.php
+[21:39:57] [[92mINFO[0m] [[96mConnection[0m] Connecting to 127.0.0.1:18895... (call stack: _remediate_wrapper@341 -> _remediate@361 -> execute@171, auto_detect: False)
+[21:39:57] [[92mINFO[0m] [[96mConnection[0m] Connected to 127.0.0.1:18895 successfully
+[21:39:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:39:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/User.php","mask":2,"time":1771335598}]}\n'
+[21:39:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:39:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:39:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:39:58] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/User.php (mask:2)
+[21:39:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/User.php
+[21:39:58] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: User.php
+[21:39:58] [[92mINFO[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] Restored /var/www/html/lib/User.php from backup
+[21:39:58] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:39:58', 'type': 'file', 'details': {'path': '/var/www/html/User.php', 'mask': 2, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: User.php'}
+[21:39:58] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:39:58] [[92mINFO[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] Restored /var/www/html/org/smarty/sysplugins/smarty_internal_compile_include.php from backup
+[21:39:58] [[92mINFO[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] Restored /var/www/html/org/smarty/plugins/function.mailto.php from backup
+[21:39:59] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:39:59] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/User.php","mask":138,"time":1771335598},{"path":"/var/www/html/smarty_internal_compile_include.php","mask":138,"time":1771335598},{"path":"/var/www/htm'
+[21:39:59] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:39:59] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:39:59] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 3 events from 127.0.0.1
+[21:39:59] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/User.php (mask:138)
+[21:39:59] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/User.php
+[21:39:59] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: User.php
+[21:39:59] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:39:59', 'type': 'file', 'details': {'path': '/var/www/html/User.php', 'mask': 138, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: User.php'}
+[21:39:59] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_include.php (mask:138)
+[21:39:59] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_include.php
+[21:39:59] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: smarty_internal_compile_include.php
+[21:39:59] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:39:59', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_include.php', 'mask': 138, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: smarty_internal_compile_include.php'}
+[21:39:59] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/function.mailto.php (mask:138)
+[21:39:59] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/function.mailto.php
+[21:39:59] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: function.mailto.php
+[21:39:59] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:39:59', 'type': 'file', 'details': {'path': '/var/www/html/function.mailto.php', 'mask': 138, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: function.mailto.php'}
+[21:39:59] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 3 events
+[21:40:07] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 38 open FAILED: open failed: Administratively prohibited
+[21:40:07] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 40 open FAILED: open failed: Administratively prohibited
+[21:40:07] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 41 open FAILED: open failed: Administratively prohibited
+[21:40:07] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 42 open FAILED: open failed: Administratively prohibited
+[21:40:07] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 43 open FAILED: open failed: Administratively prohibited
+[21:40:07] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 44 open FAILED: open failed: Administratively prohibited
+[21:40:07] [[93mWARNING[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] IMMORTAL SHELL DETECTED: /var/www/html/org/smarty/sysplugins/smarty_internal_compile_include.php
+[21:40:07] [[93mWARNING[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] IMMORTAL SHELL DETECTED: /var/www/html/org/smarty/plugins/function.mailto.php
+[21:40:07] [[93mWARNING[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] IMMORTAL SHELL DETECTED: /var/www/html/lib/User.php
+[21:40:07] [[92mINFO[0m] [[96mConnection[0m] Connecting to 127.0.0.1:18895... (call stack: _remediate_wrapper@341 -> _remediate@396 -> execute@171, auto_detect: False)
+[21:40:07] [[92mINFO[0m] [[96mConnection[0m] Connected to 127.0.0.1:18895 successfully
+[21:40:08] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:40:08] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/smarty_internal_compile_include.php","mask":2,"time":1771335608}]}\n'
+[21:40:08] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:40:08] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:40:08] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 1 events from 127.0.0.1
+[21:40:08] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_include.php (mask:2)
+[21:40:08] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_include.php
+[21:40:08] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: smarty_internal_compile_include.php
+[21:40:08] [[92mINFO[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] Restored /var/www/html/org/smarty/sysplugins/smarty_internal_compile_include.php from backup
+[21:40:08] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:40:08', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_include.php', 'mask': 2, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: smarty_internal_compile_include.php'}
+[21:40:08] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 1 events
+[21:40:08] [[92mINFO[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] Restored /var/www/html/lib/User.php from backup
+[21:40:08] [[92mINFO[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] Restored /var/www/html/org/smarty/plugins/function.mailto.php from backup
+[21:40:09] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] New connection from 127.0.0.1
+[21:40:09] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Raw data from 127.0.0.1: b'{"type":"batch","events":[{"path":"/var/www/html/smarty_internal_compile_include.php","mask":138,"time":1771335608},{"path":"/var/www/html/User.php","mask":138,"time":1771335608},{"path":"/var/www/htm'
+[21:40:09] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Parsed message from 127.0.0.1: type=batch
+[21:40:09] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Processing message type: batch from 127.0.0.1
+[21:40:09] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] Batch message with 3 events from 127.0.0.1
+[21:40:09] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/smarty_internal_compile_include.php (mask:138)
+[21:40:09] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/smarty_internal_compile_include.php
+[21:40:09] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: smarty_internal_compile_include.php
+[21:40:09] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:40:09', 'type': 'file', 'details': {'path': '/var/www/html/smarty_internal_compile_include.php', 'mask': 138, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: smarty_internal_compile_include.php'}
+[21:40:09] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/User.php (mask:138)
+[21:40:09] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/User.php
+[21:40:09] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: User.php
+[21:40:09] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:40:09', 'type': 'file', 'details': {'path': '/var/www/html/User.php', 'mask': 138, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: User.php'}
+[21:40:09] [[92mINFO[0m] [[96mAgentListener[0m] [AgentListener] File event from 127.0.0.1: /var/www/html/function.mailto.php (mask:138)
+[21:40:09] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Received event: type=file, ip=127.0.0.1, path=/var/www/html/function.mailto.php
+[21:40:09] [[93mWARNING[0m] [[92mMonitor[0m] [127.0.0.1] \U0001f6a8 ALERT: Script file modified: function.mailto.php
+[21:40:09] [[92mINFO[0m] [[92mMonitor[0m] [Monitor] Pushed monitor_log via WebSocket: {'ip': '127.0.0.1', 'time': '21:40:09', 'type': 'file', 'details': {'path': '/var/www/html/function.mailto.php', 'mask': 138, 'event': 'MODIFY'}, 'alert': True, 'message': 'Script file modified: function.mailto.php'}
+[21:40:09] [[92mINFO[0m] [[96mAgentListener[0m] [127.0.0.1] Processed batch: 3 events
+[21:40:17] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 31 open FAILED: open failed: Administratively prohibited
+[21:40:17] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 32 open FAILED: open failed: Administratively prohibited
+[21:40:17] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 33 open FAILED: open failed: Administratively prohibited
+[21:40:17] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 34 open FAILED: open failed: Administratively prohibited
+[21:40:17] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 35 open FAILED: open failed: Administratively prohibited
+[21:40:17] [[91mERROR[0m] [[96mparamiko.transp[0m] Secsh channel 36 open FAILED: open failed: Administratively prohibited
+[21:40:17] [[93mWARNING[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] IMMORTAL SHELL DETECTED: /var/www/html/lib/User.php
+[21:40:17] [[93mWARNING[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] IMMORTAL SHELL DETECTED: /var/www/html/org/smarty/sysplugins/smarty_internal_compile_include.php
+[21:40:17] [[93mWARNING[0m] [[41m[97mImmortal[0m] [127.0.0.1:18895] IMMORTAL SHELL DETECTED: /var/www/html/org/smarty/plugins/function.mailto.php

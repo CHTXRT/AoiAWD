@@ -9,12 +9,22 @@ class Config:
     DATA_DIR = os.path.join(BASE_DIR, 'data')
     
     UPLOAD_FOLDER = os.path.join(DATA_DIR, 'uploads')
-    KEYS_FOLDER = os.path.join(BASE_DIR, 'keys')
+    KEYS_FOLDER = os.path.join(DATA_DIR, 'keys')
     PRELOAD_FOLDER = os.path.join(DATA_DIR, 'preload')
     BACKUPS_FOLDER = os.path.join(DATA_DIR, 'backups')
     CONFIG_FILE = os.path.join(DATA_DIR, 'preload_config.json')
     TARGETS_FILE = os.path.join(DATA_DIR, 'targets.json')
     IMMORTAL_LOG_FILE = os.path.join(DATA_DIR, 'immortal_alerts.json')
+    
+    # Agent Settings
+    AGENT_CALLBACK_PORT = 8024
+    AGENT_AUTO_DEPLOY = True  # 连接PHP靶机时自动部署Agent
+    AGENT_AUTO_START_MONITOR = True  # 部署成功后自动启动不死马监控
+    AGENT_WATCH_DIR = '/var/www/html'
+    
+    # Connection Settings
+    AUTO_CONNECT_ALL_ON_START = False  # 启动时是否自动连接所有靶机
+    AUTO_RECONNECT_DISCONNECTED = False  # 是否自动重连断开的靶机
 
     # Security
     SECRET_KEY = os.environ.get('SECRET_KEY') or secrets.token_hex(16)

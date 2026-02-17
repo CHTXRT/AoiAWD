@@ -1,31 +1,31 @@
 import signal
 import sys
+import logging
 from app import create_app, socketio
 
+# 确保日志在最早阶段初始化
+from app.utils.logger import setup_logger
+setup_logger()
+logger = logging.getLogger('System')
+
 def signal_handler(sig, frame):
-    print('\n正在停止 AWD 控制台...')
+    logger.info('正在停止 AWD 控制台...')
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
 
 if __name__ == '__main__':
-    print("AWD 控制台启动中...")
+    logger.info("AWD 控制台启动中...")
     app = create_app()
     
-    # Print Team Token
+    # Log Team Token
     token = app.config['TEAM_TOKEN']
-    print("\n" + "="*50)
-    print(" \033[91m[SECURITY] AWD TEAM TOKEN: " + token + "\033[0m")
-    print("="*50 + "\n")
-    
-    print(f"请访问: http://localhost:8080")
-    
-    # [LOGGING] Ensure logger is set up (Safe to call multiple times now)
-    from app.utils.logger import setup_logger
-    setup_logger()
+    logger.info("="*50)
+    logger.info(f"[SECURITY] AWD TEAM TOKEN: {token}")
+    logger.info("="*50)
+    logger.info(f"请访问: http://localhost:8080")
     
     # Important: Werkzeug's _internal logger might be re-enabled by debug=True
-    import logging
     logging.getLogger('werkzeug').disabled = True 
     
     # Enable Windows ANSI color support for legacy terminals

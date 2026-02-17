@@ -7,21 +7,50 @@ from .defense_manager import DefenseManager
 from .immortal_shell_killer import ImmortalShellKiller
 from .attack_manager import AttackManager
 from .monitor_service import MonitorService
+from .agent_deployer import AgentDeployer
+from .agent_listener import AgentListener
+from .immortal_shell_killer import ImmortalShellKiller
 
 import threading
+import logging
+import app.config
+
+logger = logging.getLogger('SSHController')
 
 class SSHControllerFacade:
     def __init__(self):
+        self.config = app.config.Config
         self.tm = TargetManager()
         self.km = KeyManager()
         self.cm = ConnectionManager(self.tm, self.km)
         
-        self.immortal_killer = ImmortalShellKiller(self.cm, self.tm)
+        # Agent组件（用于事件驱动查杀）
+        self.agent_listener = AgentListener(
+            host='0.0.0.0', 
+            port=getattr(self.config, 'AGENT_CALLBACK_PORT', 8024)
+        )
+        self.agent_deployer = AgentDeployer(
+            self.cm, self.tm,
+            config={'AGENT_CALLBACK_PORT': getattr(self.config, 'AGENT_CALLBACK_PORT', 8024)}
+        )
+        
+        # 核心服务
+        self.immortal_killer = ImmortalShellKiller(
+            self.cm, self.tm,
+            agent_deployer=self.agent_deployer,
+            agent_listener=self.agent_listener
+        )
         self.scanner = SecurityScanner(self.cm, self.tm)
         self.defense = DefenseManager(self.cm, self.tm, self.scanner, self.immortal_killer)
         self.attack = AttackManager(self.cm, self.tm)
-        self.monitor = MonitorService(self.cm, self.tm)
+        # MonitorService复用AgentListener的数据，并传入AgentDeployer用于实际部署
+        self.monitor = MonitorService(self.cm, self.tm, self.agent_listener, self.agent_deployer)
         self.defense.set_monitor_service(self.monitor)
+        
+        # 自动部署配置
+        self.auto_deploy_agent = getattr(self.config, 'AGENT_AUTO_DEPLOY', True)
+        self.agent_auto_start_monitor = getattr(self.config, 'AGENT_AUTO_START_MONITOR', True)
+        self.agent_watch_dir = getattr(self.config, 'AGENT_WATCH_DIR', '/var/www/html')
         
         self.scanner.set_attack_manager(self.attack)
 
@@ -32,6 +61,12 @@ class SSHControllerFacade:
         self.defense.init_app(app)
         self.attack.init_app(app)
         self.monitor.start()
+        
+        # 启动Agent监听服务
+        if self.agent_listener.start():
+            logger.info("Agent listener started on port 8024")
+        else:
+            logger.error("Failed to start agent listener")
 
     @property
     def targets(self): return self.tm.targets
@@ -43,6 +78,8 @@ class SSHControllerFacade:
         self.tm.set_socketio(socketio)
         self.immortal_killer.set_socketio(socketio)
         self.monitor.set_socketio(socketio)
+        self.agent_listener.socketio = socketio  # 传递 socketio 用于心跳推送
+        self.socketio = socketio
 
     # --- Target Manager Delegates ---
     def add_target(self, *args, **kwargs): return self.tm.add_target(*args, **kwargs)
@@ -72,10 +109,62 @@ class SSHControllerFacade:
             target_args = (ip, port)
             
             def _post_connect_sequence(ip, port):
+                # 1. 检测靶机类型
                 self.defense.detect_target_type(ip, port)
+                
+                # 2. 获取target信息检查是否为PHP靶机
+                target = self.tm.get_target(ip, port)
+                
+                # 3. 如果是PHP靶机且启用了自动部署，部署Agent
+                if self.auto_deploy_agent and target:
+                    target_type = target.get('type', '').lower()
+                    has_php = target.get('has_php', False)
+                    
+                    # 详细日志便于调试
+                    logger.info(f"[{ip}:{port}] Auto-deploy check: type={target_type!r}, has_php={has_php}, auto_deploy={self.auto_deploy_agent}")
+                    
+                    # 条件：PHP类型、有PHP文件、未知类型、或类型为空（未检测完成）
+                    should_deploy = (
+                        'php' in target_type or 
+                        has_php or 
+                        target_type == 'unknown' or 
+                        not target_type
+                    )
+                    
+                    if should_deploy:
+                        logger.info(f"[{ip}:{port}] PHP target detected, auto-deploying Agent...")
+                        
+                        # 检查是否已有Agent在运行（避免重复部署）
+                        if self.agent_deployer.check_agent_running(ip, port):
+                            logger.info(f"[{ip}:{port}] Agent already running, skipping deployment")
+                            self.immortal_killer.set_mode(ip, port, ImmortalShellKiller.MODE_AGENT)
+                        else:
+                            deploy_success, deploy_msg = self.agent_deployer.deploy(
+                                ip, port, self.agent_watch_dir
+                            )
+                            
+                            if deploy_success:
+                                # 部署成功，设置为Agent模式
+                                self.immortal_killer.set_mode(ip, port, ImmortalShellKiller.MODE_AGENT)
+                                logger.info(f"[{ip}:{port}] Agent auto-deployed successfully")
+                            else:
+                                logger.warning(f"[{ip}:{port}] Agent auto-deploy failed: {deploy_msg}")
+                                # 部署失败，回退到SSH轮询模式
+                                self.immortal_killer.set_mode(ip, port, ImmortalShellKiller.MODE_SSH)
+                        
+                        
+                    else:
+                        logger.info(f"[{ip}:{port}] Not a PHP target, skipping Agent deployment")
+                else:
+                    if not target:
+                        logger.warning(f"[{ip}:{port}] Target not found, skipping Agent deployment")
+                    elif not self.auto_deploy_agent:
+                        logger.info(f"[{ip}:{port}] Auto-deploy disabled, skipping Agent deployment")
+                
+                # 4. 执行预加载任务
                 self.defense.run_preload_tasks(ip, port)
                 
-            threading.Thread(target=_post_connect_sequence, args=target_args).start()
+            threading.Thread(target=_post_connect_sequence, args=target_args, daemon=True).start()
         return result
 
     def disconnect(self, ip, port): 
@@ -132,6 +221,33 @@ class SSHControllerFacade:
     def get_immortal_alerts(self): return self.immortal_killer.get_alerts()
     def restore_quarantine(self, *args, **kwargs): return self.immortal_killer.restore_from_quarantine(*args, **kwargs)
     def clear_immortal_alerts(self): return self.immortal_killer.clear_alerts()
+    def get_immortal_stats(self): return self.immortal_killer.get_stats()
+    def set_immortal_mode(self, ip, port, mode): return self.immortal_killer.set_mode(ip, port, mode)
+    def get_immortal_mode(self, ip, port): return self.immortal_killer.get_mode(ip, port)
+
+    # --- Agent Deployer Delegates ---
+    def deploy_agent(self, ip, port, watch_dir="/var/www/html"): 
+        return self.agent_deployer.deploy(ip, port, watch_dir)
+    def stop_agent(self, ip, port): 
+        return self.agent_deployer.stop(ip, port)
+    def get_agent_status(self, ip, port): 
+        return self.agent_deployer.get_status(ip, port)
+    def batch_deploy_agents(self, watch_dir="/var/www/html"): 
+        return self.agent_deployer.batch_deploy(watch_dir)
+    def batch_stop_agents(self): 
+        return self.agent_deployer.batch_stop()
+    def get_all_agent_status(self): 
+        return self.agent_deployer.get_all_status()
+    def check_agent_health(self, ip, port):
+        return self.agent_deployer.health_check(ip, port)
+
+    # --- Agent Listener Delegates ---
+    def get_listener_stats(self): 
+        return self.agent_listener.get_stats() if self.agent_listener else {}
+    def get_agent_health_status(self, ip, port=22):
+        return self.agent_listener.get_agent_health(ip, port) if self.agent_listener else {}
+    def get_all_agents_health(self):
+        return self.agent_listener.get_all_agents_health() if self.agent_listener else {}
 
     # --- Attack Manager Delegates ---
     def set_enemy_config(self, *args, **kwargs): return self.attack.set_enemy_config(*args, **kwargs)

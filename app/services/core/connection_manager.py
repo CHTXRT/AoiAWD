@@ -37,7 +37,19 @@ class ConnectionManager:
         port = int(port)
         session_key = f"{ip}:{port}"
         
-        logger.info(f"Connecting to {ip}:{port}...")
+        # 记录调用栈，用于诊断自动连接问题
+        import traceback
+        import time
+        stack = traceback.extract_stack()
+        caller_info = []
+        for frame in stack[-4:-1]:
+            caller_info.append(f"{frame.name}@{frame.lineno}")
+        caller_str = " -> ".join(caller_info)
+        
+        # 检查是否是启动后的自动连接（通过调用栈判断）
+        is_auto_connect = 'check_connections' in caller_str or 'get_all_agent_status' in caller_str
+        
+        logger.info(f"Connecting to {ip}:{port}... (call stack: {caller_str}, auto_detect: {is_auto_connect})")
 
         target = self.tm.get_target(ip, port)
         if not target: return False, "Target not found"

@@ -221,3 +221,214 @@ def api_get_monitor_alerts():
                 return jsonify({'alerts': list(reversed(alerts))})
         except: pass
     return jsonify({'alerts': []})
+
+
+# ==================== Agent 探针管理 API ====================
+
+@bp.route('/api/agent/deploy', methods=['POST'])
+def api_deploy_agent():
+    """部署Agent到指定靶机"""
+    data = request.json
+    ip = data.get('ip')
+    port = int(data.get('port', 22))
+    watch_dir = data.get('watch_dir', '/var/www/html')
+    
+    def _deploy():
+        success, msg = ssh_manager.deploy_agent(ip, port, watch_dir)
+        # 部署成功后自动启动Agent模式监控
+        if success:
+            ssh_manager.set_immortal_mode(ip, port, 'agent')
+    
+    threading.Thread(target=_deploy).start()
+    return jsonify({'status': 'ok', 'message': f'Agent部署已启动: {ip}:{port}'})
+
+@bp.route('/api/agent/stop', methods=['POST'])
+def api_stop_agent():
+    """停止靶机上的Agent"""
+    data = request.json
+    ip = data.get('ip')
+    port = int(data.get('port', 22))
+    
+    success, msg = ssh_manager.stop_agent(ip, port)
+    return jsonify({'status': 'ok' if success else 'error', 'message': msg})
+
+@bp.route('/api/agent/status', methods=['POST'])
+def api_get_agent_status():
+    """获取Agent状态"""
+    data = request.json
+    ip = data.get('ip')
+    port = int(data.get('port', 22))
+    
+    status = ssh_manager.get_agent_status(ip, port)
+    health = ssh_manager.get_agent_health_status(ip, port)
+    mode = ssh_manager.get_immortal_mode(ip, port)
+    
+    return jsonify({
+        'status': status,
+        'health': health,
+        'mode': mode
+    })
+
+@bp.route('/api/agent/batch_deploy', methods=['POST'])
+def api_batch_deploy_agent():
+    """批量部署Agent到所有已连接靶机"""
+    data = request.json or {}
+    watch_dir = data.get('watch_dir', '/var/www/html')
+    
+    def _batch_deploy():
+        results = ssh_manager.batch_deploy_agents(watch_dir)
+        # 自动设置Agent模式
+        for result in results:
+            if result.get('success'):
+                ssh_manager.set_immortal_mode(result['ip'], result['port'], 'agent')
+        logger.info(f"Batch deploy completed: {len([r for r in results if r.get('success')])}/{len(results)} success")
+    
+    threading.Thread(target=_batch_deploy).start()
+    return jsonify({'status': 'ok', 'message': '批量部署已启动'})
+
+@bp.route('/api/agent/batch_stop', methods=['POST'])
+def api_batch_stop_agent():
+    """批量停止所有Agent"""
+    results = ssh_manager.batch_stop_agents()
+    return jsonify({'status': 'ok', 'results': results})
+
+@bp.route('/api/agent/all_status', methods=['GET'])
+def api_get_all_agent_status():
+    """获取所有靶机的Agent状态"""
+    statuses = ssh_manager.get_all_agent_status()
+    health_map = ssh_manager.get_all_agents_health()
+    
+    # 合并状态
+    result = {}
+    for key, status in statuses.items():
+        ip, port = key
+        result[f"{ip}:{port}"] = {
+            **status,
+            'health': health_map.get(key, {}),
+            'mode': ssh_manager.get_immortal_mode(ip, port)
+        }
+    
+    return jsonify({'agents': result})
+
+@bp.route('/api/agent/listener_stats', methods=['GET'])
+def api_get_listener_stats():
+    """获取Agent监听器统计"""
+    stats = ssh_manager.get_listener_stats()
+    return jsonify({'stats': stats})
+
+@bp.route('/api/agent/immortal_stats', methods=['GET'])
+def api_get_immortal_stats():
+    """获取不死马查杀统计"""
+    stats = ssh_manager.get_immortal_stats()
+    return jsonify({'stats': stats})
+
+@bp.route('/api/agent/set_mode', methods=['POST'])
+def api_set_immortal_mode():
+    """设置查杀模式 (agent/ssh/hybrid)"""
+    data = request.json
+    ip = data.get('ip')
+    port = int(data.get('port', 22))
+    mode = data.get('mode', 'hybrid')
+    
+    ssh_manager.set_immortal_mode(ip, port, mode)
+    return jsonify({'status': 'ok', 'message': f'模式已设置为: {mode}'})
+
+@bp.route('/api/agent/auto_deploy', methods=['GET'])
+def api_get_auto_deploy_config():
+    """获取自动部署配置"""
+    return jsonify({
+        'auto_deploy': ssh_manager.auto_deploy_agent,
+        'auto_start_monitor': ssh_manager.agent_auto_start_monitor,
+        'watch_dir': ssh_manager.agent_watch_dir
+    })
+
+@bp.route('/api/agent/auto_deploy', methods=['POST'])
+def api_set_auto_deploy_config():
+    """设置自动部署配置"""
+    data = request.json
+    if 'auto_deploy' in data:
+        ssh_manager.auto_deploy_agent = data['auto_deploy']
+    if 'auto_start_monitor' in data:
+        ssh_manager.agent_auto_start_monitor = data['auto_start_monitor']
+    if 'watch_dir' in data:
+        ssh_manager.agent_watch_dir = data['watch_dir']
+    
+    return jsonify({
+        'status': 'ok',
+        'config': {
+            'auto_deploy': ssh_manager.auto_deploy_agent,
+            'auto_start_monitor': ssh_manager.agent_auto_start_monitor,
+            'watch_dir': ssh_manager.agent_watch_dir
+        }
+    })
+
+@bp.route('/api/agent/batch_action', methods=['POST'])
+def api_agent_batch_action():
+    """批量Agent操作"""
+    data = request.json or {}
+    action = data.get('action')  # 'deploy', 'stop', 'start_monitor', 'stop_monitor'
+    targets = data.get('targets', [])  # [{'ip': 'x.x.x.x', 'port': 22}, ...]
+    
+    results = []
+    
+    def process_target(target_info):
+        ip = target_info.get('ip')
+        port = int(target_info.get('port', 22))
+        
+        try:
+            if action == 'deploy':
+                success, msg = ssh_manager.deploy_agent(ip, port)
+                if success:
+                    ssh_manager.set_immortal_mode(ip, port, 'agent')
+                return {'ip': ip, 'port': port, 'success': success, 'message': msg}
+            
+            elif action == 'stop':
+                success, msg = ssh_manager.stop_agent(ip, port)
+                return {'ip': ip, 'port': port, 'success': success, 'message': msg}
+            
+            elif action == 'start_monitor':
+                ssh_manager.start_immortal_killer(ip, port)
+                return {'ip': ip, 'port': port, 'success': True, 'message': 'Monitor started'}
+            
+            elif action == 'stop_monitor':
+                ssh_manager.stop_immortal_killer(ip, port)
+                return {'ip': ip, 'port': port, 'success': True, 'message': 'Monitor stopped'}
+            
+            else:
+                return {'ip': ip, 'port': port, 'success': False, 'message': f'Unknown action: {action}'}
+        except Exception as e:
+            return {'ip': ip, 'port': port, 'success': False, 'message': str(e)}
+    
+    # 如果没有指定targets，对所有已连接靶机执行
+    if not targets:
+        targets = [
+            {'ip': t['ip'], 'port': t['port']} 
+            for t in ssh_manager.targets 
+            if t.get('status') == 'connected'
+        ]
+    
+    # 并发执行
+    import threading
+    threads = []
+    results_lock = threading.Lock()
+    
+    def worker(t):
+        result = process_target(t)
+        with results_lock:
+            results.append(result)
+    
+    for t in targets:
+        th = threading.Thread(target=worker, args=(t,))
+        threads.append(th)
+        th.start()
+    
+    for th in threads:
+        th.join(timeout=30)
+    
+    return jsonify({
+        'status': 'ok',
+        'action': action,
+        'total': len(targets),
+        'success': len([r for r in results if r.get('success')]),
+        'results': results
+    })

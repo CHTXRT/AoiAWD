@@ -15,6 +15,13 @@
         <span title="File Monitor Online"
             style="color:var(--success-color); font-size:10px; margin-left:2px; text-shadow: 0 0 5px var(--success-color);">●</span>
         {% endif %}
+        {% if t.agent_status == 'online' %}
+        <span class="agent-status-indicator online" title="Agent Online - Event-driven monitoring active"
+            style="color:#00d4ff; font-size:10px; margin-left:2px; text-shadow: 0 0 5px #00d4ff; animation: pulse 2s infinite;">●</span>
+        {% elif t.agent_status == 'offline' %}
+        <span class="agent-status-indicator offline" title="Agent Offline"
+            style="color:#666; font-size:10px; margin-left:2px;">●</span>
+        {% endif %}
     </td>
     <td onclick="event.stopPropagation()">
         {% if t.status == 'connected' %}

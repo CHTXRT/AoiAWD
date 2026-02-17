@@ -119,10 +119,10 @@ class DefenseManager:
         backup_path = target.get('backup_path')
         if target.get('backup_done') and not force_rerun:
             if backup_path and os.path.exists(backup_path):
-                print(f"[{ip}:{port}] Backup already exists at {backup_path}, skipping.")
+                logger.info(f"[{ip}:{port}] Backup already exists at {backup_path}, skipping")
                 return
             else:
-                print(f"[{ip}:{port}] Backup flagged as done but file missing. Re-running backup.")
+                logger.warning(f"[{ip}:{port}] Backup flagged as done but file missing. Re-running backup")
 
         if not detection: detection = target.get('detection', {'types': []})
 
@@ -186,7 +186,7 @@ class DefenseManager:
     def restore_backup(self, ip, port):
         target = self.tm.get_target(ip, port)
         if not target: 
-            print(f"[{ip}:{port}] Restore failed: Target not found")
+            logger.error(f"[{ip}:{port}] Restore failed: Target not found")
             return False, '靶机未找到'
 
         backup_path = target.get('backup_path')
@@ -208,7 +208,7 @@ class DefenseManager:
                  check_bak = self.cm.execute(ip, int(port), f"test -f {backup_remote_path} && echo EXISTS")
                  
                  if 'EXISTS' in (check_bak or ''):
-                     print(f"[{ip}:{port}] Restoring from remote backup {backup_remote_path}...")
+                     logger.info(f"[{ip}:{port}] Restoring from remote backup {backup_remote_path}...")
                      self.cm.execute(ip, int(port), f"rm {original_path} && mv {backup_remote_path} {original_path} && chmod +x {original_path}")
 
                      with self.tm.lock:
@@ -218,7 +218,7 @@ class DefenseManager:
                      return True, 'Pwn 还原成功 (从远程 .bak 恢复)'
                  
                  # 2. If no .bak, upload local backup
-                 print(f"[{ip}:{port}] No remote .bak found. Restoring from local backup...")
+                 logger.info(f"[{ip}:{port}] No remote .bak found. Restoring from local backup...")
                  self.cm.upload(ip, int(port), backup_path, remote_tmp)
                  self.cm.execute(ip, int(port), f"cp {remote_tmp} {original_path} && chmod +x {original_path}")
                  self.cm.execute(ip, int(port), f"rm {remote_tmp}")
@@ -233,7 +233,7 @@ class DefenseManager:
                 # 1. Prepare backup location (Use /tmp to avoid permission issues in /var/www)
                 timestamp = int(time.time())
                 backup_old = f"/tmp/html_backup_{timestamp}"
-                print(f"[{ip}:{port}] Backing up current files to {backup_old}...", flush=True)
+                logger.info(f"[{ip}:{port}] Backing up current files to {backup_old}...")
                 
                 self.cm.execute(ip, int(port), f"mkdir -p {backup_old}")
                 
@@ -246,7 +246,7 @@ class DefenseManager:
                 self.cm.execute(ip, int(port), f"mkdir -p {webroot}")
 
                 # 4. Extract backup
-                print(f"[{ip}:{port}] Extracting backup to {webroot}...", flush=True)
+                logger.info(f"[{ip}:{port}] Extracting backup to {webroot}...")
                 res = self.cm.execute(ip, int(port), f"tar -xf {remote_tmp} -C / 2>/dev/null")
                 
                 # 5. Check if restore worked
@@ -268,7 +268,7 @@ class DefenseManager:
                     original_path = detection['evidence']['pwn'].split('\\n')[0]
                     self.cm.execute(ip, int(port), f"cp {remote_tmp} {original_path} && chmod +x {original_path}")
                     self.cm.execute(ip, int(port), f"rm {remote_tmp}")
-                    print(f"[{ip}:{port}] Binary restored successfully.")
+                    logger.info(f"[{ip}:{port}] Binary restored successfully")
                     
                     self.tm.notify_target_update(target)
                     return True, '二进制文件还原成功'
@@ -286,7 +286,7 @@ class DefenseManager:
         if not target: return
 
         # 1. Wait for backup
-        print(f"[{ip}:{port}] Waiting for backup before patching...", flush=True)
+        logger.info(f"[{ip}:{port}] Waiting for backup before patching...")
         retries = 0
         while not target.get('backup_done') and retries < 20:
              time.sleep(1)
@@ -328,13 +328,13 @@ class DefenseManager:
             # python3 evilPatcher.py elfFile sandboxFile
             # Ensure paths are quoted to handle spaces if any (though typically minimal in these paths)
             cmd = f'wsl python3 "{wsl_py}" "{wsl_input}" "{wsl_sandbox}"'
-            print(f"[{ip}:{port}] Executing WSL Patch Cmd: {cmd}", flush=True)
+            logger.info(f"[{ip}:{port}] Executing WSL Patch Cmd: {cmd}")
             
             # Run command synchronously
             result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
             
             if result.returncode != 0:
-                 print(f"[{ip}:{port}] Patching failed (WSL error): {result.stderr}", flush=True)
+                 logger.error(f"[{ip}:{port}] Patching failed (WSL error): {result.stderr}")
                  # Don't return, maybe check output file anyway? No, if it failed it failed.
                  return
 
@@ -370,35 +370,33 @@ class DefenseManager:
                 self.tm.save_targets()
 
         except Exception as e:
-            print(f"[{ip}:{port}] Auto-Patch Error: {e}", flush=True)
+            logger.error(f"[{ip}:{port}] Auto-Patch Error: {e}")
         
         target['status'] = 'connected'
         self.tm.notify_target_update(target)
 
     def _init_php_defense(self, ip, port):
-        """Sequential initialization for PHP targets: AOI -> Immortal Killer -> PyGuard"""
+        """Sequential initialization for PHP targets: AOI -> Snapshot -> Backdoor Scan"""
         logger.info(f"[{ip}:{port}] Starting PHP Defense Initialization...")
         
         # 1. Deploy AOI (Safe deployment will handle timestamps)
         self.deploy_aoi_tools(ip, port)
         time.sleep(2)
+        
         # 1.5 Deploy User Custom PHP Defense (ini_set)
         self.deploy_php_defense_script(ip, port)
-
-        # 2. Deploy PyGuard (Python-based Monitor)
-        if self.monitor_service:
-            self.monitor_service.deploy_agent(ip, port)
         
-        # 3. Create Snapshot & Scan Backdoor (Before starting Killer)
-        # Ensure baseline is established including AOI tools
-        print(f"[{ip}:{port}] Creating Security Snapshot...", flush=True)
+        # 2. Create Snapshot & Scan Backdoor
+        # Note: Agent deployment is now handled in _post_connect_sequence to avoid duplication
+        logger.info(f"[{ip}:{port}] Creating Security Snapshot...")
         self.scanner.snapshot_files(ip, port)
         
-        print(f"[{ip}:{port}] Starting Initial Backdoor Scan...", flush=True)
+        logger.info(f"[{ip}:{port}] Starting Initial Backdoor Scan...")
         self.scanner.scan_backdoor(ip, port)
         time.sleep(2)
-        # 4. Start Immortal Shell Killer
-        if self.immortal_killer:
+
+        # 3. Start Immortal Shell Killer (if not already started by _post_connect_sequence)
+        if self.immortal_killer and not self.immortal_killer.is_monitoring(ip, port):
             logger.info(f"[{ip}:{port}] Starting Immortal Shell Killer after Snapshot...")
             self.immortal_killer.start_monitoring(ip, port)
 
@@ -412,7 +410,7 @@ class DefenseManager:
             tools_script = os.path.join(self.tools_folder, '.ini_set.sh')
             
             if not all(os.path.exists(p) for p in [tools_include_php, tools_preload_so, tools_script]):
-                print(f"[{ip}:{port}] Custom PHP Defense Skipped: Tools missing.", flush=True)
+                logger.info(f"[{ip}:{port}] Custom PHP Defense Skipped: Tools missing")
                 return
 
             # 1. Upload .ini_set.php -> /var/www/html/include/.ini_set.php
@@ -433,13 +431,13 @@ class DefenseManager:
             cmd = f"cd /var/www/html && nohup {remote_script} > /dev/null 2>&1 &"
             self.cm.execute(ip, port, cmd)
             
-            print(f"[{ip}:{port}] Custom PHP defense deployed successfully.", flush=True)
+            logger.info(f"[{ip}:{port}] Custom PHP defense deployed successfully")
             
             # Wait for script to touch files
             time.sleep(2)
             
         except Exception as e:
-            print(f"[{ip}:{port}] Custom PHP defense deploy error: {e}", flush=True)
+            logger.error(f"[{ip}:{port}] Custom PHP defense deploy error: {e}")
 
     def deploy_aoi_tools(self, ip, port):
         target = self.tm.get_target(ip, port)
@@ -467,20 +465,20 @@ class DefenseManager:
         roundworm_path = os.path.join(aoi_dir, 'roundworm')
         
         if not os.path.exists(tapeworm_path) or not os.path.exists(roundworm_path):
-            print(f"[{ip}:{port}] AOI Deploy Skipped: Tools not found in {aoi_dir}", flush=True)
+            logger.warning(f"[{ip}:{port}] AOI Deploy Skipped: Tools not found in {aoi_dir}")
             return
         
         # --- Critical: Handling Immortal Shell Killer Conflict ---
         was_monitoring = False
         if self.immortal_killer and self.immortal_killer.is_monitoring(ip, port):
-            print(f"[{ip}:{port}] Pausing Immortal Shell Killer for AOI deployment...", flush=True)
+            logger.info(f"[{ip}:{port}] Pausing Immortal Shell Killer for AOI deployment...")
             self.immortal_killer.stop_monitoring(ip, port)
             was_monitoring = True
             
         try:
             
             # 2. Deploy AOI (Synchronous to ensure file mods complete before restore)
-            print(f"[{ip}:{port}] Deploying AOI Tools...", flush=True)
+            logger.info(f"[{ip}:{port}] Deploying AOI Tools...")
             self.cm.upload(ip, port, tapeworm_path, '/tmp/tapeworm.phar')
             self.cm.upload(ip, port, roundworm_path, '/tmp/roundworm')
             self.cm.execute(ip, port, 'chmod +x /tmp/roundworm')
@@ -509,21 +507,21 @@ class DefenseManager:
             
             with self.tm.lock:
                 target['aoi_deployed'] = True
-                print(f"[{ip}:{port}] AOI deploy Success!", flush=True)
+                logger.info(f"[{ip}:{port}] AOI deploy Success!")
                 self.tm.notify_target_update(target)
                 self.tm.save_targets()
                 
             
         except Exception as e:
-            print(f"[{ip}:{port}] AOI Deploy Error: {e}", flush=True)
+            logger.error(f"[{ip}:{port}] AOI Deploy Error: {e}")
 
         # 3.5 Update File Snapshot (Dynamic Baseline)
         # THIS IS CRITICAL: AOI modified files. We must accept this new state as the baseline
         # so Immortal Shell Killer doesn't kill them.
         # Wait for AOI (roundworm/tapeworm) to fully settle file modifications
-        print(f"[{ip}:{port}] Waiting 5s for AOI to settle before snapshot...", flush=True)
+        logger.info(f"[{ip}:{port}] Waiting 5s for AOI to settle before snapshot...")
         time.sleep(5)
-        print(f"[{ip}:{port}] Updating File Snapshot after AOI deployment...", flush=True)
+        logger.info(f"[{ip}:{port}] Updating File Snapshot after AOI deployment...")
         self.scanner.snapshot_files(ip, port)
 
         # 4. Resume Immortal Shell Killer (If triggered manually and was running)
@@ -579,9 +577,9 @@ class DefenseManager:
 
         if not php_dirs: 
             php_dirs = ['/var/www/html']
-            print(f"[{ip}:{port}] No PHP dirs found, defaulting to /var/www/html", flush=True)
+            logger.info(f"[{ip}:{port}] No PHP dirs found, defaulting to /var/www/html")
         else:
-            # print(f"[{ip}:{port}] Found PHP dirs (shallow first): {php_dirs}", flush=True)
+            # logger.debug(f"[{ip}:{port}] Found PHP dirs (shallow first): {php_dirs}")
             pass
         
         ports_to_try = [80, 8080, 8888]
@@ -661,7 +659,7 @@ class DefenseManager:
             time.sleep(0.5)
             check = self.cm.execute(ip, port, "ls -la /tmp/mujica 2>/dev/null")
             if check and 'mujica' in check and (('rws' in check) or ('s' in check.split()[0])):
-                 print(f"[{ip}:{port}] SUID shell created via Remote Trigger", flush=True)
+                 logger.info(f"[{ip}:{port}] SUID shell created via Remote Trigger")
                  success = True
                  break
 
@@ -728,7 +726,7 @@ class DefenseManager:
                 target['detection']['php_ini'] = php_ini_info
                 self.tm.notify_target_update(target)
                 self.tm.save_targets()
-        except Exception as e: print(f"php.ini detection error: {e}")
+        except Exception as e: logger.error(f"php.ini detection error: {e}")
 
     def run_preload_tasks(self, ip, port, force_rerun=False):
         target = self.tm.get_target(ip, port)

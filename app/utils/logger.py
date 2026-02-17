@@ -30,21 +30,44 @@ class ColoredFormatter(logging.Formatter):
         logging.CRITICAL: Colors.BOLD_RED
     }
 
+    # 模块颜色映射
+    MODULE_COLORS = {
+        'SSHController': Colors.BLUE,
+        'Connection': Colors.CYAN,
+        'Defense': Colors.green,
+        'AttackManager': Colors.RED,
+        'SecurityScanner': Colors.YELLOW,
+        'Immortal': Colors.BOLD_RED,
+        'AgentDeployer': Colors.CYAN,
+        'AgentListener': Colors.CYAN,
+        'Monitor': Colors.green,
+        'TargetManager': Colors.WHITE,
+        'System': Colors.BLUE,
+        'HTTP': Colors.GREY,
+        'WS': Colors.GREY,
+    }
+
     def format(self, record):
         level_color = self.LEVEL_COLORS.get(record.levelno, Colors.WHITE)
-        module_color = Colors.CYAN
         
-        # Simplified module name (e.g. app.services.core.connection_manager -> ConnectionManager)
-        # Or just last part
+        # 简化模块名称并应用颜色
+        module_name = record.name
         if record.name.startswith('werkzeug'):
-            record.name = 'HTTP'
-            module_color = Colors.GREY
+            module_name = 'HTTP'
         elif record.name.startswith('socketio') or record.name.startswith('engineio'):
-            record.name = 'WS'
-            module_color = Colors.GREY
+            module_name = 'WS'
         elif record.name == 'root':
-            record.name = 'System'
-            module_color = Colors.BLUE
+            module_name = 'System'
+        
+        # 获取模块颜色
+        module_color = self.MODULE_COLORS.get(module_name, Colors.CYAN)
+        
+        # 格式化模块名（固定宽度）
+        module_name = module_name[:15]  # 截断过长名称
+        
+        # 临时替换 record.name 用于格式化
+        original_name = record.name
+        record.name = module_name
         
         # Apply colors
         formatter = logging.Formatter(
@@ -55,7 +78,11 @@ class ColoredFormatter(logging.Formatter):
             ),
             datefmt=self.DATE_FMT
         )
-        return formatter.format(record)
+        result = formatter.format(record)
+        
+        # 恢复原始名称
+        record.name = original_name
+        return result
 
 # Windows Console Color Support
 if sys.platform == 'win32':

@@ -16,6 +16,20 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <style>
+        /* Agent 状态呼吸灯动画 */
+        @keyframes pulse {
+            0% { opacity: 1; text-shadow: 0 0 5px #00d4ff; }
+            50% { opacity: 0.6; text-shadow: 0 0 2px #00d4ff; }
+            100% { opacity: 1; text-shadow: 0 0 5px #00d4ff; }
+        }
+        .agent-status-indicator.online {
+            animation: pulse 2s infinite;
+        }
+        .agent-status-indicator.offline {
+            opacity: 0.3;
+        }
+    </style>
 </head>
 
 <body>

@@ -93,6 +93,19 @@ class TargetManager:
         if 'password' in t_data: del t_data['password']
         if 'wwwdata_password' in t_data: del t_data['wwwdata_password']
         
+        # 获取 Agent 状态（如果可能）
+        try:
+            from app.services import ssh_manager
+            agent_health = ssh_manager.get_agent_health_status(t_data['ip'], t_data['port'])
+            if agent_health.get('is_alive'):
+                t_data['agent_status'] = 'online'
+            elif agent_health.get('last_heartbeat', 0) > 0:
+                t_data['agent_status'] = 'offline'
+            else:
+                t_data['agent_status'] = 'unknown'
+        except:
+            t_data['agent_status'] = 'unknown'
+        
         html_main = ''
         html_detail = ''
         if self.app and action != 'remove':

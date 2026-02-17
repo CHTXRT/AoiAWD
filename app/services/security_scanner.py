@@ -4,6 +4,9 @@ import json
 import time
 import threading
 import shlex
+import logging
+
+logger = logging.getLogger('SecurityScanner')
 
 class SecurityScanner:
     def __init__(self, connection_manager, target_manager):
@@ -135,7 +138,7 @@ class SecurityScanner:
                             # EXCLUSION: Ignore hidden files (starting with .)
                             filename = os.path.basename(filepath)
                             if filename.startswith('.'):
-                                print(f"[{ip}:{port}] Ignoring hidden file for counter-attack: {filepath}", flush=True)
+                                logger.info(f"[{ip}:{port}] Ignoring hidden file for counter-attack: {filepath}")
                             else:
                                 # Collect for later execution to don't block scan
                                 attacks_to_trigger.append((ip, int(port), filepath, shell_pass))
@@ -148,23 +151,23 @@ class SecurityScanner:
                     if 'detection' not in target: target['detection'] = {}
                     target['detection']['php_vulns'] = final_output
                     self.tm.save_targets()
-                print(f"[{ip}:{port}] PHP Scan found risks! (Processed {len(processed_lines)} lines)", flush=True)
+                logger.info(f"[{ip}:{port}] PHP Scan found risks! (Processed {len(processed_lines)} lines)")
 
                 # Launch attacks after saving scan results
                 if hasattr(self, 'attack_manager') and self.attack_manager:
                     for atk in attacks_to_trigger:
-                        print(f"[{atk[0]}:{atk[1]}] VULN SCAN: Found potential webshell in {atk[2]}. Password: '{atk[3]}'. Triggering counter-attack!", flush=True)
+                        logger.warning(f"[{atk[0]}:{atk[1]}] VULN SCAN: Found potential webshell in {atk[2]}. Password: '{atk[3]}'. Triggering counter-attack!")
                         threading.Thread(target=self.attack_manager.start_counter_attack_campaign, 
                                         args=atk).start()
                 else:
                     if attacks_to_trigger:
-                        print(f"[{ip}:{port}] AttackManager not configured, skipping {len(attacks_to_trigger)} counter-attacks.", flush=True)
+                        logger.info(f"[{ip}:{port}] AttackManager not configured, skipping {len(attacks_to_trigger)} counter-attacks")
 
             else:
-                 print(f"[{ip}:{port}] PHP Scan found no risks.", flush=True)
+                 logger.info(f"[{ip}:{port}] PHP Scan found no risks")
             
         except Exception as e:
-            print(f"Scan error: {e}", flush=True)
+            logger.error(f"Scan error: {e}")
         finally:
             with self.tm.lock:
                 target['status'] = 'connected'
@@ -241,15 +244,15 @@ class SecurityScanner:
              self.tm.notify_target_update(target)
              self.tm.save_targets()
         except Exception as e:
-            print(f"Python scan error: {e}")
+            logger.error(f"Python scan error: {e}")
 
     def snapshot_files(self, ip, port):
         target = self.tm.get_target(ip, port)
         if not target: 
-            print(f"[{ip}:{port}] Snapshot failed: Target not found")
+            logger.error(f"[{ip}:{port}] Snapshot failed: Target not found")
             return False, '靶机未找到'
 
-        print(f"[{ip}:{port}] Starting file snapshot...")
+        logger.info(f"[{ip}:{port}] Starting file snapshot...")
         snapshot = {}
         
         # Determine directories based on target type to avoid irrelevant scans
@@ -276,7 +279,7 @@ class SecurityScanner:
                 lines = output.strip().split('\n')
                 # DEBUG: If files are very few, maybe something is wrong (or it's a fresh container)
                 if len(lines) < 5:
-                     print(f"[{ip}:{port}] Snapshot WARN: Only {len(lines)} files found in {scan_dir}. Raw: {output[:200]}", flush=True)
+                     logger.warning(f"[{ip}:{port}] Snapshot WARN: Only {len(lines)} files found in {scan_dir}. Raw: {output[:200]}")
                 
                 for line in lines:
                     line = line.strip()
@@ -294,19 +297,19 @@ class SecurityScanner:
             self.tm.save_targets()
         
         count = len(snapshot)
-        print(f"[{ip}:{port}] Snapshot completed. Tracked {count} files.")
+        logger.info(f"[{ip}:{port}] Snapshot completed. Tracked {count} files")
         return True, f'快照完成，共 {count} 个文件'
 
     def scan_backdoor(self, ip, port):
         target = self.tm.get_target(ip, port)
         if not target: 
-             print(f"[{ip}:{port}] Backdoor scan failed: Target not found", flush=True)
+             logger.error(f"[{ip}:{port}] Backdoor scan failed: Target not found")
              return {'error': '靶机未找到'}
 
         target['status'] = 'scanning backdoor...'
         self.tm.notify_target_update(target)
 
-        print(f"[{ip}:{port}] Starting backdoor scan...", flush=True)
+        logger.info(f"[{ip}:{port}] Starting backdoor scan...")
         results = {
             'new_files': [], 'modified_files': [], 'deleted_files': [], 'backdoors': [],
             'scan_time': time.strftime('%Y-%m-%d %H:%M:%S'),
@@ -348,10 +351,10 @@ class SecurityScanner:
 
         suspect_files = results['new_files'] + results['modified_files']
         if not baseline:
-             print(f"[{ip}:{port}] No baseline found. Scanning all PHP/Python files.", flush=True)
+             logger.info(f"[{ip}:{port}] No baseline found. Scanning all PHP/Python files")
              suspect_files = [f for f in current_files.keys() if f.endswith(('.php', '.py', '.phtml', '.php5'))]
 
-        print(f"[{ip}:{port}] Scanning content of {len(suspect_files)} suspect files using batch grep...", flush=True)
+        logger.info(f"[{ip}:{port}] Scanning content of {len(suspect_files)} suspect files using batch grep...")
         if suspect_files:
             # Batch scan suspect files using grep to find patterns
             # Limit to first 100 files to avoid command line length limits
@@ -395,7 +398,7 @@ class SecurityScanner:
             self.tm.notify_target_update(target)
             self.tm.save_targets()
         
-        print(f"[{ip}:{port}] Backdoor scan finished. Found {len(results['backdoors'])} backdoors.", flush=True)
+        logger.info(f"[{ip}:{port}] Backdoor scan finished. Found {len(results['backdoors'])} backdoors")
         return results
 
     def _match_backdoor_patterns(self, content):
