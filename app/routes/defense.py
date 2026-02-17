@@ -185,20 +185,20 @@ def api_kill_persist():
     action = data.get('action', 'start') # start | stop
     
     if action == 'start':
-        success, msg = ssh_manager.immortal_killer.start_persistent_kill(ip, port, file_path)
+        success, msg = ssh_manager.defense.immortal_killer.start_persistent_kill(ip, port, file_path)
     else:
-        success, msg = ssh_manager.immortal_killer.stop_persistent_kill(ip, port, file_path)
+        success, msg = ssh_manager.defense.immortal_killer.stop_persistent_kill(ip, port, file_path)
         
     return jsonify({'status': 'ok' if success else 'error', 'message': msg})
 
 @bp.route('/api/defense/immortal/kill_status', methods=['POST'])
 def api_kill_status():
     data = request.json
-    status = ssh_manager.immortal_killer.get_persistent_status(data['ip'], data.get('port', 22), data['file'])
+    status = ssh_manager.defense.immortal_killer.get_persistent_status(data['ip'], data.get('port', 22), data['file'])
     return jsonify({'active': status})
 @bp.route('/api/defense/immortal/killers', methods=['GET'])
 def api_get_active_killers_list():
-    killers = ssh_manager.immortal_killer.get_active_killers()
+    killers = ssh_manager.defense.immortal_killer.get_active_killers()
     return jsonify({'killers': killers})
 
 @bp.route('/api/defense/monitor/logs', methods=['GET'])

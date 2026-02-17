@@ -25,6 +25,7 @@
 #define MAX_PATH 4096
 #define MAX_EVENTS 200
 #define HEARTBEAT_SEC 30
+#define MAX_WATCHES 1024
 
 static char g_server_ip[64] = "127.0.0.1";  // 支持主机名如 host.docker.internal
 static int g_server_port = 8024;
@@ -32,6 +33,9 @@ static char g_watch_dir[MAX_PATH] = "/var/www/html";
 static volatile int g_running = 1;
 static int g_daemon_mode = 0;
 static int g_verbose = 0;
+
+/* wd -> 目录路径映射表 */
+static char *g_wd_to_path[MAX_WATCHES] = {NULL};
 
 /* 批量事件缓冲 */
 typedef struct {
@@ -214,7 +218,14 @@ static void add_watch_recursive(int fd, const char *base_path, int depth) {
         if (g_verbose) printf("[Warn] Cannot watch %s: %s\n", base_path, strerror(errno));
         return;
     }
-    if (g_verbose) printf("[Watch] %s\n", base_path);
+    
+    /* 保存 wd -> path 映射 */
+    if (wd >= 0 && wd < MAX_WATCHES) {
+        if (g_wd_to_path[wd]) free(g_wd_to_path[wd]);
+        g_wd_to_path[wd] = strdup(base_path);
+    }
+    
+    if (g_verbose) printf("[Watch] wd=%d %s\n", wd, base_path);
     
     DIR *dir = opendir(base_path);
     if (!dir) return;
@@ -311,21 +322,25 @@ int main(int argc, char *argv[]) {
                     struct inotify_event *e = (struct inotify_event*)&buf[i];
                     
                     if (e->len > 0) {
-                        /* 构造完整路径 */
+                        /* 构造完整路径：使用 wd 查找对应的目录 */
                         char full_path[MAX_PATH];
+                        const char *dir_path = g_watch_dir;
                         
-                        // 需要找到wd对应的目录路径，简化处理：尝试几种常见情况
-                        // 实际上应该维护wd->path映射，这里简化
+                        if (e->wd >= 0 && e->wd < MAX_WATCHES && g_wd_to_path[e->wd]) {
+                            dir_path = g_wd_to_path[e->wd];
+                        }
+                        
                         snprintf(full_path, sizeof(full_path), "%s/%s", 
-                                g_watch_dir, e->name);
+                                dir_path, e->name);
                         
                         // 检查是否是新目录
-                        if ((e->mask & IN_ISDIR) && (e->mask & IN_CREATE)) {
+                        int is_dir = (e->mask & IN_ISDIR);
+                        if (is_dir && (e->mask & IN_CREATE)) {
                             handle_new_dir(fd, full_path);
                         }
                         
-                        // 只关注PHP文件
-                        if (is_php_file(e->name)) {
+                        // 只推送PHP文件，不推送目录（如2.php这种文件夹不推送）
+                        if (!is_dir && is_php_file(e->name)) {
                             if (g_verbose) {
                                 printf("[Event] %s mask=%u\n", full_path, e->mask);
                             }

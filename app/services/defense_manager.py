@@ -5,22 +5,45 @@ import json
 import base64
 import logging
 import subprocess
-
+from .monitor_service import MonitorService
+from .agent_deployer import AgentDeployer
+from .agent_listener import AgentListener
+from .immortal_shell_killer import ImmortalShellKiller
 logger = logging.getLogger('Defense')
 logger.setLevel(logging.INFO)
 
 class DefenseManager:
-    def __init__(self, connection_manager, target_manager, scanner, immortal_killer=None):
+    def __init__(self, connection_manager, target_manager, scanner, config):
         self.cm = connection_manager
         self.tm = target_manager
         self.scanner = scanner
-        self.immortal_killer = immortal_killer
         self.monitor_service = None # Will be set via setter or init
         self.backups_folder = None
         self.tools_folder = None
+        self.config = config
         self.preload_folder = None
         self.preload_config = {'files': [], 'commands': []}
+        # Agent组件（用于事件驱动查杀）
+        self.agent_listener = AgentListener(
+            host='0.0.0.0', 
+            port=getattr(self.config, 'AGENT_CALLBACK_PORT', 8024)
+        )
+        self.agent_deployer = AgentDeployer(
+            self.cm, self.tm,
+            config={'AGENT_CALLBACK_PORT': getattr(self.config, 'AGENT_CALLBACK_PORT', 8024)}
+        )
         
+        # 核心服务
+        self.immortal_killer = ImmortalShellKiller(
+            self.cm, self.tm,
+            agent_deployer=self.agent_deployer,
+            agent_listener=self.agent_listener
+        )
+        self.monitor = MonitorService(self.cm, self.tm, self.agent_listener, self.agent_deployer)
+        self.auto_deploy_agent = getattr(self.config, 'AGENT_AUTO_DEPLOY', True)
+        self.agent_auto_start_monitor = getattr(self.config, 'AGENT_AUTO_START_MONITOR', True)
+        self.agent_watch_dir = getattr(self.config, 'AGENT_WATCH_DIR', '/var/www/html')
+        self.monitor_service = self.monitor
         # Scheduled Tasks
         self.scheduled_tasks = {}
         self._scheduler_running = False
@@ -30,11 +53,21 @@ class DefenseManager:
         self.monitor_service = monitor_service
 
     def init_app(self, app):
-         self.backups_folder = app.config['BACKUPS_FOLDER']
-         self.tools_folder = os.path.join(app.config['BASE_DIR'], 'tools')
-         self.preload_folder = app.config['PRELOAD_FOLDER']
-         self.config_file = app.config['CONFIG_FILE']
-         self.load_preload_config()
+        self.backups_folder = app.config['BACKUPS_FOLDER']
+        self.tools_folder = os.path.join(app.config['BASE_DIR'], 'tools')
+        self.preload_folder = app.config['PRELOAD_FOLDER']
+        self.config_file = app.config['CONFIG_FILE']
+        self.load_preload_config()
+        self.monitor.start()
+        # 启动Agent监听服务
+        if self.agent_listener.start():
+            logger.info("Agent listener started on port 8024")
+        else:
+            logger.error("Failed to start agent listener")
+    def set_socketio(self, socketio): 
+        self.immortal_killer.set_socketio(socketio)
+        self.monitor.set_socketio(socketio)
+        self.agent_listener.socketio = socketio  # 传递 socketio 用于心跳推送
 
     def load_preload_config(self):
         if self.config_file and os.path.exists(self.config_file):
@@ -394,7 +427,28 @@ class DefenseManager:
         logger.info(f"[{ip}:{port}] Starting Initial Backdoor Scan...")
         self.scanner.scan_backdoor(ip, port)
         time.sleep(2)
-
+        if self.auto_deploy_agent:
+            # 详细日志便于调试
+            logger.info(f"[{ip}:{port}] PHP target detected, auto-deploying Agent...")
+                        
+            # 检查是否已有Agent在运行（避免重复部署）
+            if self.agent_deployer.check_agent_running(ip, port):
+                logger.info(f"[{ip}:{port}] Agent already running, skipping deployment")
+                self.immortal_killer.set_mode(ip, port, ImmortalShellKiller.MODE_AGENT)
+            else:
+                deploy_success, deploy_msg = self.agent_deployer.deploy(
+                        ip, port, self.agent_watch_dir
+                )
+                            
+            if deploy_success:
+                # 部署成功，设置为Agent模式
+                self.immortal_killer.set_mode(ip, port, ImmortalShellKiller.MODE_AGENT)
+                logger.info(f"[{ip}:{port}] Agent auto-deployed successfully")
+            else:
+                logger.warning(f"[{ip}:{port}] Agent auto-deploy failed: {deploy_msg}")
+                # 部署失败，回退到SSH轮询模式
+                self.immortal_killer.set_mode(ip, port, ImmortalShellKiller.MODE_SSH) 
+         
         # 3. Start Immortal Shell Killer (if not already started by _post_connect_sequence)
         if self.immortal_killer and not self.immortal_killer.is_monitoring(ip, port):
             logger.info(f"[{ip}:{port}] Starting Immortal Shell Killer after Snapshot...")
@@ -797,3 +851,36 @@ class DefenseManager:
              return '/home'
              
         return '/'
+    # --- Agent Deployer Delegates ---
+    def deploy_agent(self, ip, port, watch_dir="/var/www/html"): 
+        return self.agent_deployer.deploy(ip, port, watch_dir)
+    def stop_agent(self, ip, port): 
+        return self.agent_deployer.stop(ip, port)
+    def get_agent_status(self, ip, port): 
+        return self.agent_deployer.get_status(ip, port)
+    def batch_deploy_agents(self, watch_dir="/var/www/html"): 
+        return self.agent_deployer.batch_deploy(watch_dir)
+    def batch_stop_agents(self): 
+        return self.agent_deployer.batch_stop()
+    def get_all_agent_status(self): 
+        return self.agent_deployer.get_all_status()
+    def check_agent_health(self, ip, port):
+        return self.agent_deployer.health_check(ip, port)
+
+    # --- Agent Listener Delegates ---
+    def get_listener_stats(self): 
+        return self.agent_listener.get_stats() if self.agent_listener else {}
+    def get_agent_health_status(self, ip, port=22):
+        return self.agent_listener.get_agent_health(ip, port) if self.agent_listener else {}
+    def get_all_agents_health(self):
+        return self.agent_listener.get_all_agents_health() if self.agent_listener else {}
+    # --- Immortal Shell Killer Delegates ---
+    def start_immortal_killer(self, *args, **kwargs): return self.immortal_killer.start_monitoring(*args, **kwargs)
+    def stop_immortal_killer(self, *args, **kwargs): return self.immortal_killer.stop_monitoring(*args, **kwargs)
+    def get_immortal_alerts(self): return self.immortal_killer.get_alerts()
+    def restore_quarantine(self, *args, **kwargs): return self.immortal_killer.restore_from_quarantine(*args, **kwargs)
+    def clear_immortal_alerts(self): return self.immortal_killer.clear_alerts()
+    def get_immortal_stats(self): return self.immortal_killer.get_stats()
+    def set_immortal_mode(self, ip, port, mode): return self.immortal_killer.set_mode(ip, port, mode)
+    def get_immortal_mode(self, ip, port): return self.immortal_killer.get_mode(ip, port)
+
