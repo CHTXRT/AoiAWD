@@ -74,7 +74,7 @@ class ImmortalShellKiller:
                 logger.error(f"[{ip}:{port}] Error: {e}")
             
             # Sleep 0.5s (Reduced from 1s for faster response)
-            if stop_event.wait(0.5):
+            if stop_event.wait(10):
                 break
 
     def _scan_and_kill(self, ip, port):
@@ -134,31 +134,6 @@ class ImmortalShellKiller:
             key = f"{ip}:{port}:{file_path}"
             with self.processing_lock:
                 self.processing_files.discard(key)
-        # ... (This method is kept but less used now due to pre-filter) ...
-        # Read file content
-        content = self.cm.read_remote_file(ip, port, file_path).get('content', '')
-        if not content: return False
-        
-        # Rule A: Strong Feature (ignore_user_abort + set_time_limit)
-        if 'ignore_user_abort' in content and 'set_time_limit' in content:
-            return True
-            
-        # Rule B: Behavioral (sleep/usleep + write)
-        has_sleep = 'sleep' in content or 'usleep' in content
-        has_write = 'file_put_contents' in content or 'fwrite' in content
-        if has_sleep and has_write:
-            return True
-
-        # Rule C: Generic Webshell Keywords (for recently modified files)
-        suspicious_keywords = [
-            'eval(', 'assert(', 'system(', 'shell_exec(', 'passthru(', 'pcntl_exec(', 'popen(', 'proc_open('
-        ]
-        if any(keyword in content for keyword in suspicious_keywords):
-            return True
-            
-        return False
-
-        return False
 
     def _is_safe_baseline(self, ip, port, file_path):
         """Check if the file matches EITHER the original backup OR the latest snapshot"""

@@ -15,6 +15,8 @@ class ConnectionManager:
         self.km = key_manager
         self.sessions = {} # ip:port -> client
         self.session_locks = {}
+        self.session_semaphores = {}
+        self.max_channels_per_session = 8 # 留出 2 个余量 (通常 MaxSessions 为 10)
         self.global_lock = threading.RLock()
         self.console_cwd = {}
 
@@ -23,7 +25,12 @@ class ConnectionManager:
             with self.global_lock:
                 if session_key not in self.session_locks:
                     self.session_locks[session_key] = threading.RLock()
+                    self.session_semaphores[session_key] = threading.Semaphore(self.max_channels_per_session)
         return self.session_locks[session_key]
+
+    def _get_session_semaphore(self, session_key):
+        self._get_session_lock(session_key) # 确保初始化了
+        return self.session_semaphores[session_key]
 
     def connect(self, ip, port, private_key_path=None):
         ip = ip.strip()
@@ -156,14 +163,16 @@ class ConnectionManager:
         if not client:
             return "Not connected"
 
-        # 2. Execute Command (Parallel Section - No Lock)
-        try:
-            # Paramiko exec_command is thread-safe on the same client (creates new channel)
-            stdin, stdout, stderr = client.exec_command(cmd, timeout=10)
-            # Use replace to handle binary/non-utf8 output from head/cat
-            return stdout.read().decode(errors='replace') + stderr.read().decode(errors='replace')
-        except Exception as e:
-            return f"Error: {str(e)}"
+        # 2. Execute Command (Parallel Section - Semaphore Protected)
+        sem = self._get_session_semaphore(session_key)
+        with sem:
+            try:
+                # Paramiko exec_command is thread-safe on the same client (creates new channel)
+                stdin, stdout, stderr = client.exec_command(cmd, timeout=10)
+                # Use replace to handle binary/non-utf8 output from head/cat
+                return stdout.read().decode(errors='replace') + stderr.read().decode(errors='replace')
+            except Exception as e:
+                return f"Error: {str(e)}"
 
     def execute_with_cwd(self, ip, port, cmd):
         ip = ip.strip()
@@ -205,29 +214,32 @@ class ConnectionManager:
                     connected, msg = self.connect(ip, port)
                     if not connected: return False, f"Reconnect failed: {msg}"
             
-                sftp = self.sessions[session_key].open_sftp()
-                try:
-                    target_path = remote_path
-                    is_directory = False
-                    
-                    if target_path.endswith('/'):
-                        is_directory = True
-                    else:
-                        try:
-                            attr = sftp.stat(target_path)
-                            if stat.S_ISDIR(attr.st_mode):
-                                is_directory = True
-                        except: pass
-                    
-                    if is_directory:
-                        filename = os.path.basename(local_path)
-                        if not target_path.endswith('/'):
-                            target_path += '/'
-                        target_path += filename
+                sftp = None
+                sem = self._get_session_semaphore(session_key)
+                with sem:
+                    sftp = self.sessions[session_key].open_sftp()
+                    try:
+                        target_path = remote_path
+                        is_directory = False
                         
-                    sftp.put(local_path, target_path)
-                finally:
-                    sftp.close()
+                        if target_path.endswith('/'):
+                            is_directory = True
+                        else:
+                            try:
+                                attr = sftp.stat(target_path)
+                                if stat.S_ISDIR(attr.st_mode):
+                                    is_directory = True
+                            except: pass
+                        
+                        if is_directory:
+                            filename = os.path.basename(local_path)
+                            if not target_path.endswith('/'):
+                                target_path += '/'
+                            target_path += filename
+                            
+                        sftp.put(local_path, target_path)
+                    finally:
+                        if sftp: sftp.close()
                 
                 # Verification using exec_command directly to reuse the lock context if needed,
                 # but paramiko exec_command is thread safe on channel level. 
@@ -281,11 +293,14 @@ class ConnectionManager:
         with self._get_session_lock(session_key):
             if session_key not in self.sessions: return False, "Not connected"
             try:
-                sftp = self.sessions[session_key].open_sftp()
-                try:
-                    sftp.get(remote_path, local_path)
-                finally:
-                    sftp.close()
+                sftp = None
+                sem = self._get_session_semaphore(session_key)
+                with sem:
+                    sftp = self.sessions[session_key].open_sftp()
+                    try:
+                        sftp.get(remote_path, local_path)
+                    finally:
+                        if sftp: sftp.close()
                 return True, f"Downloaded: {local_path}"
             except Exception as e:
                 # Fallback
@@ -319,20 +334,24 @@ class ConnectionManager:
         with self._get_session_lock(session_key):
             if session_key not in self.sessions: return {'error': 'Not connected'}
             try:
-                sftp = self.sessions[session_key].open_sftp()
-                try:
-                    files = []
-                    for entry in sftp.listdir_attr(path):
-                        files.append({
-                            'name': entry.filename,
-                            'size': entry.st_size,
-                            'mtime': entry.st_mtime,
-                            'is_dir': stat.S_ISDIR(entry.st_mode),
-                            'is_link': stat.S_ISLNK(entry.st_mode),
-                            'perms': stat.filemode(entry.st_mode)
-                        })
-                    return {'files': files}
-                finally: sftp.close()
+                sftp = None
+                sem = self._get_session_semaphore(session_key)
+                with sem:
+                    sftp = self.sessions[session_key].open_sftp()
+                    try:
+                        files = []
+                        for entry in sftp.listdir_attr(path):
+                            files.append({
+                                'name': entry.filename,
+                                'size': entry.st_size,
+                                'mtime': entry.st_mtime,
+                                'is_dir': stat.S_ISDIR(entry.st_mode),
+                                'is_link': stat.S_ISLNK(entry.st_mode),
+                                'perms': stat.filemode(entry.st_mode)
+                            })
+                        return {'files': files}
+                    finally: 
+                        if sftp: sftp.close()
             except Exception as e: return {'error': str(e)}
 
     def read_remote_file(self, ip, port, path):
@@ -343,13 +362,17 @@ class ConnectionManager:
         with self._get_session_lock(session_key):
             if session_key not in self.sessions: return {'error': 'Not connected'}
             try:
-                sftp = self.sessions[session_key].open_sftp()
-                try:
-                    with sftp.open(path, 'r') as f:
-                        content = f.read()
-                        try: return {'content': content.decode('utf-8')}
-                        except UnicodeDecodeError: return {'content': '[Binary file]'}
-                finally: sftp.close()
+                sftp = None
+                sem = self._get_session_semaphore(session_key)
+                with sem:
+                    sftp = self.sessions[session_key].open_sftp()
+                    try:
+                        with sftp.open(path, 'r') as f:
+                            content = f.read()
+                            try: return {'content': content.decode('utf-8')}
+                            except UnicodeDecodeError: return {'content': '[Binary file]'}
+                    finally: 
+                        if sftp: sftp.close()
             except Exception as e: return {'error': str(e)}
 
     def write_remote_file(self, ip, port, path, content):
@@ -360,12 +383,16 @@ class ConnectionManager:
         with self._get_session_lock(session_key):
             if session_key not in self.sessions: return {'error': 'Not connected'}
             try:
-                sftp = self.sessions[session_key].open_sftp()
-                try:
-                    with sftp.open(path, 'w') as f:
-                        f.write(content)
-                    return {'success': True, 'message': 'Saved successfully'}
-                finally: sftp.close()
+                sftp = None
+                sem = self._get_session_semaphore(session_key)
+                with sem:
+                    sftp = self.sessions[session_key].open_sftp()
+                    try:
+                        with sftp.open(path, 'w') as f:
+                            f.write(content)
+                        return {'success': True, 'message': 'Saved successfully'}
+                    finally: 
+                        if sftp: sftp.close()
             except Exception as e: return {'error': str(e)}
 
     def delete_remote_file(self, ip, port, path):

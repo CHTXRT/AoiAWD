@@ -102,8 +102,6 @@ class DefenseManager:
             # Use sequential initialization for PHP defense to avoid conflict
             threading.Thread(target=self._init_php_defense, args=(ip, port)).start()
 
-            # Use sequential initialization for PHP defense to avoid conflict
-            threading.Thread(target=self._init_php_defense, args=(ip, port)).start()
 
         if 'python' in detection['types']:
             threading.Thread(target=self.scanner.scan_python_vulns, args=(ip, port)).start()
@@ -398,7 +396,7 @@ class DefenseManager:
         
         print(f"[{ip}:{port}] Starting Initial Backdoor Scan...", flush=True)
         self.scanner.scan_backdoor(ip, port)
-
+        time.sleep(2)
         # 4. Start Immortal Shell Killer
         if self.immortal_killer:
             logger.info(f"[{ip}:{port}] Starting Immortal Shell Killer after Snapshot...")

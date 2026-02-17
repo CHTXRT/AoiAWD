@@ -3,6 +3,7 @@ import re
 import json
 import time
 import threading
+import shlex
 
 class SecurityScanner:
     def __init__(self, connection_manager, target_manager):
@@ -350,19 +351,42 @@ class SecurityScanner:
              print(f"[{ip}:{port}] No baseline found. Scanning all PHP/Python files.", flush=True)
              suspect_files = [f for f in current_files.keys() if f.endswith(('.php', '.py', '.phtml', '.php5'))]
 
-        print(f"[{ip}:{port}] Scanning content of {len(suspect_files)} suspect files...", flush=True)
-        for filepath in suspect_files[:50]:
-            if not filepath.endswith(('.php', '.py', '.phtml', '.pht', '.php5', '.inc')): continue
-            cmd = f"cat '{filepath}' 2>/dev/null"
-            content = self.cm.execute(ip, int(port), cmd)
-            if content and 'Error' not in content:
-                matches = self._match_backdoor_patterns(content)
-                if matches:
-                    print(f"[{ip}:{port}] FOUND BACKDOOR in {filepath}: {matches}", flush=True)
+        print(f"[{ip}:{port}] Scanning content of {len(suspect_files)} suspect files using batch grep...", flush=True)
+        if suspect_files:
+            # Batch scan suspect files using grep to find patterns
+            # Limit to first 100 files to avoid command line length limits
+            subset = suspect_files[:100]
+            files_arg = " ".join([shlex.quote(f) for f in subset])
+            
+            # Re-use BACKDOOR_PATTERNS but convert to grep regex
+            grep_expr_list = []
+            for pattern, desc in self.BACKDOOR_PATTERNS:
+                # Basic conversion of (?i) to grep -i and removing non-grep regex groups
+                p = pattern.replace('(?i)', '')
+                p = p.replace('\\s*', '[[:space:]]*')
+                grep_expr_list.append(p)
+            
+            grep_expr = "|".join(grep_expr_list)
+            cmd = f"grep -riEH '{grep_expr}' {files_arg} 2>/dev/null"
+            grep_out = self.cm.execute(ip, int(port), cmd)
+            
+            if grep_out and 'Error' not in grep_out:
+                found_map = {} # path -> [matches]
+                for line in grep_out.strip().splitlines():
+                    parts = line.split(':', 2)
+                    if len(parts) >= 3:
+                        filepath = parts[0]
+                        line_content = parts[2]
+                        matches = self._match_backdoor_patterns(line_content)
+                        if matches:
+                            if filepath not in found_map: found_map[filepath] = set()
+                            found_map[filepath].update(matches)
+                
+                for filepath, matches in found_map.items():
                     results['backdoors'].append({
                         'file': filepath,
-                        'matches': matches,
-                        'is_new': filepath in results['new_files'],
+                        'matches': list(matches),
+                        'is_new': filepath in results['new_files']
                     })
 
         with self.tm.lock:
