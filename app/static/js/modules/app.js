@@ -29,9 +29,7 @@ function toggleTheme() {
     localStorage.setItem('theme', next);
 }
 
-// Init Theme
-const savedTheme = localStorage.getItem('theme') || 'light';
-document.documentElement.setAttribute('data-theme', savedTheme);
+// Theme initialization is now handled in <head> to avoid FOUC.
 
 // Toggle Detail Row
 function toggleRow(ip, port) {
@@ -102,9 +100,22 @@ if (typeof wsSocket !== 'undefined' && wsSocket) {
             const newDetailRow = tempDetail.firstElementChild;
 
             if (existingDetail) {
-                // Preserve display state
+                // Preserve display state & details open state
                 newDetailRow.style.display = existingDetail.style.display;
+
+                // Capture open details indices
+                const openIndices = [];
+                existingDetail.querySelectorAll('details').forEach((el, index) => {
+                    if (el.hasAttribute('open')) openIndices.push(index);
+                });
+
                 existingDetail.replaceWith(newDetailRow);
+
+                // Restore open details
+                const newDetails = newDetailRow.querySelectorAll('details');
+                openIndices.forEach(index => {
+                    if (newDetails[index]) newDetails[index].setAttribute('open', '');
+                });
             } else {
                 // If new row added, detail row comes after main row
                 const currentMain = document.getElementById('target-' + safeIp + '-' + target.port);
@@ -271,7 +282,7 @@ function addAlert(data, silent = false) {
                 
                 <button class="btn btn-sm btn-info" style="background:#3498db; border:none;" onclick="viewFileContent('${data.ip}', '${data.port}', '${data.file.replace(/\\/g, '\\\\')}')" title="审计文件内容">👁️ 审计</button>
                 
-                <button id="btn-kill-${data.ip.replace(/\./g, '-')}-${data.port}-${hex_md5(data.file)}" class="btn btn-sm btn-danger" style="background:#e74c3c; border:none;" onclick="togglePersistentKill('${data.ip}', '${data.port}', '${data.file.replace(/\\/g, '\\\\')}', this)" title="启动毫秒级持续查杀">⚡ 持续查杀</button>
+                <button id="btn-kill-${data.ip.replace(/\./g, '-')}-${data.port}-${hex_md5(data.file)}" class="btn btn-sm btn-danger" style="background:rgba(231,76,60,0.2); border-color:#e74c3c; color:#e74c3c;" onclick="togglePersistentKill('${data.ip}', '${data.port}', '${data.file.replace(/\\/g, '\\\\')}', this)" title="启动毫秒级持续查杀">⚡ 持续查杀</button>
             </div>
         </td>
     `;
@@ -299,10 +310,25 @@ function addAlert(data, silent = false) {
     }
 }
 
-function clearAlerts() {
-    document.getElementById('alerts-list').innerHTML = '<div class="empty-msg" style="text-align:center; padding:40px; color:#666;">✅ 暂无安全告警</div>';
-    alertCount = 0;
-    document.getElementById('nav-alert-badge').style.display = 'none';
+async function clearAlerts() {
+    if (!confirm('确定要清空所有安全告警吗？此操作无法撤销。')) return;
+
+    try {
+        const res = await fetch('/api/defense/immortal/alerts/clear', { method: 'POST' });
+        const data = await res.json();
+
+        if (data.status === 'ok') {
+            document.getElementById('alerts-list').innerHTML = '<div class="empty-msg" style="text-align:center; padding:40px; color:#666;">✅ 暂无安全告警</div>';
+            alertCount = 0;
+            document.getElementById('nav-alert-badge').style.display = 'none';
+            showToast('告警已清空');
+        } else {
+            showToast('清空失败: ' + (data.message || '未知错误'), 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('请求失败', 'error');
+    }
 }
 
 async function loadAlerts() {
@@ -377,6 +403,29 @@ async function toggleMaintenance(ip, port, checkbox) {
     const enabled = checkbox.checked;
     await apiCall('/api/target/maintenance', { ip, port, enabled });
     showToast(enabled ? '维护模式已开启 (暂停查杀)' : '维护模式已关闭 (恢复查杀)');
+}
+
+async function updateTargetConfig(ip, port, field, value) {
+    try {
+        const updates = {};
+        updates[field] = value;
+
+        const res = await fetch('/api/config_target', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ip, port, updates })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            showToast('设置已保存');
+        } else {
+            showToast('保存失败: ' + data.message, 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('请求错误', 'error');
+    }
 }
 
 // --- Persistent Killer Logic ---

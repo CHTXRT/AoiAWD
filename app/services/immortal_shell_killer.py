@@ -1,3 +1,4 @@
+import logging
 import threading
 import time
 import os
@@ -7,9 +8,12 @@ import hashlib
 import tempfile
 import tarfile
 
+logger = logging.getLogger('Immortal')
+logger.setLevel(logging.INFO)
+
 class ImmortalShellKiller:
     def __init__(self, connection_manager, target_manager, socketio=None):
-        print(f"ImmortalShellKiller Initialized. ID={id(self)}", flush=True)
+        logger.info(f"Initialized. ID={id(self)}")
         self.cm = connection_manager
         self.tm = target_manager
         self.socketio = socketio
@@ -32,7 +36,7 @@ class ImmortalShellKiller:
 
     def set_socketio(self, socketio):
         self.socketio = socketio
-        print(f"Immortal Shell Killer (ID={id(self)}): SocketIO set to {socketio}", flush=True)
+        logger.info(f"SocketIO set to {socketio}")
 
     def start_monitoring(self, ip, port):
         key = f"{ip}:{port}"
@@ -46,7 +50,7 @@ class ImmortalShellKiller:
             
             t = threading.Thread(target=self._monitoring_loop, args=(ip, port, stop_event), daemon=True)
             t.start()
-            print(f"[{key}] Immortal Killer started. (InstanceID={id(self)})", flush=True)
+            logger.info(f"[{key}] Started (ID={id(self)})")
 
     def stop_monitoring(self, ip, port):
         key = f"{ip}:{port}"
@@ -54,7 +58,7 @@ class ImmortalShellKiller:
             if key in self.monitors:
                 self.monitors[key].set()
                 del self.monitors[key]
-                print(f"[{key}] Immortal Killer stopped.")
+                logger.info(f"[{key}] Stopped")
 
     def is_monitoring(self, ip, port):
         """Check if monitoring is active for the given target."""
@@ -67,7 +71,7 @@ class ImmortalShellKiller:
             try:
                 self._scan_and_kill(ip, port)
             except Exception as e:
-                print(f"[{ip}:{port}] Immortal Killer Error: {e}", flush=True)
+                logger.error(f"[{ip}:{port}] Error: {e}")
             
             # Sleep 0.5s (Reduced from 1s for faster response)
             if stop_event.wait(0.5):
@@ -103,7 +107,13 @@ class ImmortalShellKiller:
             
             # EXCLUSION: Whitelist
             if target and 'whitelist' in target and file_path in target['whitelist']:
-                print(f"[{ip}:{port}] Ignoring whitelisted file: {file_path}", flush=True)
+                #print(f"[{ip}:{port}] Ignoring whitelisted file: {file_path}", flush=True)
+                continue
+
+            # FORCE DELETE: Check if file is in force_delete_files
+            if target and 'force_delete_files' in target and file_path in target['force_delete_files']:
+                logger.warning(f"[{ip}:{port}] 🚨 Force Deleting: {file_path}")
+                self.cm.execute(ip, port, f"rm -rf {file_path} && mkdir -p {file_path}")
                 continue
 
             # Threaded Remediation
@@ -119,7 +129,7 @@ class ImmortalShellKiller:
         try:
             self._remediate(ip, port, file_path)
         except Exception as e:
-            print(f"[{ip}:{port}] Remediation Error ({file_path}): {e}", flush=True)
+            logger.error(f"[{ip}:{port}] Remediation Error ({file_path}): {e}")
         finally:
             key = f"{ip}:{port}:{file_path}"
             with self.processing_lock:
@@ -202,29 +212,46 @@ class ImmortalShellKiller:
     def _is_aoi_modified(self, ip, port, file_path):
         """Check if file is modified by AOI tools (TapeWorm/Roundworm)"""
         try:
-            # Read first 1KB - signatures usually at top
-            # TapeWorm puts: <?php // TapeWorm WAF ...
-            # Roundworm might put similar
-            content_out = self.cm.execute(ip, port, f"head -n 20 {file_path}")
+            # Read first 50 lines to cover long headers (License, etc.)
+            content_out = self.cm.execute(ip, port, f"head -n 50 {file_path}")
             if not content_out: return False
             
             # Signatures
             signatures = [
+                'TAPEWORMINSTALLED',
                 'TapeWorm', 
                 '.tapeworm', 
                 'roundworm', 
                 'waf.php', 
                 'AWD-Defender AOI',
-                '.ini_set.php'
             ]
             
+            content_lower = content_out.lower()
+            
+            # Debug: Print content to see why it fails
+            # print(f"DEBUG AOI Check [{ip}:{port}] {file_path}: {content_out[:100].replace('\n', ' ')}", flush=True)
+
             for sig in signatures:
-                if sig.lower() in content_out.lower():
+                if sig.lower() in content_lower:
+                    # print(f"DEBUG: AOI Signature {sig} found in {file_path}", flush=True)
                     return True
             
+            # Explicit check for TAPEWORMINSTALLED comment (case insensitive)
+            if 'tapeworminstalled' in content_lower:
+                return True
+                
+            # Explicit check for TapeWorm include
+            # include '/var/www/html/TapeWorm.6993d2e20380e.php';
+            if 'include' in content_lower and 'tapeworm' in content_lower and '.php' in content_lower:
+                return True
+
+            # Explicit check for common WAF include patterns (Regex)
+            # <?php include_once('/var/www/html/include/.ini_set.php'); ?>
+            
+
             return False
         except Exception as e:
-            # print(f"AOI check error: {e}")
+            print(f"[{ip}:{port}] AOI check error: {e}")
             return False
 
     def _remediate(self, ip, port, file_path):
@@ -233,13 +260,11 @@ class ImmortalShellKiller:
         # 0. Safety Check: If file is identical to backup OR snapshot, IT IS SAFE.
         # This prevents locking legitimate files like Smarty/Composer that contain eval/popen.
         if self._is_safe_baseline(ip, port, file_path):
-            # print(f"[{ip}:{port}] Skipping {file_path} (Matches Backup - False Positive)", flush=True)
             return
 
         # 0.5. Check for AOI / WAF modifications (TapeWorm, Roundworm)
         # If the file contains AOI signatures, we trust it and UPDATE the snapshot
         if self._is_aoi_modified(ip, port, file_path):
-            #  print(f"[{ip}:{port}] Skipping {file_path} (AOI/WAF Modified - Trusted)", flush=True)
              # Update snapshot so next time _is_safe_baseline returns True
              try:
                  md5_out = self.cm.execute(ip, port, f"md5sum {file_path}")
@@ -249,7 +274,7 @@ class ImmortalShellKiller:
              except: pass
              return
 
-        print(f"[{ip}:{port}] 🚨 Immortal Shell Detected (Optimized): {file_path}", flush=True)
+        logger.warning(f"[{ip}:{port}] 🚨 IMMORTAL SHELL DETECTED: {file_path}")
         
         remediation_log = []
         quarantine_path = None
@@ -305,13 +330,15 @@ class ImmortalShellKiller:
                             
                             restored = True
                             remediation_log.append("Restored from Local Backup")
-                            print(f"[{ip}:{port}] Successfully restored {file_path} from local backup.", flush=True)
+                            restored = True
+                            remediation_log.append("Restored from Local Backup")
+                            logger.info(f"[{ip}:{port}] Restored {file_path} from local backup")
                     except KeyError:
                         # File not in backup (meaning it's a new malicious file)
                         # print(f"[{ip}:{port}] File {file_path} not found in backup (New File).", flush=True)
                         pass
             except Exception as e:
-                print(f"[{ip}:{port}] Local Restore Error: {e}", flush=True)
+                logger.error(f"[{ip}:{port}] Local Restore Error: {e}")
 
         # 4. If not restored (New File or Restore Failed) -> Delete & Placeholder
         if not restored:
@@ -349,19 +376,19 @@ class ImmortalShellKiller:
             self.alerts.append(data)
             self._save_alerts()
             
-        print(f"[{ip}:{port}] Sending Alert via SocketIO: {data}", flush=True)
+        # logger.debug(f"[{ip}:{port}] Sending Alert via SocketIO: {data}")
         
         if self.socketio: 
             try:
                 self.socketio.emit('immortal_alert', data)
-                print(f"[{ip}:{port}] SocketIO Emit Success", flush=True)
+                # logger.debug(f"[{ip}:{port}] SocketIO Emit Success")
             except Exception as e:
-                print(f"[{ip}:{port}] SocketIO Emit Error: {e}", flush=True)
+                logger.error(f"[{ip}:{port}] SocketIO Emit Error: {e}")
         else:
-            print(f"[{ip}:{port}] SocketIO not initialized in ImmortalShellKiller (ID={id(self)})!", flush=True)
+            logger.warning(f"[{ip}:{port}] SocketIO not initialized!")
 
     def restore_from_quarantine(self, ip, port, file_path, quarantine_path):
-        print(f"[{ip}:{port}] Restoring {file_path} from {quarantine_path}...", flush=True)
+        logger.info(f"[{ip}:{port}] Restoring {file_path} from {quarantine_path}...")
         try:
             # 1. Unlock
             self.cm.execute(ip, port, f"chattr -i {file_path} 2>/dev/null")
@@ -382,7 +409,7 @@ class ImmortalShellKiller:
             
             return True, "Restored and Whitelisted"
         except Exception as e:
-            print(f"Restore error: {e}")
+            logger.error(f"Restore error: {e}")
             return False, str(e)
 
     def _load_alerts(self):
@@ -398,11 +425,17 @@ class ImmortalShellKiller:
             with open(self.log_file, 'w') as f:
                 json.dump(self.alerts, f, indent=4)
         except Exception as e:
-            print(f"Error saving alerts: {e}")
+            logger.error(f"Error saving alerts: {e}")
 
     def get_alerts(self):
         with self.lock:
             return list(self.alerts)
+
+    def clear_alerts(self):
+        with self.lock:
+            self.alerts = []
+            self._save_alerts()
+            logger.info("Alerts cleared")
 
     def _load_active_killers(self):
         if os.path.exists(self.killers_file):

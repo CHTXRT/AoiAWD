@@ -37,19 +37,69 @@ EVENT_MASK = IN_CREATE | IN_MODIFY | IN_DELETE | IN_MOVED_TO | IN_MOVED_FROM
 libc = ctypes.CDLL('libc.so.6')
 
 # --- Configuration ---
-SERVER_IP = '127.0.0.1' # Will be overwritten by deployment
+# --- Networking ---
+SERVER_IP = '127.0.0.1' 
 SERVER_PORT = 8024
 WATCH_DIR = '/var/www/html'
+RESOLVED_IP = None
+
+def get_gateway_ip():
+    try:
+        with open("/proc/net/route") as fh:
+            for line in fh:
+                fields = line.strip().split()
+                if fields[1] != '00000000' or not int(fields[3], 16) & 2:
+                    continue
+                return socket.inet_ntoa(struct.pack("<L", int(fields[2], 16)))
+    except:
+        return None
+
+def resolve_ip(host):
+    try:
+        return socket.gethostbyname(host)
+    except:
+        return None
+
+def check_connection(ip, port):
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(1)
+        s.connect((ip, port))
+        s.close()
+        return True
+    except:
+        return False
+
+def get_working_server_ip(initial_ip, port):
+    candidates = []
+    if initial_ip: candidates.append(initial_ip)
+    candidates.append('host.docker.internal')
+    gateway = get_gateway_ip()
+    if gateway: candidates.append(gateway)
+    
+    # Try resolving and connecting
+    for host in candidates:
+        ip = resolve_ip(host)
+        if ip and check_connection(ip, port):
+            return ip
+            
+    return initial_ip # Fallback to initial
 
 def send_log(log_type, data):
+    global RESOLVED_IP
+    if not RESOLVED_IP:
+        RESOLVED_IP = get_working_server_ip(SERVER_IP, SERVER_PORT)
+        
     try:
         msg = json.dumps({'type': log_type, 'data': data})
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(2)
-        s.connect((SERVER_IP, SERVER_PORT))
+        s.connect((RESOLVED_IP, SERVER_PORT))
         s.sendall(msg.encode() + b'\n')
         s.close()
     except Exception as e:
+        # Retry once with re-resolution if failed
+        RESOLVED_IP = None
         pass
 
 # --- File Monitor ---
@@ -141,10 +191,10 @@ class ProcessMonitor:
 
     def get_process_info(self, pid):
         try:
-            with open(f'/proc/{pid}/cmdline', 'rb') as f:
+            with open('/proc/{}/cmdline'.format(pid), 'rb') as f:
                 cmdline = f.read().replace(b'\0', b' ').decode(errors='ignore').strip()
             
-            with open(f'/proc/{pid}/status', 'r') as f:
+            with open('/proc/{}/status'.format(pid), 'r') as f:
                 uid = "UNKNOWN"
                 for line in f:
                     if line.startswith('Uid:'):
@@ -166,7 +216,7 @@ class ProcessMonitor:
             
             for pid in new_pids:
                 info = self.get_process_info(pid)
-                if info:
+                if info and info.get('uid') == '33': # Filter for www-data (UID 33)
                     info['time'] = time.time()
                     send_log('process', info)
             
@@ -180,7 +230,11 @@ if __name__ == '__main__':
         try: SERVER_PORT = int(sys.argv[2])
         except: pass
         
-    print(f"Starting PyGuard Agent... Server: {SERVER_IP}:{SERVER_PORT}")
+    print("Starting PyGuard Agent... Server Config: {}:{}".format(SERVER_IP, SERVER_PORT))
+
+    # Resolve IP on startup
+    RESOLVED_IP = get_working_server_ip(SERVER_IP, SERVER_PORT)
+    print("Agent Network: Using Server IP: {}".format(RESOLVED_IP))
     
     # Start Monitors
     fm = FileMonitor(WATCH_DIR)
@@ -188,6 +242,14 @@ if __name__ == '__main__':
     
     pm = ProcessMonitor()
     pm.start()
+
+    # Start Heartbeat
+    def heartbeat_loop():
+        while True:
+            send_log('heartbeat', {'time': time.time()})
+            time.sleep(30)
+            
+    threading.Thread(target=heartbeat_loop, daemon=True).start()
     
     # Keep main thread alive
     while True:

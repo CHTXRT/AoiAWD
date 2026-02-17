@@ -5,7 +5,7 @@ let fmIp = null, fmPort = null, fmCurrentPath = '/';
 async function openFileManager(ip, port) {
     fmIp = ip;
     fmPort = port;
-    
+
     // Default fallback
     fmCurrentPath = '/var/www/html';
     try {
@@ -62,7 +62,7 @@ async function openFileManager(ip, port) {
         <div style="flex-grow: 1; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px; background: var(--card-bg);">
             <table id="fm-table-${key.replace(/[:.]/g, '-')}" style="font-size: 13px;">
                 <thead>
-                    <tr style="background: rgba(0,0,0,0.02);">
+                    <tr>
                         <th style="width: 30px;">T</th>
                         <th>Name</th>
                         <th style="width: 80px;">Size</th>
@@ -71,21 +71,10 @@ async function openFileManager(ip, port) {
                         <th style="width: 120px;">Actions</th>
                     </tr>
                 </thead>
-                <tbody><tr><td colspan="6" style="text-align:center;">Loading...</td></tr></tbody>
+                <tbody><tr><td colspan="6" class="empty-placeholder">Loading...</td></tr></tbody>
             </table>
         </div>
 
-        <!-- Simple Editor Modal -->
-        <div id="fm-editor-modal-${key.replace(/[:.]/g, '-')}" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
-            <div style="background:var(--card-bg); width:80%; height:80%; border-radius:8px; display:flex; flex-direction:column; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
-                <div class="flex-row" style="margin-bottom:10px;">
-                    <h3 style="margin:0;" id="fm-editor-title-${key.replace(/[:.]/g, '-')}">Edit</h3>
-                    <span class="spacer"></span>
-                    <button class="btn btn-primary" onclick="fmSaveFile('${ip}','${port}')">💾 Save</button>
-                    <button class="btn btn-secondary" onclick="document.getElementById('fm-editor-modal-${key.replace(/[:.]/g, '-')}').style.display='none'">Close</button>
-                </div>
-                <textarea id="fm-editor-area-${key.replace(/[:.]/g, '-')}" style="flex-grow:1; font-family:'Consolas',monospace; resize:none; padding:10px; border:1px solid var(--border-color);"></textarea>
-            </div>
         </div>
     `;
     container.appendChild(content);
@@ -126,7 +115,7 @@ async function fmLoadDir(ip, port, path) {
     });
     breadcrumbs.innerHTML = bcHtml;
 
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-placeholder">Loading...</td></tr>';
 
     const data = await apiCall('/api/files/list', { ip, port: parseInt(port), path });
     if (data && data.error) {
@@ -134,7 +123,7 @@ async function fmLoadDir(ip, port, path) {
         return;
     }
     if (!data || !data.files) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;">Empty directory</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-placeholder">Empty directory</td></tr>';
         return;
     }
 
@@ -164,8 +153,8 @@ async function fmLoadDir(ip, port, path) {
                 <td onclick="${rowClick}" style="${rowStyle}">${icon}</td>
                 <td onclick="${rowClick}" style="${rowStyle}">${f.name}</td>
                 <td>${size}</td>
-                <td style="font-family:monospace;font-size:12px;">${f.perms || '-'}</td>
-                <td style="font-size:12px;color:#666;">${date}</td>
+                <td style="font-family: var(--font-mono, monospace);font-size:12px;">${f.perms || '-'}</td>
+                <td style="font-size:12px;color: var(--text-muted);">${date}</td>
                 <td>${actions}</td>
             </tr>
         `;
@@ -200,10 +189,13 @@ async function fmOpenFile(ip, port, path) {
     const safeKey = key.replace(/[:.]/g, '-');
     currentEditPath = path;
 
-    document.getElementById(`fm-editor-modal-${safeKey}`).style.display = 'flex';
-    document.getElementById(`fm-editor-title-${safeKey}`).innerText = 'Editing: ' + path;
-    const textarea = document.getElementById(`fm-editor-area-${safeKey}`);
+    document.getElementById(`file-editor-modal`).style.display = 'flex';
+    document.getElementById(`file-editor-title`).innerText = 'Editing: ' + path;
+    const textarea = document.getElementById(`file-editor-area`);
     textarea.value = 'Loading...';
+
+    // Hook up save button
+    document.getElementById('file-editor-save-btn').onclick = () => fmSaveFile(ip, port);
 
     const data = await apiCall('/api/files/read', { ip, port: parseInt(port), path });
     if (data && data.content !== undefined) {
@@ -214,15 +206,13 @@ async function fmOpenFile(ip, port, path) {
 }
 
 async function fmSaveFile(ip, port) {
-    const key = 'fm-' + ip + ':' + port;
-    const safeKey = key.replace(/[:.]/g, '-');
-    const content = document.getElementById(`fm-editor-area-${safeKey}`).value;
+    const content = document.getElementById(`file-editor-area`).value;
 
     showToast("Saving...");
     const data = await apiCall('/api/files/write', { ip, port: parseInt(port), path: currentEditPath, content });
     if (data && data.success) {
         showToast("Saved successfully");
-        document.getElementById(`fm-editor-modal-${safeKey}`).style.display = 'none';
+        document.getElementById(`file-editor-modal`).style.display = 'none';
         fmReload(ip, port);
     } else {
         showToast("Error: " + (data ? data.message : 'Unknown'));

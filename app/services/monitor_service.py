@@ -2,7 +2,11 @@ import socket
 import threading
 import json
 import time
+import logging
 import os
+
+logger = logging.getLogger('Monitor')
+logger.setLevel(logging.INFO)
 
 class MonitorService:
     def __init__(self, connection_manager, target_manager, host='0.0.0.0', port=8024):
@@ -14,6 +18,7 @@ class MonitorService:
         self.socket = None
         self.thread = None
         self.logs = [] # In-memory log storage
+        self.alert_lock = threading.Lock()
         
     def start(self):
         if self.running: return
@@ -25,9 +30,9 @@ class MonitorService:
             self.socket.listen(5)
             self.thread = threading.Thread(target=self._accept_loop, daemon=True)
             self.thread.start()
-            print(f"[MonitorService] Listening on {self.host}:{self.port}")
+            logger.info(f"Listening on {self.host}:{self.port}")
         except Exception as e:
-            print(f"[MonitorService] Failed to start: {e}")
+            logger.error(f"Failed to start: {e}")
             self.running = False
 
     def stop(self):
@@ -42,7 +47,7 @@ class MonitorService:
                 conn, addr = self.socket.accept()
                 threading.Thread(target=self._handle_client, args=(conn, addr), daemon=True).start()
             except:
-                if self.running: print("[MonitorService] Accept error")
+                if self.running: logger.error("Accept error")
                 break
 
     def _handle_client(self, conn, addr):
@@ -73,22 +78,44 @@ class MonitorService:
         self.socketio = socketio
 
     def _save_alert(self, alert_data):
-        """Persist alert to JSON file"""
+        """Persist alert to JSON file with concurrency safety and recovery"""
         alerts_file = os.path.join('data', 'monitor_alerts.json')
-        try:
-            existing = []
-            if os.path.exists(alerts_file):
-                with open(alerts_file, 'r') as f:
-                    existing = json.load(f)
-            
-            existing.append(alert_data)
-            # Limit history
-            if len(existing) > 1000: existing = existing[-1000:]
-            
-            with open(alerts_file, 'w') as f:
-                json.dump(existing, f, indent=2)
-        except Exception as e:
-            print(f"Alert save error: {e}")
+        with self.alert_lock:
+            try:
+                existing = []
+                if os.path.exists(alerts_file):
+                    try:
+                        with open(alerts_file, 'r') as f:
+                            existing = json.load(f)
+                    except json.JSONDecodeError as je:
+                        logger.warning(f"Corrupted alert file detected: {je}. Attempting recovery...")
+                        # Recovery: Try to read whatever we can before the error
+                        try:
+                            with open(alerts_file, 'r') as f:
+                                content = f.read()
+                                # A common failure is appending a new JSON instead of extending.
+                                # Try to find the last valid closure.
+                                last_bracket = content.rfind(']')
+                                if last_bracket != -1:
+                                    existing = json.loads(content[:last_bracket+1])
+                                    logger.info(f"Successfully recovered {len(existing)} alerts.")
+                                else:
+                                    raise Exception("No valid JSON list found")
+                        except Exception as re:
+                            logger.error(f"Recovery failed: {re}. Resetting alert history.")
+                            existing = []
+                
+                existing.append(alert_data)
+                # Limit history
+                if len(existing) > 1000: existing = existing[-1000:]
+                
+                # Atomic-like write using temporary file + rename
+                tmp_file = alerts_file + '.tmp'
+                with open(tmp_file, 'w') as f:
+                    json.dump(existing, f, indent=2)
+                os.replace(tmp_file, alerts_file)
+            except Exception as e:
+                logger.error(f"Critical alert save error: {e}")
 
     def _check_rules(self, log_type, data):
         """Return (is_alert, message)"""
@@ -129,6 +156,11 @@ class MonitorService:
             log_type = payload.get('type')
             data = payload.get('data', {})
             
+            # Special handling for heartbeat
+            if log_type == 'heartbeat':
+                self.tm.update_target_monitor_status(ip, 'online')
+                return
+
             # Timestamp
             timestamp = time.strftime('%H:%M:%S')
             
@@ -148,7 +180,7 @@ class MonitorService:
             if is_alert:
                 log_entry['alert'] = True
                 log_entry['message'] = alert_msg
-                print(f"[{ip}] 🚨 MONITOR ALERT: {alert_msg}")
+                logger.warning(f"[{ip}] 🚨 ALERT: {alert_msg}")
                 
                 # Persist
                 self._save_alert(log_entry)
@@ -163,7 +195,7 @@ class MonitorService:
                 self.socketio.emit('monitor_log', log_entry)
 
         except Exception as e:
-            print(f"Log parsing error: {e}")
+            logger.error(f"Log parsing error: {e}")
 
     def deploy_agent(self, ip, port):
         """Deploy PyGuard Agent (Prefer Python3, Fallback to Bash)"""
@@ -177,13 +209,13 @@ class MonitorService:
 
         local_py = os.path.join('tools', 'py_guard.py')
         if not os.path.exists(local_py):
-            print("Error: py_guard.py not found")
+            logger.error("Error: py_guard.py not found")
             return
 
         remote_path = '/tmp/py_guard.py'
         
         # 1. Upload
-        print(f"[{ip}:{port}] Deploying PyGuard...", flush=True)
+        logger.info(f"[{ip}:{port}] Deploying PyGuard...")
         self.cm.upload(ip, int(port), local_py, remote_path)
         
         # 2. Kill old instances
@@ -200,31 +232,77 @@ class MonitorService:
         # HACK: using a hardcoded callback IP or Config for now.
         # In real AWD, you know your IP. 
         # Let's try to get it from TargetManager if stored, else default.
-        # Get Local IP
+        target = self.tm.get_target(ip, port)
+        if not target: return
+
+        # Get Callback IP Priority: 1. Global Config (User Request) 2. Target Specific 3. Auto-Detect
+        # User requested to prioritize the Global IP set in the frontend.
         callback_ip = self.tm.get_local_ip()
         if not callback_ip:
-            print(f"[{ip}:{port}] Monitor Deploy Skipped: Local IP not set.", flush=True)
-            return 
-            
-        cmd = f"nohup python3 {remote_path} {callback_ip} {self.port} >/dev/null 2>&1 &"
+            callback_ip = target.get('local_ip')
+        
+        if not callback_ip:
+            # Try to auto-detect from SSH session
+            callback_ip = self.cm.get_local_ip_for_target(ip, port)
+            if callback_ip:
+                logger.info(f"[{ip}:{port}] Auto-detected Local IP: {callback_ip}")
+                with self.tm.lock:
+                    target['detected_ip'] = callback_ip
+                    self.tm.notify_target_update(target)
+            else:
+                logger.warning(f"[{ip}:{port}] Monitor Deploy Skipped: Local IP not set and could not be detected.")
+                return 
+        
+        logger.info(f"[{ip}:{port}] Deploying PyGuard with Callback IP: {callback_ip}")
+        # Verify python3 exists
+        
+        # Kill old
+        self.cm.execute(ip, int(port), f"pkill -f {remote_path}")
+        
+        # Force remove old agent to ensure update
+        self.cm.execute(ip, int(port), f"rm -f {remote_path}")
+        
+        # Re-upload agent
+        logger.info(f"[{ip}:{port}] Uploading new PyGuard agent...")
+        self.cm.upload(ip, int(port), local_py, remote_path)
+        
+        # Log to /tmp/py_guard.log for debugging
+        cmd = f"nohup python3 {remote_path} {callback_ip} {self.port} >/tmp/py_guard.log 2>&1 &"
         self.cm.execute(ip, int(port), cmd)
+        
+        # Check if started (Wait 1s)
+        time.sleep(1)
+        check = self.cm.execute(ip, int(port), "ps aux | grep py_guard.py | grep -v grep")
+        if not check:
+             logger.warning(f"[{ip}:{port}] PyGuard failed to start! Checking logs...")
+             logs = self.cm.execute(ip, int(port), "cat /tmp/py_guard.log")
+             logger.warning(f"[{ip}:{port}] PyGuard Logs:\n{logs}")
+        else:
+             logger.info(f"[{ip}:{port}] PyGuard started successfully (PID found).")
         
     def deploy_sh_agent(self, ip, port):
         """Deploy Bash-based Agent (Fallback)"""
         local_sh = os.path.join('tools', 'sh_guard.sh')
         if not os.path.exists(local_sh): return
 
-        remote_path = '/tmp/sh_guard.sh'
-        callback_ip = self.tm.get_local_ip()
-        if not callback_ip:
-            print(f"[{ip}:{port}] ShellGuard Deploy Skipped: Local IP not set.", flush=True)
-            return 
+        target = self.tm.get_target(ip, port)
+        if not target: return
 
-        print(f"[{ip}:{port}] Deploying Shell Guard (No Python detected)...", flush=True)
+        callback_ip = target.get('local_ip')
+        if not callback_ip:
+            callback_ip = self.tm.get_local_ip()
+
+        if not callback_ip:
+            callback_ip = self.cm.get_local_ip_for_target(ip, port)
+            if not callback_ip:
+                logger.warning(f"[{ip}:{port}] ShellGuard Deploy Skipped: Local IP not set.")
+                return 
+
+        logger.info(f"[{ip}:{port}] Deploying Shell Guard (No Python detected)...")
         self.cm.upload(ip, int(port), local_sh, remote_path)
         self.cm.execute(ip, int(port), f"chmod +x {remote_path}")
         self.cm.execute(ip, int(port), "pkill -f sh_guard.sh")
         
-        cmd = f"nohup {remote_path} {callback_ip} {self.port} >/dev/null 2>&1 &"
+        cmd = f"nohup {remote_path} {callback_ip} {self.port} > /dev/null 2>&1 &"
         self.cm.execute(ip, int(port), cmd)
-        print(f"[{ip}:{port}] Shell Guard started.", flush=True)
+        logger.info(f"[{ip}:{port}] Shell Guard started.")

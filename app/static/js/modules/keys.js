@@ -8,7 +8,7 @@ async function loadKeys() {
         if (!tbody) return;
 
         if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#999;">暂无密钥文件</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-placeholder">暂无密钥文件</td></tr>';
             return;
         }
 
@@ -17,12 +17,12 @@ async function loadKeys() {
             const usedList = Array.isArray(k.used_by) ? k.used_by : [];
             const usedByCount = usedList.length;
 
-            let usedByHtml = '<span style="color:#999;">未使用</span>';
+            let usedByHtml = '<span style="color: var(--text-muted);">未使用</span>';
             if (usedByCount > 0) {
                 const listItems = usedList.map(t => `<li>${t}</li>`).join('');
                 usedByHtml = `
                     <details>
-                        <summary style="padding:2px; background:transparent; border:none; cursor:pointer; color:var(--primary-color); outline:none;">
+                        <summary style="padding:2px; background:transparent; border:none; cursor:pointer; color:var(--primary-color); outline:none; font-size:11px;">
                            🔗 ${usedByCount} 个靶机
                         </summary>
                         <ul style="margin:5px 0 5px 15px; padding:0; font-size:11px; color:var(--text-color);">

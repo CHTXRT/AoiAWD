@@ -1,35 +1,73 @@
 :root {
+    /* Cyberpunk Theme (Default) */
+    --bg-color: #050a10;
+    --text-color: #e0f0ff;
+    --card-bg: rgba(16, 24, 39, 0.7);
+    --border-color: rgba(0, 243, 255, 0.15);
+
+    /* Neon Palette */
+    --primary-color: #00f3ff;
+    /* Cyan */
+    --secondary-color: #7000ff;
+    /* Purple */
+    --danger-color: #ff2a2a;
+    /* Red */
+    --success-color: #00ff9d;
+    /* Green */
+    --warning-color: #fcee0a;
+    /* Yellow */
+
+    /* Console specific */
+    --console-bg: #000000;
+    --console-text: #00ff00;
+
+    /* Effects */
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    --glass-blur: blur(12px);
+    --glow-text: 0 0 5px rgba(0, 243, 255, 0.5);
+    --glow-box: 0 0 10px rgba(0, 243, 255, 0.2);
+
+    /* Font overrides if needed */
+    --font-mono: 'Share Tech Mono', monospace;
+
+    /* Utilities */
+    --subtle-bg: rgba(255, 255, 255, 0.05);
+    --text-muted: rgba(224, 240, 255, 0.5);
+    --editor-bg: #000000;
+
+    /* Compatibility Aliases for Attack Module */
+    --cyber-bg: var(--bg-color);
+    --neon-cyan: var(--primary-color);
+    --neon-blue: var(--primary-color);
+    --neon-green: var(--success-color);
+    --neon-pink: var(--danger-color);
+    --neon-yellow: var(--warning-color);
+}
+
+[data-theme="light"] {
+    /* Legacy Light Theme */
     --bg-color: #f4f6f8;
     --text-color: #2c3e50;
     --card-bg: #ffffff;
     --border-color: #dfe3e8;
+
     --primary-color: #3498db;
+    --secondary-color: #95a5a6;
+    /* Map secondary to gray/blue */
     --danger-color: #e74c3c;
     --success-color: #2ecc71;
     --warning-color: #f1c40f;
+
     --console-bg: #2d3436;
     --console-text: #f1f2f6;
+
     --shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --glass-blur: none;
+    --glow-text: none;
+    --glow-box: none;
 
-    /* Cyberpunk Theme Defaults */
-    --cyber-bg: #0d0d0d;
-    --neon-cyan: #00f3ff;
-    --neon-pink: #ff0055;
-    --neon-yellow: #fcee0a;
-    --neon-green: #39ff14;
-    --neon-blue: #00bfff;
-}
-
-[data-theme="dark"] {
-    --bg-color: #1a1a1a;
-    --text-color: #ecf0f1;
-    --card-bg: #2d2d2d;
-    --border-color: #404040;
-    --primary-color: #3498db;
-    --danger-color: #e74c3c;
-    --success-color: #2ecc71;
-    --warning-color: #f1c40f;
-    --console-bg: #000000;
-    --console-text: #00ff00;
-    --shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    /* Utilities */
+    --subtle-bg: rgba(0, 0, 0, 0.02);
+    --text-muted: #999;
+    --editor-bg: #ffffff;
 }

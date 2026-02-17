@@ -146,6 +146,12 @@ def api_get_immortal_alerts():
     """获取不死马查杀历史告警"""
     return jsonify({'alerts': ssh_manager.get_immortal_alerts()})
 
+@bp.route('/api/defense/immortal/alerts/clear', methods=['POST'])
+def api_clear_immortal_alerts():
+    """清空不死马查杀历史告警"""
+    ssh_manager.clear_immortal_alerts()
+    return jsonify({'status': 'ok', 'message': '告警记录已清空'})
+
 @bp.route('/api/defense/whitelist/add', methods=['POST'])
 def api_add_whitelist():
     data = request.json

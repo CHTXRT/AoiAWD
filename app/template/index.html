@@ -159,9 +159,9 @@
                                     </div>
                                 </details>
 
-                                <!-- AOI 工具配置 -->
+                                <!-- AOI/文件监控 工具配置 -->
                                 <details style="margin-bottom: 20px;">
-                                    <summary>🛡️ AOI 流量监控 (检测到 PHP 靶机后自动部署)</summary>
+                                    <summary>🛡️ 本机IP (回连/监控)</summary>
                                     <div class="card-content" style="padding-top: 10px;">
                                         <div class="flex-row" style="margin-bottom: 10px; align-items:center;">
                                             <span style="font-size:12px; color:#999; white-space:nowrap;">本机 IP：</span>
@@ -196,7 +196,7 @@
                                 <div id="active-killers-list"
                                     style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); padding: 0; border-radius: 4px;">
                                     <table style="width:100%; font-size:12px;">
-                                        <thead style="background:rgba(0,0,0,0.02); color:#666;">
+                                        <thead>
                                             <tr>
                                                 <th style="padding:8px;">Target</th>
                                                 <th style="padding:8px;">File</th>
@@ -206,7 +206,7 @@
                                         </thead>
                                         <tbody id="active-killers-tbody">
                                             <tr>
-                                                <td colspan="4" style="text-align:center; padding:20px; color:#999;">
+                                                <td colspan="4" class="empty-placeholder">
                                                     加载中...</td>
                                             </tr>
                                         </tbody>
@@ -249,7 +249,7 @@
                                         </thead>
                                         <tbody id="keys-table-body">
                                             <tr>
-                                                <td colspan="4" style="text-align:center; color:#999;">
+                                                <td colspan="4" class="empty-placeholder">
                                                     请点击刷新加载...</td>
                                             </tr>
                                         </tbody>
@@ -304,6 +304,39 @@
                     </div>
                     <div id="tabs-content-container">
                         <!-- Tab contents will be injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- View: File Monitor -->
+            <div id="view-monitor" class="view-section">
+                <div class="header">
+                    <h1>📊 文件监控 (File Monitor)</h1>
+                    <div class="flex-row">
+                        <button class="btn btn-secondary" onclick="clearMonitorLogs()">🗑️ 清空日志</button>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="card">
+                        <div class="card-content" style="padding:0;">
+                            <table style="width:100%; font-size:12px;">
+                                <thead>
+                                    <tr>
+                                        <th style="padding:8px;">Time</th>
+                                        <th style="padding:8px;">IP</th>
+                                        <th style="padding:8px;">Event</th>
+                                        <th style="padding:8px;">Details</th>
+                                        <th style="padding:8px;">Raw</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="monitor-logs-body">
+                                    <tr>
+                                        <td colspan="5" class="empty-placeholder">等待日志...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -401,6 +434,23 @@
 
     <div id="toast"></div>
 
+    <!-- Shared Modal Container (Body Level) -->
+    <div id="file-editor-modal"
+        style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:10000; align-items:center; justify-content:center;">
+        <div
+            style="background:var(--card-bg); width:85%; height:85%; border-radius:4px; display:flex; flex-direction:column; padding:20px; box-shadow: 0 0 30px rgba(0,0,0,0.5); border: 1px solid var(--primary-color); backdrop-filter: var(--glass-blur);">
+            <div class="flex-row" style="margin-bottom:10px;">
+                <h3 style="margin:0;" id="file-editor-title">Edit</h3>
+                <span class="spacer"></span>
+                <button class="btn btn-primary" id="file-editor-save-btn">💾 Save</button>
+                <button class="btn btn-secondary"
+                    onclick="document.getElementById('file-editor-modal').style.display='none'">Close</button>
+            </div>
+            <textarea id="file-editor-area"
+                style="flex-grow:1; font-family: var(--font-mono, 'Consolas', monospace); resize:none; padding:10px; border:1px solid var(--border-color); background: var(--editor-bg); color: var(--text-color);"></textarea>
+        </div>
+    </div>
+
     <!-- JS Modules -->
     <script src="{{ url_for('static', filename='js/modules/utils.js') }}"></script>
     <script src="{{ url_for('static', filename='js/modules/ssh.js') }}"></script>
@@ -410,6 +460,7 @@
     <script src="{{ url_for('static', filename='js/modules/defense.js') }}"></script>
     <script src="{{ url_for('static', filename='js/modules/rules.js') }}"></script>
     <script src="{{ url_for('static', filename='js/modules/keys.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/monitor.js') }}"></script>
     <script src="{{ url_for('static', filename='js/modules/app.js') }}"></script>
 </body>
 

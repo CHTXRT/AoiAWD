@@ -1,4 +1,4 @@
-<tr id="detail-{{ t.ip | replace('.', '-') }}-{{ t.port }}" style="display: none; background-color: rgba(0,0,0,0.02);">
+<tr id="detail-{{ t.ip | replace('.', '-') }}-{{ t.port }}" style="display: none; background-color: var(--subtle-bg);">
     <td colspan="7" style="padding: 0;">
         <div style="padding: 8px 12px; font-size: 13px;">
             <!-- Info Grid: More compact -->
@@ -13,13 +13,21 @@
                     <div style="display: flex; gap: 4px; flex-wrap: wrap;">
                         {% for type in t.detection.types %}
                         <span
-                            style="background:#3498db; color:white; padding:2px 6px; border-radius:3px; font-size:11px;">{{
+                            style="background: var(--primary-color); color: #000; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">{{
                             type }}</span>
                         {% endfor %}
                     </div>
                     {% else %}
                     <span style="color:#999; font-size:11px;">Unknown</span>
                     {% endif %}
+
+                    <div style="margin-top:6px; border-top:1px solid var(--border-color); padding-top:4px;">
+                        <div style="font-size:11px; color: var(--text-muted); margin-bottom:2px;">本机IP (回连/监控):</div>
+                        <input type="text" value="{{ t.local_ip if t.local_ip else '' }}"
+                            placeholder="{{ 'Auto: ' + t.detected_ip if t.detected_ip else 'Auto' }}"
+                            style="width:100%; font-size:11px; padding:2px 4px; border:1px solid var(--border-color); background: var(--subtle-bg); color:var(--text-color); border-radius:3px;"
+                            onchange="updateTargetConfig('{{ t.ip }}', '{{ t.port }}', 'local_ip', this.value)">
+                    </div>
                 </div>
 
                 <!-- Status (Compact) -->
@@ -32,6 +40,15 @@
                             %}<span style="color:var(--warning-color);">⏳</span>{% endif %}</span>
                         <span>Backup: {% if t.backup_done %}<span style="color:var(--success-color);">✅</span>{% else
                             %}<span style="color:var(--warning-color);">⏳</span>{% endif %}</span>
+                    </div>
+                    <div style="font-size:11px; margin-top:4px;">
+                        <span>Monitor:
+                            {% if t.monitor_status == 'online' %}
+                            <span style="color:var(--success-color); font-weight:bold;">🟢 Online</span>
+                            {% else %}
+                            <span style="color:#666;">⚪ Offline</span>
+                            {% endif %}
+                        </span>
                     </div>
                     {% if t.backup_path %}<div
                         style="font-size:10px; color:#666; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
@@ -55,15 +72,15 @@
                         Evidence</div>
                     {% if t.detection and t.detection.evidence %}
                     <div
-                        style="display:grid; grid-template-columns: auto 1fr; gap:4px 10px; font-size:11px; font-family:monospace;">
+                        style="display:grid; grid-template-columns: auto 1fr; gap:4px 10px; font-size:11px; font-family:var(--font-mono, monospace);">
                         {% for k, v in t.detection.evidence.items() %}
-                        <div style="color:#888; text-align:right;">{{ k }}:</div>
-                        <div style="color:#ccc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                        <div style="color: var(--text-muted); text-align:right;">{{ k }}:</div>
+                        <div style="color: var(--text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
                             title="{{ v }}">{{ v }}</div>
                         {% endfor %}
                     </div>
                     {% else %}
-                    <span style="color:#999; font-size:11px;">None</span>
+                    <span style="color: var(--text-muted); font-size:11px;">None</span>
                     {% endif %}
                 </div>
             </div>
@@ -72,7 +89,7 @@
             {% if t.detection and t.detection.php_vulns %}
             <details style="margin-top: 8px;">
                 <summary
-                    style="cursor:pointer; background:rgba(231, 76, 60, 0.1); border-left:3px solid #e74c3c; padding:4px 8px; font-size:12px; font-weight:bold; color:#e74c3c; margin-bottom:4px; list-style:none; display:flex; align-items:center; gap:6px;">
+                    style="cursor:pointer; background: rgba(255, 42, 42, 0.1); border-left:3px solid var(--danger-color); padding:4px 8px; font-size:12px; font-weight:bold; color: var(--danger-color); margin-bottom:4px; list-style:none; display:flex; align-items:center; gap:6px;">
                     <span style="font-size:10px;">▶</span>
                     ⚠️ PHP Vulnerabilities ({{ t.detection.php_vulns.split('\n')|select|list|length }})
                 </summary>
@@ -111,25 +128,27 @@
             {% if t.backdoor_scan %}
             <details style="margin-top: 8px;">
                 <summary
-                    style="cursor:pointer; background:rgba(231, 76, 60, 0.1); border-left:3px solid #e74c3c; padding:4px 8px; font-size:12px; font-weight:bold; color:#e74c3c; margin-bottom:4px; list-style:none; display:flex; align-items:center; gap:6px;">
+                    style="cursor:pointer; background: rgba(255, 42, 42, 0.1); border-left:3px solid var(--danger-color); padding:4px 8px; font-size:12px; font-weight:bold; color: var(--danger-color); margin-bottom:4px; list-style:none; display:flex; align-items:center; gap:6px;">
                     <span style="font-size:10px;">▶</span>
                     🔍 Backdoor Scan
-                    {% if t.backdoor_scan.backdoors %}<span style="color:#e74c3c; font-size:11px; margin-left:4px;">🚨
+                    {% if t.backdoor_scan.backdoors %}<span
+                        style="color: var(--danger-color); font-size:11px; margin-left:4px;">🚨
                         {{ t.backdoor_scan.backdoors|length }}</span>{% endif %}
-                    <span style="font-weight:normal; font-size:10px; color:#999; margin-left:auto;">{{
+                    <span style="font-weight:normal; font-size:10px; color: var(--text-muted); margin-left:auto;">{{
                         t.backdoor_scan.scan_time }}</span>
                 </summary>
                 <div style="padding-top:4px;">
                     <!-- Stats Line -->
                     <div style="font-size:11px; margin-bottom:4px; display:flex; gap:10px;">
-                        {% if t.backdoor_scan.backdoors %}<span style="color:#e74c3c; font-weight:bold;">🚨 Backdoors:
+                        {% if t.backdoor_scan.backdoors %}<span style="color: var(--danger-color); font-weight:bold;">🚨
+                            Backdoors:
                             {{
                             t.backdoor_scan.backdoors|length }}</span>{% endif %}
-                        {% if t.backdoor_scan.new_files %}<span style="color:#2ecc71;">🆕 New: {{
+                        {% if t.backdoor_scan.new_files %}<span style="color: var(--success-color);">🆕 New: {{
                             t.backdoor_scan.new_files|length }}</span>{% endif %}
-                        {% if t.backdoor_scan.modified_files %}<span style="color:#f39c12;">✏️ Mod: {{
+                        {% if t.backdoor_scan.modified_files %}<span style="color: var(--warning-color);">✏️ Mod: {{
                             t.backdoor_scan.modified_files|length }}</span>{% endif %}
-                        {% if t.backdoor_scan.deleted_files %}<span style="color:#95a5a6;">🗑️ Del: {{
+                        {% if t.backdoor_scan.deleted_files %}<span style="color: var(--text-muted);">🗑️ Del: {{
                             t.backdoor_scan.deleted_files|length }}</span>{% endif %}
                     </div>
 
@@ -142,7 +161,8 @@
                             <summary style="cursor:pointer; padding:4px 8px; color:#e74c3c;">
                                 🚨 {{ bd.file }} {% if bd.is_new %}(New){% endif %}
                             </summary>
-                            <div style="padding:8px; border-top:1px solid #e74c3c; color:#f39c12; background:#1e1e1e;">
+                            <div
+                                style="padding:8px; border-top:1px solid var(--danger-color); color: var(--warning-color); background: #000;">
                                 Feature: {{ bd.matches | join(', ') }}</div>
                         </details>
                         {% endfor %}
@@ -154,12 +174,15 @@
                     <details style="margin-top:4px; font-size:11px;">
                         <summary style="cursor:pointer; color:#999;">📂 Show Changed Files</summary>
                         <div
-                            style="background:#1e1e1e; padding:5px; border-radius:3px; max-height:100px; overflow-y:auto; font-family:monospace;">
-                            {% for f in t.backdoor_scan.new_files %}<div style="color:#2ecc71;">+ {{ f }}</div>{% endfor
+                            style="background: #000; padding:5px; border-radius:3px; max-height:100px; overflow-y:auto; font-family:var(--font-mono, monospace);">
+                            {% for f in t.backdoor_scan.new_files %}<div style="color: var(--success-color);">+ {{ f }}
+                            </div>{% endfor
                             %}
-                            {% for f in t.backdoor_scan.modified_files %}<div style="color:#f39c12;">~ {{ f }}</div>{%
+                            {% for f in t.backdoor_scan.modified_files %}<div style="color: var(--warning-color);">~ {{
+                                f }}</div>{%
                             endfor %}
-                            {% for f in t.backdoor_scan.deleted_files %}<div style="color:#e74c3c;">- {{ f }}</div>{%
+                            {% for f in t.backdoor_scan.deleted_files %}<div style="color: var(--danger-color);">- {{ f
+                                }}</div>{%
                             endfor
                             %}
                         </div>
@@ -173,7 +196,7 @@
             {% if t.detection and t.detection.python_vulns %}
             <details style="margin-top: 8px;">
                 <summary
-                    style="cursor:pointer; background:rgba(52, 152, 219, 0.1); border-left:3px solid #3498db; padding:4px 8px; font-size:12px; font-weight:bold; color:#3498db; margin-bottom:4px; list-style:none; display:flex; align-items:center; gap:6px;">
+                    style="cursor:pointer; background: rgba(0, 243, 255, 0.1); border-left:3px solid var(--primary-color); padding:4px 8px; font-size:12px; font-weight:bold; color: var(--primary-color); margin-bottom:4px; list-style:none; display:flex; align-items:center; gap:6px;">
                     <span style="font-size:10px;">▶</span>
                     🐍 Python Vulnerabilities ({{ t.detection.python_vulns.split('\n')|select|list|length }})
                 </summary>
@@ -213,17 +236,19 @@
             {% set pini = t.detection.php_ini %}
             <details style="margin-top: 8px;">
                 <summary
-                    style="cursor:pointer; background:rgba(155, 89, 182, 0.1); border-left:3px solid #9b59b6; padding:4px 8px; font-size:12px; font-weight:bold; color:#9b59b6; margin-bottom:4px; list-style:none; display:flex; align-items:center; gap:6px;">
+                    style="cursor:pointer; background: rgba(112, 0, 255, 0.1); border-left:3px solid var(--secondary-color); padding:4px 8px; font-size:12px; font-weight:bold; color: var(--secondary-color); margin-bottom:4px; list-style:none; display:flex; align-items:center; gap:6px;">
                     <span style="font-size:10px;">▶</span>
                     🔧 php.ini 配置
                     {% if pini.writable %}
                     <span
-                        style="background:rgba(46,204,113,0.2); color:#2ecc71; padding:0 4px; border-radius:2px; font-size:10px;">可写</span>
+                        style="background: rgba(0, 255, 157, 0.2); color: var(--success-color); padding:0 4px; border-radius:2px; font-size:10px;">可写</span>
                     {% else %}
                     <span
-                        style="background:rgba(231,76,60,0.2); color:#e74c3c; padding:0 4px; border-radius:2px; font-size:10px;">只读</span>
+                        style="background: rgba(255, 42, 42, 0.2); color: var(--danger-color); padding:0 4px; border-radius:2px; font-size:10px;">只读</span>
                     {% endif %}
-                    <span style="font-family:monospace; font-size:10px; color:#999; margin-left:auto;">{{ pini.path
+                    <span
+                        style="font-family: var(--font-mono, monospace); font-size:10px; color: var(--text-muted); margin-left:auto;">{{
+                        pini.path
                         }}</span>
                 </summary>
                 <div style="padding:6px 0;">
@@ -231,10 +256,12 @@
                     <div
                         style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:3px; padding:8px; margin-bottom:6px;">
                         <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-                            <span style="font-family:monospace; font-size:11px; color:#ccc;">{{ pini.path }}</span>
+                            <span
+                                style="font-family: var(--font-mono, monospace); font-size:11px; color: var(--text-color);">{{
+                                pini.path }}</span>
                             {% if pini.writable and pini.path != '未找到' %}
-                            <button class="btn btn-sm"
-                                style="padding:0 6px; font-size:10px; line-height:1; height:20px; border:1px solid #9b59b6; background:rgba(155,89,182,0.1); color:#9b59b6;"
+                            <button class="btn btn-sm btn-secondary"
+                                style="padding:0 6px; font-size:10px; line-height:1; height:20px;"
                                 onclick="event.stopPropagation(); quickEditFile('{{ t.ip }}', '{{ t.port }}', '{{ pini.path }}')"
                                 title="编辑 php.ini">✏️ 编辑</button>
                             {% endif %}
@@ -273,7 +300,7 @@
                             💡 加固建议
                         </summary>
                         <div
-                            style="padding:8px; border-top:1px solid var(--border-color); font-family:'Consolas',monospace; color:#d4d4d4; background:#1e1e1e; font-size:11px; white-space:pre-wrap;">
+                            style="padding:8px; border-top:1px solid var(--border-color); font-family: var(--font-mono, 'Consolas', monospace); color: var(--text-color); background: #000; font-size:11px; white-space:pre-wrap;">
                             disable_functions =
                             system,exec,passthru,shell_exec,popen,proc_open,pcntl_exec,eval,assert,call_user_func,call_user_func_array,preg_replace,create_function,include,require,include_once,require_once,file_put_contents,file_get_contents,fwrite,fopen,fputs
                             allow_url_include = Off

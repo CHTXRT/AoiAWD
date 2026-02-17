@@ -24,8 +24,19 @@ def create_app():
     if not os.path.exists(os.path.dirname(log_file)):
         os.makedirs(os.path.dirname(log_file))
 
-    logging.basicConfig(filename=log_file, level=logging.INFO)
-    app.logger.addHandler(logging.FileHandler(log_file))
+    from app.utils.logger import setup_logger, add_file_handler
+    
+    # Setup Logger (Console + Suppression)
+    root_logger = setup_logger()
+    
+    # [LOGGING FIX] Remove Flask's default handlers to prevent double logging (Root handles everything)
+    app.logger.handlers = []
+    
+    # Add File Handler
+    add_file_handler(root_logger, log_file)
+
+    # logging.basicConfig(filename=log_file, level=logging.INFO)
+    # app.logger.addHandler(logging.FileHandler(log_file))
     with app.app_context():
         ssh_manager._ensure_initialized()
     app.register_blueprint(routes.bp)

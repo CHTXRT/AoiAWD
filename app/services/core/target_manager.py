@@ -2,7 +2,10 @@ import os
 import json
 import threading
 import ipaddress
+import logging
 from flask import render_template
+
+logger = logging.getLogger('TargetManager')
 
 class TargetManager:
     def __init__(self):
@@ -10,8 +13,8 @@ class TargetManager:
         self.lock = threading.RLock()
         self.socketio = None
         self.app = None
-        self.data_dir = None
         self.targets_file = None
+        self.data_dir = None
         self.local_ip = ''
 
     def init_app(self, app):
@@ -36,9 +39,9 @@ class TargetManager:
                             # Always reset status on load, as connections are not persistent across restarts
                             t['status'] = 'disconnected'
                             self.targets.append(t)
-                print(f"Loaded {len(self.targets)} targets from {self.targets_file}")
+                logger.info(f"Loaded {len(self.targets)} targets from {self.targets_file}")
             except Exception as e:
-                print(f"Error loading targets: {e}")
+                logger.error(f"Error loading targets: {e}")
                 self.targets = []
         else:
             self.targets = []
@@ -69,11 +72,13 @@ class TargetManager:
                             'maintenance_mode': t.get('maintenance_mode'),
                             'backup_done': t.get('backup_done'),
                             'backdoor_scan': t.get('backdoor_scan'),
-                            'whitelist': t.get('whitelist', [])
+                            'whitelist': t.get('whitelist', []),
+                            'force_delete_files': t.get('force_delete_files', []),
+                            'local_ip': t.get('local_ip')
                         })
                     json.dump(targets_to_save, f, indent=4)
             except Exception as e:
-                print(f"Error saving targets: {e}")
+                logger.error(f"Error saving targets: {e}")
 
     def notify_target_update(self, target, action='update'):
         if not self.socketio: return
@@ -96,7 +101,7 @@ class TargetManager:
                      html_main = render_template('target_main_row.html', t=target)
                      html_detail = render_template('target_detail_row.html', t=target)
              except Exception as e:
-                 print(f"Template render error: {e}")
+                 logger.error(f"Template render error: {e}")
         
         try:
             self.socketio.emit('target_update', {
@@ -106,7 +111,7 @@ class TargetManager:
                 'html_detail': html_detail
             })
         except Exception as e:
-            print(f"SocketIO emit error: {e}")
+            logger.error(f"SocketIO emit error: {e}")
 
     def get_target(self, ip, port):
         return next((t for t in self.targets if t['ip'] == ip and t['port'] == int(port)), None)
@@ -201,6 +206,29 @@ class TargetManager:
             self.notify_target_update(target)
         return True
 
+    def add_force_delete(self, ip, port, file_path):
+        target = self.get_target(ip, port)
+        if not target: return False
+        
+        with self.lock:
+            if 'force_delete_files' not in target: target['force_delete_files'] = []
+            if file_path not in target['force_delete_files']:
+                target['force_delete_files'].append(file_path)
+                self.save_targets()
+                # print(f"Added {file_path} to force_delete_files", flush=True)
+        return True
+
+    def remove_force_delete(self, ip, port, file_path):
+        target = self.get_target(ip, port)
+        if not target: return False
+        
+        with self.lock:
+            if 'force_delete_files' in target and file_path in target['force_delete_files']:
+                target['force_delete_files'].remove(file_path)
+                self.save_targets()
+                # print(f"Removed {file_path} from force_delete_files", flush=True)
+        return True
+
     def parse_ip_range(self, ip_input):
         ips = []
         ip_input = ip_input.strip()
@@ -227,12 +255,38 @@ class TargetManager:
                 for i in range(start_num, end_num + 1):
                     ips.append(f"{prefix}.{i}")
             except Exception as e:
-                print(f"Error parsing IP range: {e}")
+                logger.error(f"Error parsing IP range: {e}")
                 ips.append(ip_input)
         else:
             ips.append(ip_input)
         return ips
 
+    def update_target_config(self, ip, port, config_updates):
+        """Update arbitrary config fields for a target"""
+        target = self.get_target(ip, port)
+        if not target: return False, "Target not found"
+        
+        with self.lock:
+            for k, v in config_updates.items():
+                if k in ['local_ip']: # Whitelist allowed fields
+                    target[k] = v
+            self.save_targets()
+            self.notify_target_update(target)
+            return True, "Config updated"
+
+    def update_target_monitor_status(self, ip, status='online'):
+        """Update the file monitor status for a target"""
+        import time
+        count = 0
+        with self.lock:
+            for t in self.targets:
+                if t['ip'] == ip:
+                    t['monitor_status'] = status
+                    t['monitor_last_seen'] = time.time()
+                    self.notify_target_update(t)
+                    count += 1
+        return count > 0
+            
     def _load_local_ip(self):
         if self.data_dir:
             ip_file = os.path.join(self.data_dir, 'local_ip.txt')

@@ -3,7 +3,11 @@ import time
 import threading
 import json
 import base64
+import logging
 import subprocess
+
+logger = logging.getLogger('Defense')
+logger.setLevel(logging.INFO)
 
 class DefenseManager:
     def __init__(self, connection_manager, target_manager, scanner, immortal_killer=None):
@@ -50,10 +54,10 @@ class DefenseManager:
         """识别靶机类型 (PHP/Python/Pwn) 并触发后续扫描/备份"""
         ip = ip.strip()
         port = int(port)
-        print(f"[{ip}:{port}] DEBUG: Starting detection...")
+        logger.debug(f"[{ip}:{port}] Starting detection...")
         target = self.tm.get_target(ip, port)
         if not target: 
-            print(f"[{ip}:{port}] Target not found in memory during detection.")
+            logger.warning(f"[{ip}:{port}] Target not found in memory during detection.")
             return
         
         target['status'] = 'detecting...'
@@ -79,7 +83,7 @@ class DefenseManager:
                 detection['types'].append('pwn')
                 detection['evidence']['pwn'] = out_pwn.strip()
 
-        except Exception as e: print(f"Detection error: {e}")
+        except Exception as e: logger.error(f"Detection error: {e}")
 
         with self.tm.lock:
             target['detection'] = detection
@@ -124,7 +128,7 @@ class DefenseManager:
 
         if not detection: detection = target.get('detection', {'types': []})
 
-        print(f"[{ip}:{port}] Starting automated backup...")
+        logger.info(f"[{ip}:{port}] Starting automated backup...")
         target['status'] = 'backing up...'
         self.tm.notify_target_update(target)
 
@@ -179,7 +183,7 @@ class DefenseManager:
             self.tm.notify_target_update(target)
             
         except Exception as e:
-            print(f"Backup error: {e}")
+            logger.error(f"Backup error: {e}")
 
     def restore_backup(self, ip, port):
         target = self.tm.get_target(ip, port)
@@ -189,10 +193,10 @@ class DefenseManager:
 
         backup_path = target.get('backup_path')
         if not backup_path or not os.path.exists(backup_path):
-            print(f"[{ip}:{port}] Restore failed: Backup file not found ({backup_path})")
+            logger.error(f"[{ip}:{port}] Restore failed: Backup file not found ({backup_path})")
             return False, '备份文件不存在'
 
-        print(f"[{ip}:{port}] Restoring backup from {backup_path}...")
+        logger.info(f"[{ip}:{port}] Restoring backup from {backup_path}...")
         try:
             remote_tmp = f"/tmp/{os.path.basename(backup_path)}"
             
@@ -252,12 +256,12 @@ class DefenseManager:
                 if check:
                     self.cm.execute(ip, int(port), f"rm {remote_tmp}")
                     self.cm.execute(ip, int(port), f"rm {remote_tmp}")
-                    print(f"[{ip}:{port}] Backup restored. Old files moved to {backup_old}.", flush=True)
+                    logger.info(f"[{ip}:{port}] Backup restored. Old files moved to {backup_old}.")
                     self.tm.notify_target_update(target)
                     return True, f'备份还原成功 (旧文件已移至 {backup_old})'
                 else:
                     # Restore failed? Rollback
-                    print(f"[{ip}:{port}] Restore seems failed (dir empty), rolling back...", flush=True)
+                    logger.error(f"[{ip}:{port}] Restore seems failed (dir empty), rolling back...")
                     self.cm.execute(ip, int(port), f"rm -rf {webroot} && mv {backup_old} {webroot}")
                     return False, '还原失败，已回滚'
             else:
@@ -271,11 +275,11 @@ class DefenseManager:
                     self.tm.notify_target_update(target)
                     return True, '二进制文件还原成功'
                 
-                print(f"[{ip}:{port}] Backup uploaded to {remote_tmp}.")
+                logger.info(f"[{ip}:{port}] Backup uploaded to {remote_tmp}.")
                 self.tm.notify_target_update(target)
                 return True, f'备份文件已上传到 {remote_tmp}'
         except Exception as e:
-            print(f"[{ip}:{port}] Restore error: {e}")
+            logger.error(f"[{ip}:{port}] Restore error: {e}")
             return False, str(e)
 
     def auto_patch_pwn(self, ip, port):
@@ -292,10 +296,10 @@ class DefenseManager:
         
         backup_path = target.get('backup_path')
         if not backup_path or not os.path.exists(backup_path):
-             print(f"[{ip}:{port}] Auto-Patch Skipped: Backup failed or missing.", flush=True)
+             logger.warning(f"[{ip}:{port}] Auto-Patch Skipped: Backup failed or missing.")
              return
         
-        print(f"[{ip}:{port}] Starting Auto-Patch (EvilPatcher)...", flush=True)
+        logger.info(f"[{ip}:{port}] Starting Auto-Patch (EvilPatcher)...")
         target['status'] = 'patching...'
         self.tm.notify_target_update(target)
 
@@ -337,10 +341,10 @@ class DefenseManager:
                  return
 
             if not os.path.exists(patch_output_path):
-                 print(f"[{ip}:{port}] Patching failed: Output file not found ({patch_output_path})", flush=True)
+                 logger.error(f"[{ip}:{port}] Patching failed: Output file not found ({patch_output_path})")
                  return
             
-            print(f"[{ip}:{port}] Patch generated successfully: {patch_output_path}", flush=True)
+            logger.info(f"[{ip}:{port}] Patch generated successfully: {patch_output_path}")
             
             # 4. Upload & Deploy
             remote_pwn_path = target['detection']['evidence']['pwn'].split('\\n')[0]
@@ -361,7 +365,7 @@ class DefenseManager:
             full_deploy_cmd = " && ".join(cmds)
             self.cm.execute(ip, int(port), full_deploy_cmd)
             
-            print(f"[{ip}:{port}] Patch deployed successfully!", flush=True)
+            logger.info(f"[{ip}:{port}] Patch deployed successfully!")
             
             with self.tm.lock:
                 target['pwn_patched'] = True
@@ -375,11 +379,11 @@ class DefenseManager:
 
     def _init_php_defense(self, ip, port):
         """Sequential initialization for PHP targets: AOI -> Immortal Killer -> PyGuard"""
-        print(f"[{ip}:{port}] Starting PHP Defense Initialization...", flush=True)
+        logger.info(f"[{ip}:{port}] Starting PHP Defense Initialization...")
         
         # 1. Deploy AOI (Safe deployment will handle timestamps)
         self.deploy_aoi_tools(ip, port)
-
+        time.sleep(2)
         # 1.5 Deploy User Custom PHP Defense (ini_set)
         self.deploy_php_defense_script(ip, port)
 
@@ -397,12 +401,12 @@ class DefenseManager:
 
         # 4. Start Immortal Shell Killer
         if self.immortal_killer:
-            print(f"[{ip}:{port}] Starting Immortal Shell Killer after Snapshot...", flush=True)
+            logger.info(f"[{ip}:{port}] Starting Immortal Shell Killer after Snapshot...")
             self.immortal_killer.start_monitoring(ip, port)
 
     def deploy_php_defense_script(self, ip, port):
         """Deploy user custom PHP defense script (.ini_set + preload)"""
-        print(f"[{ip}:{port}] Deploying custom PHP defense...", flush=True)
+        logger.info(f"[{ip}:{port}] Deploying custom PHP defense...")
         try:
             # Paths
             tools_include_php = os.path.join(self.tools_folder, 'include', '.ini_set.php')
@@ -440,13 +444,25 @@ class DefenseManager:
             print(f"[{ip}:{port}] Custom PHP defense deploy error: {e}", flush=True)
 
     def deploy_aoi_tools(self, ip, port):
-        local_ip = self.tm.get_local_ip()
-        if not local_ip:
-            print(f"[{ip}:{port}] AOI Deploy Skipped: Local IP not set. Please configure Local IP in settings.", flush=True)
-            return
-        
         target = self.tm.get_target(ip, port)
         if not target: return
+
+        # Get Callback IP Priority: 1. Target Specific 2. Global Config 3. Auto-Detect
+        local_ip = target.get('local_ip')
+        if not local_ip:
+            local_ip = self.tm.get_local_ip()
+            
+        if not local_ip:
+            # Try to auto-detect from SSH session
+            local_ip = self.cm.get_local_ip_for_target(ip, port)
+            if local_ip:
+                logger.info(f"[{ip}:{port}] AOI: Auto-detected Local IP: {local_ip}")
+                with self.tm.lock:
+                    target['detected_ip'] = local_ip
+                    self.tm.notify_target_update(target)
+            else:
+                logger.warning(f"[{ip}:{port}] AOI Deploy Skipped: Local IP not set and autodetection failed.")
+                return
         
         aoi_dir = os.path.join(self.tools_folder, 'aoi')
         tapeworm_path = os.path.join(aoi_dir, 'tapeworm.phar')
@@ -464,13 +480,6 @@ class DefenseManager:
             was_monitoring = True
             
         try:
-            # 1. Backup Timestamps
-            # Use stat to get current mtime and generate a script to restore it
-            # format: touch -d @<unix_timestamp> <file>
-            # Fixed quoting for filenames with spaces: 'touch -d @%Y "%n"'
-            print(f"[{ip}:{port}] Backing up PHP file timestamps...", flush=True)
-            cmd_backup_mtime = "find /var/www/html -name '*.php' -exec stat -c 'touch -d @%Y \"%n\"' {} \\; > /tmp/restore_mtime.sh"
-            self.cm.execute(ip, port, cmd_backup_mtime)
             
             # 2. Deploy AOI (Synchronous to ensure file mods complete before restore)
             print(f"[{ip}:{port}] Deploying AOI Tools...", flush=True)
@@ -506,10 +515,6 @@ class DefenseManager:
                 self.tm.notify_target_update(target)
                 self.tm.save_targets()
                 
-            # 3. Restore Timestamps
-            print(f"[{ip}:{port}] Restoring PHP file timestamps...", flush=True)
-            self.cm.execute(ip, port, "sh /tmp/restore_mtime.sh")
-            self.cm.execute(ip, port, "rm /tmp/restore_mtime.sh")
             
         except Exception as e:
             print(f"[{ip}:{port}] AOI Deploy Error: {e}", flush=True)
@@ -525,7 +530,7 @@ class DefenseManager:
 
         # 4. Resume Immortal Shell Killer (If triggered manually and was running)
         if was_monitoring and self.immortal_killer:
-             print(f"[{ip}:{port}] Resuming Immortal Shell Killer...", flush=True)
+             logger.info(f"[{ip}:{port}] Resuming Immortal Shell Killer...")
              self.immortal_killer.start_monitoring(ip, port)
 
     def setup_wwwdata_shell(self, ip, port):
@@ -551,11 +556,11 @@ class DefenseManager:
                 target['wwwdata_password'] = pw
                 self.tm.save_targets()
             
-            print(f"[{ip}:{port}] Enabled www-data SSH login. User: www-data, Pass: {pw}", flush=True)
+            logger.info(f"[{ip}:{port}] Enabled www-data SSH login. User: www-data, Pass: {pw}")
         except Exception as e:
-            print(f"[{ip}:{port}] Failed to enable www-data SSH: {e}", flush=True)
+            logger.error(f"[{ip}:{port}] Failed to enable www-data SSH: {e}")
 
-        print(f"[{ip}:{port}] Starting speedy www-data shell deployment...", flush=True)
+        logger.info(f"[{ip}:{port}] Starting speedy www-data shell deployment...")
         php_content = "<?php system('cp /bin/bash /tmp/mujica;chmod u+s /tmp/mujica'); echo 'DONE';?>"
         b64_payload = base64.b64encode(php_content.encode()).decode()
         
@@ -619,7 +624,7 @@ class DefenseManager:
                     # Check Success immediately after controller trigger
                     check = self.cm.execute(ip, port, "ls -la /tmp/mujica 2>/dev/null")
                     if check and 'mujica' in check and (('rws' in check) or ('s' in check.split()[0])):
-                        print(f"[{ip}:{port}] SUID shell created via Controller Request {url}", flush=True)
+                        logger.info(f"[{ip}:{port}] SUID shell created via Controller Request {url}")
                         success = True
                         break
                 
@@ -665,7 +670,7 @@ class DefenseManager:
         # Cleanup
         for path in uploaded_paths: self.cm.execute(ip, port, f"rm -f {path}")
 
-        print(f"[{ip}:{port}] www-data shell {'success' if success else 'failed'}", flush=True)
+        logger.info(f"[{ip}:{port}] www-data shell {'success' if success else 'failed'}")
         
         with self.tm.lock:
             target['wwwdata_shell'] = success

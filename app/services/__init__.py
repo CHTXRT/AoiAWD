@@ -5,7 +5,6 @@ from .core.connection_manager import ConnectionManager
 from .security_scanner import SecurityScanner
 from .defense_manager import DefenseManager
 from .immortal_shell_killer import ImmortalShellKiller
-from .immortal_shell_killer import ImmortalShellKiller
 from .attack_manager import AttackManager
 from .monitor_service import MonitorService
 
@@ -30,7 +29,6 @@ class SSHControllerFacade:
         self.tm.init_app(app)
         self.km.init_app(app)
         self.scanner.init_app(app)
-        self.defense.init_app(app)
         self.defense.init_app(app)
         self.attack.init_app(app)
         self.monitor.start()
@@ -80,7 +78,11 @@ class SSHControllerFacade:
             threading.Thread(target=_post_connect_sequence, args=target_args).start()
         return result
 
-    def disconnect(self, *args, **kwargs): return self.cm.disconnect(*args, **kwargs)
+    def disconnect(self, ip, port): 
+        # Stop monitoring services first to prevent auto-reconnect
+        if self.immortal_killer:
+            self.immortal_killer.stop_monitoring(ip, port)
+        return self.cm.disconnect(ip, port)
     def execute(self, *args, **kwargs): return self.cm.execute(*args, **kwargs)
     def execute_with_cwd(self, *args, **kwargs): return self.cm.execute_with_cwd(*args, **kwargs)
     def upload(self, *args, **kwargs): return self.cm.upload(*args, **kwargs)
@@ -121,12 +123,15 @@ class SSHControllerFacade:
     def add_whitelist(self, *args, **kwargs): return self.tm.add_whitelist(*args, **kwargs)
     def remove_whitelist(self, *args, **kwargs): return self.tm.remove_whitelist(*args, **kwargs)
     def toggle_maintenance_mode(self, *args, **kwargs): return self.tm.toggle_maintenance_mode(*args, **kwargs)
+    def add_force_delete(self, *args, **kwargs): return self.tm.add_force_delete(*args, **kwargs)
+    def remove_force_delete(self, *args, **kwargs): return self.tm.remove_force_delete(*args, **kwargs)
 
     # --- Immortal Shell Killer Delegates ---
     def start_immortal_killer(self, *args, **kwargs): return self.immortal_killer.start_monitoring(*args, **kwargs)
     def stop_immortal_killer(self, *args, **kwargs): return self.immortal_killer.stop_monitoring(*args, **kwargs)
     def get_immortal_alerts(self): return self.immortal_killer.get_alerts()
     def restore_quarantine(self, *args, **kwargs): return self.immortal_killer.restore_from_quarantine(*args, **kwargs)
+    def clear_immortal_alerts(self): return self.immortal_killer.clear_alerts()
 
     # --- Attack Manager Delegates ---
     def set_enemy_config(self, *args, **kwargs): return self.attack.set_enemy_config(*args, **kwargs)

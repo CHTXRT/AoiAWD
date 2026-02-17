@@ -3,8 +3,11 @@ import threading
 import os
 import stat
 import shlex
+import logging
 import base64
 import re
+
+logger = logging.getLogger('Connection')
 
 class ConnectionManager:
     def __init__(self, target_manager, key_manager):
@@ -27,6 +30,8 @@ class ConnectionManager:
         port = int(port)
         session_key = f"{ip}:{port}"
         
+        logger.info(f"Connecting to {ip}:{port}...")
+
         target = self.tm.get_target(ip, port)
         if not target: return False, "Target not found"
 
@@ -80,6 +85,7 @@ class ConnectionManager:
                 target['status'] = 'connected'
                 self.tm.notify_target_update(target)
                 self.tm.save_targets()
+                logger.info(f"Connected to {ip}:{port} successfully")
                 return True, "Connected successfully"
             
             return False, "Authentication failed"
@@ -87,6 +93,7 @@ class ConnectionManager:
         except Exception as e:
             target['status'] = 'error'
             self.tm.notify_target_update(target)
+            logger.error(f"Failed to connect to {ip}:{port}: {e}")
             return False, str(e)
 
     def disconnect(self, ip, port):
@@ -104,7 +111,26 @@ class ConnectionManager:
             target['status'] = 'disconnected'
             self.tm.notify_target_update(target)
             
+        logger.info(f"Disconnected from {ip}:{port}")
         return True, "Disconnected"
+
+    def get_local_ip_for_target(self, ip, port):
+        """Get local IP used to connect to this target"""
+        ip = ip.strip()
+        port = int(port)
+        session_key = f"{ip}:{port}"
+        
+        with self._get_session_lock(session_key):
+            if session_key in self.sessions:
+                try:
+                    client = self.sessions[session_key]
+                    transport = client.get_transport()
+                    if transport and transport.is_active():
+                        sock = transport.sock
+                        if sock:
+                            return sock.getsockname()[0]
+                except: pass
+        return None
 
     def execute(self, ip, port, cmd):
         ip = ip.strip()
@@ -134,7 +160,8 @@ class ConnectionManager:
         try:
             # Paramiko exec_command is thread-safe on the same client (creates new channel)
             stdin, stdout, stderr = client.exec_command(cmd, timeout=10)
-            return stdout.read().decode() + stderr.read().decode()
+            # Use replace to handle binary/non-utf8 output from head/cat
+            return stdout.read().decode(errors='replace') + stderr.read().decode(errors='replace')
         except Exception as e:
             return f"Error: {str(e)}"
 
@@ -217,7 +244,7 @@ class ConnectionManager:
                      return False, f"Upload verification failed: {check}"
             except Exception as e:
                 # Fallback to shell upload
-                print(f"[{ip}:{port}] SFTP Upload failed ({e}), trying Shell fallback...", flush=True)
+                logger.warning(f"[{ip}:{port}] SFTP Upload failed ({e}), trying Shell fallback...")
                 return self._upload_shell(ip, port, local_path, remote_path)
 
     def _upload_shell(self, ip, port, local_path, remote_path):
@@ -262,7 +289,7 @@ class ConnectionManager:
                 return True, f"Downloaded: {local_path}"
             except Exception as e:
                 # Fallback
-                print(f"[{ip}:{port}] SFTP Download failed ({e}), trying Shell fallback...", flush=True)
+                logger.warning(f"[{ip}:{port}] SFTP Download failed ({e}), trying Shell fallback...")
                 return self._download_shell(ip, port, remote_path, local_path)
 
     def _download_shell(self, ip, port, remote_path, local_path):

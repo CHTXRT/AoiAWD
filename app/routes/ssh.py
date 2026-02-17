@@ -60,6 +60,16 @@ def update_password():
     success, msg = ssh_manager.update_password(data['ip'], data.get('port', 22), data['password'])
     return jsonify({'success': success, 'message': msg})
 
+@bp.route('/api/config_target', methods=['POST'])
+def config_target():
+    data = request.json
+    ip = data.get('ip')
+    port = data.get('port', 22)
+    updates = data.get('updates', {})
+    
+    success, msg = ssh_manager.tm.update_target_config(ip, int(port), updates)
+    return jsonify({'success': success, 'message': msg})
+
 @bp.route('/api/connect_all', methods=['POST'])
 def api_connect_all():
     """一键全连"""

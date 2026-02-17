@@ -6,13 +6,22 @@ AWD-Defender 是专为 AWD (Attack With Defense) 竞赛设计的自动化防御�
 
 ### 1. 🛡️ 资产防御与管理 (Defense & Management)
 *   **SSH 批量管理**: 快速连接、断开、检测所有靶机的 SSH 连接状态。
-*   **Webshell 扫描**: 基于正则匹配 (`grep`) 和文件快照 (`Snapshot`) 技术，自动发现新增的 PHP 后门文件。
+*   **Webshell 扫描增强**: 
+    *   基于正则匹配 (`grep`) 和文件快照 (`Snapshot`) 技术，自动发现新增的 PHP 后门文件。
+    *   **智能误报剔除**: 深度识别防御代码（如 WAF、`include_once`）和 AOI 工具签名，避免误杀合法防御脚本。
+    *   **全编码支持**: 兼容二进制或乱码文件的扫描，防止因编码问题导致的检测遗漏或误报。
 *   **www-data 权限维持**: 
     *   自动检测 `www-data` 用户权限，并尝试通过 `/tmp` 目录下的 SUID shell (`mujica`) 提权。
     *   **Xshell 集成**: 支持一键启动 Xshell 连接到靶机。
         *   **智能启动**: 本机访问时直接启动 Xshell；远程访问时自动复制 SSH 命令。
         *   **提权辅助**: 自动复制提权命令 (`/tmp/mujica -p`)，方便快速获取 Shell。
-*   **AOI 工具部署**: 一键部署 `tapeworm` (PHP不死马查杀) 和 `roundworm` (系统监控) 工具。
+*   **实时文件监控 (File Monitor)**:
+    *   **PyGuard Agent**: 自动部署轻量级 Python 监控探针 (`py_guard.py`)，基于 `inotify` 实时监控文件变动。
+    *   **即时告警**: 文件创建、修改、删除操作毫秒级上报，配合 Socket.IO 实现前端实时弹窗告警。
+*   **智能回连 IP 管理**:
+    *   **独立配置**: 支持为每台靶机单独设置回连 IP (Local IP)，适应复杂的网络环境（如多网卡、VPN、内网穿透）。
+    *   **自动探测**: 若未配置，系统会自动探测 SSH 连接使用的本机 IP，实现零配置部署，并在前端直观显示探测结果。
+*   **AOI 工具部署**: 一键部署 `tapeworm`  和 `roundworm` (系统监控) 工具，自动适配回连 IP。
 *   **EvilPatcher 集成**: 支持 Pwn 题目的自动化 Patch。
     *   **智能降级**: 在 Windows 环境下，如检测到缺失 Linux 环境，将尝试通过 WSL 运行补丁工具。
     *   **自动备份**: Patch 前自动备份原始二进制文件，支持一键还原。
@@ -70,7 +79,8 @@ python diagnose.py
         "port": 22,
         "user": "root",
         "password": "password",
-        "key_file": null
+        "key_file": null,
+        "local_ip": "192.168.1.5"
     }
 }
 ```

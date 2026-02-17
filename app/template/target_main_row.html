@@ -2,7 +2,7 @@
     onclick="toggleRow('{{ t.ip }}', '{{ t.port }}')">
     <td style="text-align: center; cursor: pointer;">
         <span id="icon-{{ t.ip | replace('.', '-') }}-{{ t.port }}"
-            style="transition: transform 0.3s; display: inline-block;">▶</span>
+            style="transition: transform 0.3s; display: inline-block; color: var(--primary-color);">▶</span>
     </td>
     <td title="{{ t.ip }}">{{ t.name if t.name else t.ip }}</td>
     <td>{{ t.port }}</td>
@@ -11,6 +11,10 @@
         t.key_path else 'None' }}</td>
     <td class="status-cell" data-status="{{ t.status }}">
         {{ t.status }}
+        {% if t.monitor_status == 'online' %}
+        <span title="File Monitor Online"
+            style="color:var(--success-color); font-size:10px; margin-left:2px; text-shadow: 0 0 5px var(--success-color);">●</span>
+        {% endif %}
     </td>
     <td onclick="event.stopPropagation()">
         {% if t.status == 'connected' %}
@@ -33,14 +37,14 @@
             onclick="restoreBackup('{{ t.ip }}', '{{ t.port }}')">⏪</button>
         <button class="btn btn-success btn-sm" onclick="openConsoleTab('{{ t.ip }}', '{{ t.port }}')">Console</button>
         {% if t.wwwdata_shell %}
-        <button class="btn btn-sm" style="background: #e67e22; color: white;" title="www-data 权限终端"
+        <button class="btn btn-sm btn-warning" title="www-data 权限终端"
             onclick="openWwwdataTab('{{ t.ip }}', '{{ t.port }}')">www-data</button>
-        <button class="btn btn-sm" style="background: #d35400; color: white;" title="Xshell (www-data)"
+        <button class="btn btn-sm btn-danger" title="Xshell (www-data)"
             onclick="openXshellWwwData('{{ t.ip }}', '{{ t.port }}')">Xshell(w)</button>
         {% endif %}
         {% if t.aoi_deployed %}
-        <a href="http://localhost:8037/" target="_blank" class="btn btn-sm"
-            style="background: #9b59b6; color: white; text-decoration: none; cursor: pointer;" title="AOI 管理面板"
+        <a href="http://localhost:8037/" target="_blank" class="btn btn-sm btn-secondary"
+            style="text-decoration: none; cursor: pointer;" title="AOI 管理面板"
             onclick="event.stopPropagation()">🛡️AOI</a>
         {% endif %}
         <button class="btn btn-warning btn-sm" onclick="openXshell('{{ t.ip }}', '{{ t.port }}')">Xshell</button>

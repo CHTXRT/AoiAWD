@@ -47,7 +47,7 @@ function renderAttackWall(targetsData) {
 
     if (!targetsData || Object.keys(targetsData).length === 0) {
         if (!wall.querySelector('.empty-msg')) {
-            wall.innerHTML = '<div class="empty-msg" style="text-align:center; padding:20px; color:#666; grid-column: 1/-1;">无活跃目标</div>';
+            wall.innerHTML = '<div class="empty-msg empty-placeholder" style="grid-column: 1/-1;">无活跃目标</div>';
         }
         // Remove cards if any exist
         wall.querySelectorAll('.target-card').forEach(c => c.remove());
@@ -120,7 +120,7 @@ function renderAttackWall(targetsData) {
                         <span class="status-dot status-dot-${statusClass}"></span> ${info.status}
                     </div>
                 </div>
-                <div class="attack-card-port" style="position:absolute; bottom:5px; right:15px; font-size:9px; color:rgba(255,255,255,0.4); font-family:'Share Tech Mono';">PORT_NODE: ${info.port || '80'}</div>
+                <div class="attack-card-port" style="position:absolute; bottom:5px; right:15px; font-size:9px; color: var(--text-muted); font-family:'Share Tech Mono';">PORT_NODE: ${info.port || '80'}</div>
             `;
 
             const content = document.createElement('div');

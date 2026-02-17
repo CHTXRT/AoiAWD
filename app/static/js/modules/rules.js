@@ -6,14 +6,14 @@ async function loadCustomRules() {
         const data = await res.json();
         const list = document.getElementById('custom-rules-list');
         if (!data.rules || data.rules.length === 0) {
-            list.innerHTML = '<div style="color: #999;">暂无自定义规则。内置规则已包含常见 PHP 危险函数。</div>';
+            list.innerHTML = '<div style="color: var(--text-muted);">暂无自定义规则。内置规则已包含常见 PHP 危险函数。</div>';
             return;
         }
         list.innerHTML = data.rules.map((r, i) => `
             <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px solid var(--border-color);">
                 <span style="${r.enabled ? '' : 'opacity:0.5; text-decoration:line-through;'}">
                     <strong>${r.name}</strong> — <code>${r.pattern}</code>
-                    ${r.description ? '<span style="color:#999;"> (' + r.description + ')</span>' : ''}
+                    ${r.description ? '<span style="color: var(--text-muted);">' + r.description + '</span>' : ''}
                 </span>
                 <span>
                     <button class="btn btn-sm" onclick="toggleCustomRule(${i})" style="font-size:10px;">${r.enabled ? '⏸️' : '▶️'}</button>

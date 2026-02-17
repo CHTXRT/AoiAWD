@@ -24,6 +24,8 @@ def api_files_write():
     """写入远程文件"""
     data = request.json
     success, msg = ssh_manager.write_remote_file(data['ip'], data.get('port', 22), data['path'], data['content'])
+    if success:
+        ssh_manager.remove_force_delete(data['ip'], data.get('port', 22), data['path'])
     return jsonify({'success': success, 'message': msg})
 
 @bp.route('/api/files/delete', methods=['POST'])
@@ -31,6 +33,8 @@ def api_files_delete():
     """删除远程文件"""
     data = request.json
     success, msg = ssh_manager.delete_remote_file(data['ip'], data.get('port', 22), data['path'])
+    if success:
+        ssh_manager.add_force_delete(data['ip'], data.get('port', 22), data['path'])
     return jsonify({'success': success, 'message': msg})
 
 @bp.route('/api/files/upload', methods=['POST'])
@@ -69,6 +73,7 @@ def api_files_upload():
         os.remove(tmp_path)
         
         if success:
+            ssh_manager.remove_force_delete(ip, port, full_remote_path)
             return jsonify({'success': True, 'message': f'Uploaded to {full_remote_path}'})
         else:
             return jsonify({'error': msg}), 500
@@ -94,6 +99,8 @@ def api_upload():
     file.save(local_path)
     
     success, msg = ssh_manager.upload(ip, port, local_path, remote_path)
+    if success:
+        ssh_manager.remove_force_delete(ip, port, remote_path)
     return jsonify({'success': success, 'message': msg})
 
 @bp.route('/api/files/download', methods=['GET'])

@@ -74,8 +74,8 @@ function openConsoleTab(ip, port) {
         <button class="btn btn-secondary btn-sm" onclick="openFileManager('${ip}', '${port}')">📁 Files</button>
     </div>
     <div class="flex-row">
-        <input type="file" id="file-${key.replace(/[:.]/g, '-')}" aria-label="Upload File" style="width: 200px;">
-        <input type="text" id="path-${key.replace(/[:.]/g, '-')}" aria-label="Remote Path" placeholder="Remote Path" style="width: 200px;">
+        <input type="file" id="file-${key.replace(/[:.]/g, '-')}" aria-label="Upload File" class="console-input" style="width: 151px;">
+        <input type="text" id="path-${key.replace(/[:.]/g, '-')}" aria-label="Remote Path" placeholder="Remote Path" class="console-input" style="width: 150px;">
         <button class="btn btn-secondary btn-sm" onclick="uploadConsoleFile('${ip}', '${port}')">Upload</button>
     </div>
 `;
@@ -200,10 +200,10 @@ function openWwwdataTab(ip, port) {
     content.className = 'tab-content';
     content.id = 'tab-content-' + key.replace(/[:.]/g, '-');
     content.innerHTML = `
-    <pre id="wd-output-${key.replace(/[:.]/g, '-')}" style="background:#1a1a2e; color:#e67e22; padding:10px; max-height:300px; overflow-y:auto; border-radius:4px; margin-bottom:10px;">www-data@${ip}:${port}$ (SUID bash via /tmp/mujica)</pre>
+    <pre id="wd-output-${key.replace(/[:.]/g, '-')}" style="background: #000; color: var(--warning-color); padding:10px; max-height:300px; overflow-y:auto; border: 1px solid var(--border-color); border-radius:4px; margin-bottom:10px; font-family: var(--font-mono, monospace);">www-data@${ip}:${port}$ (SUID bash via /tmp/mujica)</pre>
     <div class="flex-row">
-        <input type="text" id="wd-input-${key.replace(/[:.]/g, '-')}" placeholder="www-data$ 命令..." style="flex-grow:1;" onkeydown="if(event.key==='Enter') runWwwdataCmd('${ip}','${port}')">
-        <button class="btn" style="background:#e67e22; color:white;" onclick="runWwwdataCmd('${ip}','${port}')">Run</button>
+        <input type="text" id="wd-input-${key.replace(/[:.]/g, '-')}" placeholder="www-data$ 命令..." style="flex-grow:1;" onkeydown="if(event.key==='Enter') runWwwdataCmd('${ip}','${port}')" class="console-input">
+        <button class="btn btn-warning" onclick="runWwwdataCmd('${ip}','${port}')">Run</button>
     </div>
     `;
     container.appendChild(content);
