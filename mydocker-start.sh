@@ -1,3 +1,4 @@
+set -e
 cd `dirname $0`
 # pwd
 docker-compose up -d --build
@@ -9,11 +10,12 @@ docker exec -w /usr/src/TapeWorm aoiawd-aoiawd-1 php compile.php
 docker exec -w /usr/src/RoundWorm aoiawd-aoiawd-1 make
 docker exec -w /usr/src/Guardian aoiawd-aoiawd-1 php compile.php
 
+mkdir -p release
 echo ""
-docker cp aoiawd-aoiawd-1:/usr/src/TapeWorm/tapeworm.phar .
+docker cp aoiawd-aoiawd-1:/usr/src/TapeWorm/tapeworm.phar release/.
 echo "tapeworm.phar 已复制到项目目录"
-docker cp aoiawd-aoiawd-1:/usr/src/RoundWorm/roundworm .
+docker cp aoiawd-aoiawd-1:/usr/src/RoundWorm/roundworm release/.
 echo "roundworm 已复制到项目目录"
-docker cp aoiawd-aoiawd-1:/usr/src/Guardian/guardian.phar .
+docker cp aoiawd-aoiawd-1:/usr/src/Guardian/guardian.phar release/.
 echo "guardian.phar 已复制到项目目录"
 echo ""

@@ -40,8 +40,8 @@ if (!\defined('AoiMonitor')) {
         \array_walk_recursive($_POST, $processArray);
         $_COOKIE = isset($_COOKIE) ? $_COOKIE : array();
         \array_walk_recursive($_COOKIE, $processArray);
-        $_FILE = isset($_FILE) ? $_FILE : array();
-        \array_walk_recursive($_FILE, $processArray);
+        $_FILES = isset($_FILES) ? $_FILES : array();
+        \array_walk_recursive($_FILES, $processArray);
         $data = array(
             'type' => 'web',
             'data' => array(
@@ -53,7 +53,7 @@ if (!\defined('AoiMonitor')) {
                 'get' => $_GET,
                 'post' => $_POST,
                 'cookie' => $_COOKIE,
-                'file' => $_FILE,
+                'file' => $_FILES,
                 'buffer' => $stringEncoder($buffer),
             )
         );
